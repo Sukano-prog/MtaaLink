@@ -131,9 +131,22 @@ async def startup():
     finally:
         db.close()
 
-# Serve sw.js and other static files from frontend root
-from fastapi.staticfiles import StaticFiles
-frontend_root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-if os.path.exists(frontend_root):
 
-# Catch-all route for SPA - serves index.html for any unmatched route
+
+# Serve sw.js with proper headers
+@app.get("/sw.js")
+async def serve_sw():
+    import os
+    frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+    return FileResponse(
+        os.path.join(frontend_dir, "sw.js"),
+        media_type="application/javascript",
+        headers={"Service-Worker-Allowed": "/"}
+    )
+
+# Serve index.html for root
+@app.get("/")
+async def serve_index():
+    import os
+    frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+    return FileResponse(os.path.join(frontend_dir, "index.html"))

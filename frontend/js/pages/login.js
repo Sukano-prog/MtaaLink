@@ -89,6 +89,22 @@ export function renderLogin() {
         clearError('passwordError');
     });
     
+    // Password toggle - bind after form is rendered
+    const toggleBtn = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('loginPassword');
+    if (toggleBtn && passwordInput) {
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = 'Show';
+            }
+        });
+    }
+    
     document.getElementById('loginPassword').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             document.getElementById('loginForm').dispatchEvent(new Event('submit'));
@@ -174,22 +190,7 @@ function clearError(id) {
     }
 }
 
-    // Password toggle
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleBtn = document.getElementById('togglePassword');
-        const passwordInput = document.getElementById('loginPassword');
-        if (toggleBtn && passwordInput) {
-            toggleBtn.addEventListener('click', function() {
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    toggleBtn.textContent = 'Hide';
-                } else {
-                    passwordInput.type = 'password';
-                    toggleBtn.textContent = 'Show';
-                }
-            });
-        }
-    });
+
 
 window.renderLogin = renderLogin;
 window.showLogin = renderLogin;

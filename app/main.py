@@ -130,10 +130,6 @@ async def startup():
         logger.info("Admin user initialized")
     finally:
         db.close()
-
-
-
-,
         media_type="application/javascript",
         headers={"Service-Worker-Allowed": "/"}
     )

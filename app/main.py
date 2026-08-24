@@ -111,3 +111,16 @@ async def startup_event():
 # Import admin router
 from app.api.v1 import admin
 app.include_router(admin.router)
+
+# Initialize admin on startup
+from app.core.init_db import init_admin
+from app.core.database import SessionLocal
+
+@app.on_event("startup")
+async def startup():
+    db = SessionLocal()
+    try:
+        init_admin(db)
+        logger.info("Admin user initialized")
+    finally:
+        db.close()

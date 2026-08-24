@@ -1,0 +1,51 @@
+"""
+Initialize database with default admin on first run
+"""
+import bcrypt
+import uuid
+from datetime import datetime
+from sqlalchemy.orm import Session
+from app.models.village import Village
+from app.models.member import Member
+
+def init_admin(db: Session):
+    """Create default admin if it doesn't exist"""
+    # Check if admin exists
+    admin = db.query(Member).filter(Member.email == "admin@mtaalink.com").first()
+    if admin:
+        return
+    
+    # Check if village exists
+    village = db.query(Village).first()
+    if not village:
+        village_id = str(uuid.uuid4())
+        village = Village(
+            id=village_id,
+            name="Nairobi Village",
+            admin_email="admin@mtaalink.com",
+            admin_phone="0712345678",
+            is_verified=True,
+            created_at=datetime.utcnow()
+        )
+        db.add(village)
+        db.flush()
+    else:
+        village_id = village.id
+    
+    # Create admin
+    password_hash = bcrypt.hashpw("Admin@2024".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    admin = Member(
+        id=str(uuid.uuid4()),
+        village_id=village_id,
+        first_name="Admin",
+        last_name="User",
+        email="admin@mtaalink.com",
+        phone="0712345678",
+        password_hash=password_hash,
+        role="admin",
+        is_active=True,
+        member_number="ADMIN-001",
+        created_at=datetime.utcnow()
+    )
+    db.add(admin)
+    db.commit()

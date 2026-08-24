@@ -58,14 +58,6 @@ app.include_router(elections.router)
 async def health_check():
     return {"status": "healthy"}
 
-# Serve all frontend files as static files
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-if os.path.exists(frontend_dir):
-    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
-    logger.info(f"Serving frontend from: {frontend_dir}")
-else:
-    logger.warning(f"Frontend directory not found: {frontend_dir}")
-
 @app.on_event("startup")
 async def startup_event():
     logger.info("Available Routes:")
@@ -93,3 +85,12 @@ async def startup():
         logger.info("Admin user initialized")
     finally:
         db.close()
+
+
+# Serve all frontend files as static files (must be last)
+frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+if os.path.exists(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+    logger.info(f"Serving frontend from: {frontend_dir}")
+else:
+    logger.warning(f"Frontend directory not found: {frontend_dir}")

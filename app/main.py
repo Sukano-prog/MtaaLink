@@ -110,7 +110,9 @@ async def startup_event():
 
 # Import admin router
 from app.api.v1 import admin
+from app.api.v1 import setup
 app.include_router(admin.router)
+app.include_router(setup.router)
 
 # Initialize admin on startup
 from app.core.init_db import init_admin

@@ -107,3 +107,7 @@ async def startup_event():
     for route in app.routes:
         logger.info(f"  {route.path}")
     logger.info("Server ready")
+
+# Import admin router
+from app.api.v1 import admin
+app.include_router(admin.router)

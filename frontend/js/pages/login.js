@@ -25,11 +25,11 @@ export function renderLogin() {
                             type="email" 
                             id="loginEmail" 
                             class="form-control" 
-                            value="admin@mtaalink.com"
+                            placeholder="admin@mtaalink.com"
                             placeholder="admin@village.com" 
                             required
                             autocomplete="email"
-                            autofocus
+                            
                         >
                         <div class="form-error" id="emailError"></div>
                     </div>
@@ -41,7 +41,7 @@ export function renderLogin() {
                                 type="password" 
                                 id="loginPassword" 
                                 class="form-control" 
-                                value="Secure@Pass2024"
+                                placeholder="Enter your password"
                                 placeholder="Enter your password" 
                                 required
                                 autocomplete="current-password"

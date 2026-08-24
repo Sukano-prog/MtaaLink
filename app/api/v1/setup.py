@@ -79,3 +79,21 @@ async def reset_password(db: Session = Depends(get_db)):
         "email": "admin@mtaalink.com",
         "password": "Admin@2024"
     }
+
+
+@router.get("/reset")
+async def reset_password(db: Session = Depends(get_db)):
+    """Reset admin password using correct hash"""
+    from app.core.security import hash_password
+    admin = db.query(Member).filter(Member.email == "admin@mtaalink.com").first()
+    if not admin:
+        return {"message": "Admin not found"}
+    
+    admin.password_hash = hash_password("Admin@2024")
+    db.commit()
+    
+    return {
+        "message": "Password reset successfully",
+        "email": "admin@mtaalink.com",
+        "password": "Admin@2024"
+    }

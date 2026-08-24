@@ -36,16 +36,20 @@ export function renderLogin() {
                     
                     <div class="form-group">
                         <label for="loginPassword">Password</label>
-                        <input 
-                            type="password" 
-                            id="loginPassword" 
-                            class="form-control" 
-                            value="Secure@Pass2024"
-                            placeholder="Enter your password" 
-                            required
-                            autocomplete="current-password"
-                            minlength="8"
-                        >
+                        <div style="position:relative;">
+                            <input 
+                                type="password" 
+                                id="loginPassword" 
+                                class="form-control" 
+                                value="Secure@Pass2024"
+                                placeholder="Enter your password" 
+                                required
+                                autocomplete="current-password"
+                                minlength="8"
+                                style="padding-right:65px;"
+                            >
+                            <button type="button" id="togglePassword" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:1px solid #d1d5db;cursor:pointer;color:#6b7280;font-size:12px;padding:4px 10px;border-radius:4px;">Show</button>
+                        </div>
                         <div class="form-error" id="passwordError"></div>
                     </div>
                     
@@ -169,6 +173,21 @@ function clearError(id) {
         if (input) input.classList.remove('error');
     }
 }
+
+    // Password toggle
+    const toggleBtn = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('loginPassword');
+    if (toggleBtn && passwordInput) {
+        toggleBtn.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = 'Show';
+            }
+        });
+    }
 
 window.renderLogin = renderLogin;
 window.showLogin = renderLogin;

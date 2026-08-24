@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Projects Page
+   Management System - Projects Page
    ============================================================ */
 
 import { getProjects, getProject, createProject, updateProject, deleteProject, getMembers, getMeetings } from '../core/api.js';

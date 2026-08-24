@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Expenses Page
+   Management System - Expenses Page
    ============================================================ */
 
 import { getExpenses, createExpense, updateExpense, deleteExpense, getExpenseCategories, createExpenseCategory, getMembers, getProjects, getEvents } from '../core/api.js';

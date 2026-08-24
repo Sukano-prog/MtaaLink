@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Settings Page
+   Management System - Settings Page
    ============================================================ */
 
 import { getCurrentUser, updateMember } from '../core/api.js';
@@ -78,7 +78,7 @@ export async function renderSettings() {
                     <h3>System Information</h3>
                 </div>
                 <div class="card-body">
-                    <div><strong>App Name:</strong> MtaaLink</div>
+                    <div><strong>App Name:</strong> Management System</div>
                     <div><strong>Version:</strong> 1.0.0</div>
                     <div><strong>Village ID:</strong> ${localStorage.getItem('village_id') || 'N/A'}</div>
                     <div><strong>Member ID:</strong> ${localStorage.getItem('member_id') || 'N/A'}</div>

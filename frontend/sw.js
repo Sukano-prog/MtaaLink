@@ -1,4 +1,4 @@
-/* MtaaLink Service Worker */
+/* Service Worker */
 const CACHE_NAME = 'mtaalink-v6';
 const STATIC_ASSETS = [
   '/',

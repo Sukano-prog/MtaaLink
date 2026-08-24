@@ -1,4 +1,4 @@
-// MtaaLink - Meeting Detail View (Updated to use Formal Meetings)
+// Management System - Meeting Detail View (Updated to use Formal Meetings)
 
 // ===================== OPEN MEETING DETAIL - NOW USES FORMAL VIEW =====================
 

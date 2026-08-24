@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Generate Icons using Canvas
+   Management System - Generate Icons using Canvas
    ============================================================ */
 
 function generateIcon(size) {
@@ -39,7 +39,7 @@ function generateIcon(size) {
     // Small tagline
     ctx.fillStyle = 'rgba(255,255,255,0.5)';
     ctx.font = `${size * 0.04}px system-ui, -apple-system, sans-serif`;
-    ctx.fillText('Village Management', size * 0.5, size * 0.5 + size * 0.42);
+    ctx.fillText('Management', size * 0.5, size * 0.5 + size * 0.42);
     
     return canvas.toDataURL('image/png');
 }

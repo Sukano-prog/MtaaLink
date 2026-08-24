@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Searchable Select Component
+   Management System - Searchable Select Component
    ============================================================ */
 
 export function createSearchableSelect(options, selectedValue = null, placeholder = 'Type to search...') {

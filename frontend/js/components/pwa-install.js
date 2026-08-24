@@ -121,7 +121,7 @@ function showInstallBanner() {
     banner.innerHTML = `
         <span class="pwa-icon">📱</span>
         <div class="pwa-text">
-            <strong>Install MtaaLink</strong>
+            <strong>Install App</strong>
             <span>Install the app for a better experience</span>
         </div>
         <button class="pwa-btn" id="pwa-install-btn">Install</button>
@@ -204,7 +204,7 @@ function showManualInstructions() {
     modal.innerHTML = `
         <button style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#999;">✕</button>
         <span style="font-size:48px;display:block;margin-bottom:12px;">📱</span>
-        <h3 style="margin:0 0 8px 0;color:#1a1a2e;">Install MtaaLink</h3>
+        <h3 style="margin:0 0 8px 0;color:#1a1a2e;">Install App</h3>
         <p style="color:#666;margin-bottom:16px;font-size:14px;">${instructions}</p>
         <div style="background:#f5f5f5;border-radius:8px;padding:12px;margin:8px 0;text-align:left;font-size:13px;color:#555;">
             <strong>Benefits:</strong>

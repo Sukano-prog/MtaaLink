@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Login Page
+   Management System - Login Page
    ============================================================ */
 
 import { login } from '../core/api.js';
@@ -14,8 +14,8 @@ export function renderLogin() {
         <div class="auth-container">
             <div class="auth-card">
                 <div class="auth-header">
-                    <h1 id="loginVillageName">MtaaLink</h1>
-                    <p>Village Management System</p>
+                    <h1 id="loginVillageName">Management System</h1>
+                    <p>Complete Management System</p>
                 </div>
                 
                 <form id="loginForm" novalidate>

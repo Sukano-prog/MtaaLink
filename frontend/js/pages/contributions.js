@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Contributions Page
+   Management System - Contributions Page
    ============================================================ */
 
 import { getContributions, createContribution, getContributionTypes, createContributionType, getMembers, updateContribution, deleteContribution } from '../core/api.js';

@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - PWA (Progressive Web App) Utilities
+   Management System - PWA (Progressive Web App) Utilities
    ============================================================ */
 
 let deferredPrompt = null;

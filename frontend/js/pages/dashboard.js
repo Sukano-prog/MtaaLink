@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Dashboard Page (No Emojis, Clean Labels)
+   Management System - Dashboard Page (No Emojis, Clean Labels)
    ============================================================ */
 
 import { getMembers, getMeetings, getGroups, getContributions, getCurrentUser, getAnnouncements } from '../core/api.js';
@@ -32,8 +32,8 @@ export async function renderDashboard() {
             <div class="app-container">
                 <aside class="sidebar" id="sidebar">
                     <div class="sidebar-brand">
-                        <span class="brand-name">MtaaLink</span>
-                        <span class="brand-tagline">Village Management</span>
+                        <span class="brand-name">Management System</span>
+                        <span class="brand-tagline">Complete Management</span>
                     </div>
                     <nav class="sidebar-nav">
                         <div class="nav-section">

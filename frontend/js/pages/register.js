@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Register Page
+   Management System - Register Page
    ============================================================ */
 
 import { register } from '../core/api.js';
@@ -14,7 +14,7 @@ export function renderRegister() {
         <div class="auth-container">
             <div class="auth-card">
                 <div class="auth-header">
-                    <h1>MtaaLink</h1>
+                    <h1>Management System</h1>
                     <p>Register Your Village</p>
                 </div>
                 

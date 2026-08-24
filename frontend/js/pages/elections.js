@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Elections Page (Complete)
+   Management System - Elections Page (Complete)
    ============================================================ */
 
 import { 

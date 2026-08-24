@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Events Page (No Emojis)
+   Management System - Events Page (No Emojis)
    ============================================================ */
 
 import { getEvents, getEvent, createEvent, updateEvent, deleteEvent, addEventAttendance, addEventContribution, getMembers } from '../core/api.js';

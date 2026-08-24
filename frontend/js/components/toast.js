@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Toast Component (Fixed - Always Disappear)
+   Management System - Toast Component (Fixed - Always Disappear)
    ============================================================ */
 
 let activeToasts = [];

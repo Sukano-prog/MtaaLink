@@ -1,4 +1,4 @@
-// MtaaLink - Original Dashboard
+// Management System - Original Dashboard
 // Restored version
 
 async function renderDashboard() {

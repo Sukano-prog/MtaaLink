@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Modal Component
+   Management System - Modal Component
    ============================================================ */
 
 import { showError, showSuccess, showToast, showWarning } from './toast.js';

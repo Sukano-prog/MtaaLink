@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Meetings Page
+   Management System - Meetings Page
    ============================================================ */
 
 import { getMeetings, getMeeting, createMeeting, updateMeeting, deleteMeeting, startMeeting, completeMeeting } from '../core/api.js';

@@ -1,6 +1,6 @@
 import { initPWA } from "./core/pwa.js";
 // ============================================================
-// MtaaLink - Main Application
+// Management System - Main Application
 // ============================================================
 
 // ===== DOM HELPERS =====
@@ -26,7 +26,7 @@ function toggleSidebar() {
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 MtaaLink starting...');
+    console.log('🚀 Management System starting...');
     
     if (localStorage.getItem('token')) {
         showApp();
@@ -563,7 +563,7 @@ function renderSettings() {
         <div class="card">
             <div class="card-header"><h3>About</h3></div>
             <div class="card-body">
-                <p><strong>App:</strong> MtaaLink v1.0.0</p>
+                <p><strong>App:</strong> Management System v1.0.0</p>
                 <p style="color:var(--gray-500);">Digitalizing villages, one community at a time. 🇰🇪</p>
             </div>
         </div>
@@ -912,7 +912,7 @@ window.toggleSidebar = toggleSidebar;
 // ===== START APP =====
 console.log('✅ App script loaded');
 setupEvents();
-console.log('✅ MtaaLink ready!');
+console.log('✅ Management System ready!');
 
 // Initialize PWA
 document.addEventListener('DOMContentLoaded', function() {

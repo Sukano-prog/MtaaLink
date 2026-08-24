@@ -1,4 +1,4 @@
-// MtaaLink - Modal System
+// Management System - Modal System
 
 // ===================== MODAL MANAGER =====================
 

@@ -1,7 +1,7 @@
 {
-  "name": "MtaaLink - Village Management System",
-  "short_name": "MtaaLink",
-  "description": "Complete village management system for Kenyan communities",
+  "name": "Management System",
+  "short_name": "Management",
+  "description": "Complete management system for organizations",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

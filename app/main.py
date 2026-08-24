@@ -75,31 +75,13 @@ if os.path.exists(frontend_dir):
     if os.path.exists(assets_dir):
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
     
-    # Serve manifest.json and sw.js
-    @app.get("/manifest.json")
-    async def serve_manifest():
-        return FileResponse(os.path.join(frontend_dir, "manifest.json"))
-
-    @app.get("/sw.js")
-    async def serve_sw():
-        return FileResponse(
-            os.path.join(frontend_dir, "sw.js"),
-            media_type="application/javascript",
-            headers={"Service-Worker-Allowed": "/"}
-        )
-    
-    @app.get("/offline.html")
-    async def serve_offline():
-        return FileResponse(os.path.join(frontend_dir, "offline.html"))
-    
+    # Serve favicon
     @app.get("/favicon.ico")
     async def serve_favicon():
         return FileResponse(os.path.join(frontend_dir, "favicon.ico"))
     
-    # Serve index.html for root
-    @app.get("/")
-    async def serve_index():
-        return FileResponse(os.path.join(frontend_dir, "index.html"))
+    # Serve sw.js and manifest.json as static files
+    # They will be served by the catch-all route below
     
     logger.info(f"Serving frontend from: {frontend_dir}")
 else:
@@ -136,4 +118,16 @@ async def startup():
 async def serve_index():
     import os
     frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+    return FileResponse(os.path.join(frontend_dir, "index.html"))
+
+
+
+# Serve frontend files - catch-all route
+@app.get("/{path:path}")
+async def serve_frontend(path: str):
+    import os
+    frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+    file_path = os.path.join(frontend_dir, path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
     return FileResponse(os.path.join(frontend_dir, "index.html"))

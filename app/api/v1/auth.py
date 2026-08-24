@@ -44,3 +44,39 @@ async def get_current_user_info(current_user: Member = Depends(get_current_user)
 @router.post("/logout")
 async def logout(current_user: Member = Depends(get_current_user)):
     return {"message": "Logged out successfully"}
+
+@router.post("/change-password")
+async def change_password(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: Member = Depends(get_current_user)
+):
+    """Change user password"""
+    try:
+        data = await request.json()
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        
+        if not old_password or not new_password:
+            raise AppException("Old and new password required")
+        
+        if len(new_password) < 8:
+            raise AppException("New password must be at least 8 characters")
+        
+        # Import security functions
+        from app.core.security import verify_password, hash_password
+        
+        # Verify old password
+        if not verify_password(old_password, current_user.password_hash):
+            raise AppException("Incorrect current password")
+        
+        # Update password
+        current_user.password_hash = hash_password(new_password)
+        db.commit()
+        
+        return {"message": "Password changed successfully"}
+        
+    except AppException as e:
+        raise e
+    except Exception as e:
+        raise AppException(str(e))

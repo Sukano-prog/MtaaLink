@@ -978,3 +978,56 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
+
+// Add PWA install button to the UI
+import { showInstallPrompt } from './components/pwa-install.js';
+
+// Add a floating install button
+function addInstallButton() {
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        return;
+    }
+
+    const btn = document.createElement('button');
+    btn.id = 'pwa-install-float-btn';
+    btn.innerHTML = '📱 Install App';
+    btn.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #1A73E8;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 50px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        z-index: 9998;
+        box-shadow: 0 4px 16px rgba(26,115,232,0.4);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: none;
+    `;
+    btn.addEventListener('mouseenter', function() {
+        this.style.transform = 'scale(1.05)';
+        this.style.boxShadow = '0 6px 24px rgba(26,115,232,0.5)';
+    });
+    btn.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+        this.style.boxShadow = '0 4px 16px rgba(26,115,232,0.4)';
+    });
+    btn.addEventListener('click', showInstallPrompt);
+
+    document.body.appendChild(btn);
+
+    // Show button after page loads
+    setTimeout(function() {
+        btn.style.display = 'block';
+    }, 3000);
+}
+
+// Only add if not installed
+if (!window.matchMedia('(display-mode: standalone)').matches) {
+    document.addEventListener('DOMContentLoaded', addInstallButton);
+}

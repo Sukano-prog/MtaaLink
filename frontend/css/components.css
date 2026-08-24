@@ -873,3 +873,36 @@
     .btn-cyan { background: #0891B2; }
     .btn-cyan:hover { background: #0E7490; }
 }
+
+/* PWA Install Button */
+#pwa-install-float-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1A73E8;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 9998;
+    box-shadow: 0 4px 16px rgba(26,115,232,0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#pwa-install-float-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 24px rgba(26,115,232,0.5);
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+    #pwa-install-float-btn {
+        bottom: 16px;
+        right: 16px;
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}

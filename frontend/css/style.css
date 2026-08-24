@@ -943,3 +943,240 @@ body, .auth-screen, .auth-card, .card, .sidebar, .navbar, .modal {
     --card-bg: #ffffff !important;
     --border-color: #e5e7eb !important;
 }
+
+/* FORCE LIGHT THEME - COMPLETE OVERRIDE */
+* {
+    color-scheme: light !important;
+}
+
+body {
+    background: #f8f9fa !important;
+    color: #1a1a2e !important;
+}
+
+.card {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.sidebar {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.navbar {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.modal {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.auth-container {
+    background: #f8f9fa !important;
+}
+
+.auth-card {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.auth-card input,
+.auth-card .form-control {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border-color: #d1d5db !important;
+}
+
+input, textarea, select {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border-color: #d1d5db !important;
+}
+
+input:focus, textarea:focus, select:focus {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border-color: #1A73E8 !important;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.2) !important;
+}
+
+.table {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.table tr {
+    background: #ffffff !important;
+}
+
+.table tr:nth-child(even) {
+    background: #f8f9fa !important;
+}
+
+.table td, .table th {
+    border-color: #e5e7eb !important;
+}
+
+:root {
+    --bg-color: #f8f9fa !important;
+    --text-color: #1a1a2e !important;
+    --card-bg: #ffffff !important;
+    --border-color: #e5e7eb !important;
+    --gray-50: #f8f9fa !important;
+    --gray-100: #f1f3f4 !important;
+    --gray-200: #e5e7eb !important;
+    --gray-300: #d1d5db !important;
+    --gray-400: #9ca3af !important;
+    --gray-500: #6b7280 !important;
+    --gray-600: #4b5563 !important;
+    --gray-700: #374151 !important;
+    --gray-800: #1f2937 !important;
+    --gray-900: #111827 !important;
+    --white: #ffffff !important;
+}
+
+/* FORCE LIGHT THEME - COMPLETE OVERRIDE */
+* {
+    color-scheme: light !important;
+}
+
+body {
+    background: #f8f9fa !important;
+    color: #1a1a2e !important;
+}
+
+.card, .card-body, .card-header, .card-footer {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.sidebar, .sidebar-nav, .sidebar-header, .sidebar-footer {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.navbar, .navbar-brand, .navbar-nav {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.modal, .modal-content, .modal-header, .modal-body, .modal-footer {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.auth-container, .auth-screen {
+    background: #f8f9fa !important;
+}
+
+.auth-card {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.auth-card input,
+.auth-card .form-control,
+.form-control,
+input,
+textarea,
+select {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border-color: #d1d5db !important;
+}
+
+input:focus, textarea:focus, select:focus,
+.form-control:focus {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border-color: #1A73E8 !important;
+    box-shadow: 0 0 0 3px rgba(26,115,232,0.2) !important;
+}
+
+.table, .table-striped, .table-hover {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.table tr, .table td, .table th {
+    background: #ffffff !important;
+    border-color: #e5e7eb !important;
+}
+
+.table tr:nth-child(even) {
+    background: #f8f9fa !important;
+}
+
+.dropdown-menu, .dropdown-item {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+.dropdown-item:hover {
+    background: #f1f3f4 !important;
+}
+
+.list-group-item {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+    border-color: #e5e7eb !important;
+}
+
+.btn-outline {
+    background: transparent !important;
+    color: #1A73E8 !important;
+    border-color: #1A73E8 !important;
+}
+
+.btn-outline:hover {
+    background: #1A73E8 !important;
+    color: #ffffff !important;
+}
+
+.page-header, .filter-bar, .filter-box {
+    background: transparent !important;
+    color: #1a1a2e !important;
+}
+
+:root {
+    --bg-color: #f8f9fa !important;
+    --text-color: #1a1a2e !important;
+    --card-bg: #ffffff !important;
+    --border-color: #e5e7eb !important;
+    --gray-50: #f8f9fa !important;
+    --gray-100: #f1f3f4 !important;
+    --gray-200: #e5e7eb !important;
+    --gray-300: #d1d5db !important;
+    --gray-400: #9ca3af !important;
+    --gray-500: #6b7280 !important;
+    --gray-600: #4b5563 !important;
+    --gray-700: #374151 !important;
+    --gray-800: #1f2937 !important;
+    --gray-900: #111827 !important;
+    --white: #ffffff !important;
+}
+
+/* Override any remaining dark backgrounds */
+[class*="dark"],
+[class*="Dark"],
+[data-theme="dark"] {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+
+/* Ensure text is readable on light background */
+.text-muted {
+    color: #6b7280 !important;
+}
+
+.text-white {
+    color: #1a1a2e !important;
+}
+
+.bg-dark, .bg-dark * {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}

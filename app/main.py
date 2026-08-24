@@ -133,13 +133,7 @@ async def startup():
 
 
 
-# Serve sw.js with proper headers
-@app.get("/sw.js")
-async def serve_sw():
-    import os
-    frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-    return FileResponse(
-        os.path.join(frontend_dir, "sw.js"),
+,
         media_type="application/javascript",
         headers={"Service-Worker-Allowed": "/"}
     )

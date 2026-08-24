@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1A73E8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <meta name="description" content="MtaaLink - Village Management System">
+    <meta name="keywords" content="village, management, kenya, community">
+    
+    <title>MtaaLink - Village Management</title>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Offline Indicator -->
+    <div id="offlineIndicator" class="offline-banner" style="display:none;">
+        📡 You are offline - changes will sync when online
+    </div>
+
+    <!-- App Shell -->
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button id="menuToggle" class="menu-btn">☰</button>
+                    <div class="app-title">🏘️ Mtaa<span>Link</span></div>
+                </div>
+                <div class="header-right">
+                    <span id="villageName" class="village-badge">Loading...</span>
+                    <button id="syncBtn" class="sync-btn" title="Sync">🔄</button>
+                    <button id="logoutBtn" class="logout-btn">🚪</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <nav id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">🏘️ MtaaLink</div>
+                <button id="closeSidebar" class="close-btn">✕</button>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" data-page="dashboard">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="menu-item" data-page="members">
+                    <span>👥</span> Members
+                </a>
+                <a href="#" class="menu-item" data-page="meetings">
+                    <span>📅</span> Meetings
+                </a>
+                <a href="#" class="menu-item" data-page="contributions">
+                    <span>💰</span> Contributions
+                </a>
+                <a href="#" class="menu-item" data-page="announcements">
+                    <span>📢</span> Announcements
+                </a>
+                <a href="#" class="menu-item" data-page="reports">
+                    <span>📊</span> Reports
+                </a>
+                <a href="#" class="menu-item" data-page="backup">
+                    <span>💾</span> Backup
+                </a>
+                <a href="#" class="menu-item" data-page="settings">
+                    <span>⚙️</span> Settings
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <span id="userName">Loading...</span>
+                    <span id="userRole" class="user-role">Loading...</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main id="mainContent" class="main-content">
+            <div class="loading-screen">
+                <div class="spinner"></div>
+                <p>Loading MtaaLink...</p>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation (Mobile) -->
+        <nav class="bottom-nav" id="bottomNav">
+            <button class="nav-item active" data-page="dashboard">
+                <span>📊</span>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-page="members">
+                <span>👥</span>
+                <span>Members</span>
+            </button>
+            <button class="nav-item" data-page="meetings">
+                <span>📅</span>
+                <span>Meetings</span>
+            </button>
+            <button class="nav-item" data-page="contributions">
+                <span>💰</span>
+                <span>Payments</span>
+            </button>
+            <button class="nav-item" data-page="more">
+                <span>📱</span>
+                <span>More</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/pages.js"></script>
+    <script src="js/sw.js"></script>
+</body>
+</html>

@@ -17,7 +17,7 @@ async function openMeetingDetail(meetingId) {
 async function openMeetingDetailLegacy(meetingId) {
     try {
         var token = localStorage.getItem('token');
-        var response = await fetch('http://localhost:8000/api/v1/meetings/' + meetingId, {
+        var response = await fetch('/api/v1/meetings/' + meetingId, {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         

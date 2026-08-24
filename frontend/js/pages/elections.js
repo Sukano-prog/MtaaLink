@@ -389,7 +389,7 @@ function manageVoterCodes(election) {
                     document.querySelectorAll('.resend-code').forEach(function(btn) {
                         btn.addEventListener('click', function() {
                             const code = this.dataset.code;
-                            fetch('http://localhost:8000/api/v1/elections/resend-code/', {
+                            fetch('/api/v1/elections/resend-code/', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',

@@ -147,7 +147,7 @@ function viewGroupDetail(group) {
 
 async function getGroupDetails(groupId) {
     try {
-        const response = await fetch('http://localhost:8000/api/v1/groups/' + groupId + '/', {
+        const response = await fetch('/api/v1/groups/' + groupId + '/', {
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
             }

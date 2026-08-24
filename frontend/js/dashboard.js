@@ -14,7 +14,7 @@ async function renderDashboard() {
         
         var data = null;
         try {
-            var response = await fetch('http://localhost:8000/api/v1/reports/dashboard', {
+            var response = await fetch('/api/v1/reports/dashboard', {
                 headers: { 'Authorization': 'Bearer ' + token }
             });
             if (response.ok) data = await response.json();
@@ -57,7 +57,7 @@ async function renderMembers() {
     
     try {
         var token = localStorage.getItem('token');
-        var response = await fetch('http://localhost:8000/api/v1/members/', {
+        var response = await fetch('/api/v1/members/', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         var members = response.ok ? await response.json() : [];
@@ -92,7 +92,7 @@ async function renderMeetings() {
     
     try {
         var token = localStorage.getItem('token');
-        var response = await fetch('http://localhost:8000/api/v1/meetings/', {
+        var response = await fetch('/api/v1/meetings/', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         var meetings = response.ok ? await response.json() : [];
@@ -199,7 +199,7 @@ async function deleteItem(endpoint, id) {
     if (!confirm('Are you sure you want to delete this item?')) return;
     try {
         var token = localStorage.getItem('token');
-        var response = await fetch('http://localhost:8000/api/v1/' + endpoint + '/' + id, {
+        var response = await fetch('/api/v1/' + endpoint + '/' + id, {
             method: 'DELETE',
             headers: { 'Authorization': 'Bearer ' + token }
         });

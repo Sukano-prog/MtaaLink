@@ -9,7 +9,7 @@ async function renderBackup() {
         const token = localStorage.getItem('token');
         
         // Get backup summary
-        const summaryRes = await fetch('http://localhost:8000/api/v1/backup/summary', {
+        const summaryRes = await fetch('/api/v1/backup/summary', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const summary = summaryRes.ok ? await summaryRes.json() : null;
@@ -145,7 +145,7 @@ async function createBackup() {
         const token = localStorage.getItem('token');
         showToast('📤 Creating backup...', 'info');
         
-        const response = await fetch('http://localhost:8000/api/v1/backup/export/zip', {
+        const response = await fetch('/api/v1/backup/export/zip', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -197,7 +197,7 @@ async function exportBackup(type) {
         
         showToast(`📤 Exporting ${type}...`, 'info');
         
-        const response = await fetch(`http://localhost:8000/api/v1${url}`, {
+        const response = await fetch(`/api/v1${url}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -237,7 +237,7 @@ async function importBackup() {
     
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:8000/api/v1/backup/import', {
+        const response = await fetch('/api/v1/backup/import', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body: formData

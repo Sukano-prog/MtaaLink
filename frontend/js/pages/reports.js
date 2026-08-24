@@ -496,7 +496,7 @@ function exportSummaryPDF() { downloadPDF('/reports/export/summary/pdf', 'villag
 function downloadPDF(endpoint, filename) {
     const token = localStorage.getItem('token');
     
-    fetch('http://localhost:8000/api/v1' + endpoint, {
+    fetch('/api/v1' + endpoint, {
         headers: {
             'Authorization': 'Bearer ' + token
         }

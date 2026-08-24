@@ -269,7 +269,7 @@ window.changePassword = function() {
                 return;
             }
             
-            fetch('http://localhost:8000/api/v1/auth/change-password', {
+            fetch('/api/v1/auth/change-password', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

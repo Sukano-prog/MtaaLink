@@ -6,7 +6,7 @@ async function renderReports() {
     
     try {
         var token = localStorage.getItem('token');
-        var response = await fetch('http://localhost:8000/api/v1/reports/dashboard', {
+        var response = await fetch('/api/v1/reports/dashboard', {
             headers: { 'Authorization': 'Bearer ' + token }
         });
         var data = response.ok ? await response.json() : null;

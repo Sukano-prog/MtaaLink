@@ -660,7 +660,7 @@ function openAttendanceModal(meetingId) {
                         excused: excusedIds
                     };
                     
-                    fetch('http://localhost:8000/api/v1/meetings/' + meetingId + '/attendance-with-status', {
+                    fetch('/api/v1/meetings/' + meetingId + '/attendance-with-status', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -823,7 +823,7 @@ async function addMotion(meetingId) {
                 seconded_by: data.motionSecondedBy || null
             };
             
-            fetch('http://localhost:8000/api/v1/meetings/' + meetingId + '/motions', {
+            fetch('/api/v1/meetings/' + meetingId + '/motions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -913,7 +913,7 @@ async function addActionItem(meetingId) {
                 priority: data.actionPriority || 'medium'
             };
             
-            fetch('http://localhost:8000/api/v1/meetings/' + meetingId + '/action-items', {
+            fetch('/api/v1/meetings/' + meetingId + '/action-items', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

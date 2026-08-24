@@ -6,7 +6,7 @@ async function printFullMeeting(meetingId) {
         const token = localStorage.getItem('token');
         
         // Fetch all meeting data
-        const meetingRes = await fetch(`http://localhost:8000/api/v1/meetings/${meetingId}`, {
+        const meetingRes = await fetch(`/api/v1/meetings/${meetingId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!meetingRes.ok) throw new Error('Failed to load meeting');
@@ -21,7 +21,7 @@ async function printFullMeeting(meetingId) {
         // Get agenda
         let agenda = [];
         try {
-            const agendaRes = await fetch(`http://localhost:8000/api/v1/formal-meetings/${meetingId}/agenda`, {
+            const agendaRes = await fetch(`/api/v1/formal-meetings/${meetingId}/agenda`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (agendaRes.ok) agenda = await agendaRes.json();
@@ -31,7 +31,7 @@ async function printFullMeeting(meetingId) {
         let minutes = null;
         let minutesText = '';
         try {
-            const minutesRes = await fetch(`http://localhost:8000/api/v1/formal-meetings/${meetingId}/minutes?latest=true`, {
+            const minutesRes = await fetch(`/api/v1/formal-meetings/${meetingId}/minutes?latest=true`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (minutesRes.ok) {

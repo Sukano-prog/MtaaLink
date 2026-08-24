@@ -301,7 +301,7 @@ function completeProject(projectId) {
         confirmLabel: 'Complete',
         confirmClass: 'btn-success',
         onConfirm: function(done) {
-            fetch('http://localhost:8000/api/v1/projects/' + projectId + '/complete/', {
+            fetch('/api/v1/projects/' + projectId + '/complete/', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -335,7 +335,7 @@ function completeTask(projectId, taskId) {
         confirmLabel: 'Complete',
         confirmClass: 'btn-success',
         onConfirm: function(done) {
-            fetch('http://localhost:8000/api/v1/projects/tasks/' + taskId, {
+            fetch('/api/v1/projects/tasks/' + taskId, {
                 method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -399,7 +399,7 @@ function addMilestoneModal(projectId) {
         ],
         submitLabel: 'Add Milestone',
         onSubmit: function(data, done) {
-            fetch('http://localhost:8000/api/v1/projects/' + projectId + '/milestones', {
+            fetch('/api/v1/projects/' + projectId + '/milestones', {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -471,7 +471,7 @@ function addTaskModal(projectId) {
                 ],
                 submitLabel: 'Add Task',
                 onSubmit: function(data, done) {
-                    fetch('http://localhost:8000/api/v1/projects/' + projectId + '/tasks', {
+                    fetch('/api/v1/projects/' + projectId + '/tasks', {
                         method: 'POST',
                         headers: {
                             'Authorization': 'Bearer ' + localStorage.getItem('token'),

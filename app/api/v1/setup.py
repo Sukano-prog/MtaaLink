@@ -59,3 +59,22 @@ async def create_admin(db: Session = Depends(get_db)):
         "password": "Admin@2024",
         "village_name": village.name
     }
+
+
+@router.get("/reset")
+async def reset_password(db: Session = Depends(get_db)):
+    """Reset admin password"""
+    admin = db.query(Member).filter(Member.email == "admin@mtaalink.com").first()
+    if not admin:
+        return {"message": "Admin not found"}
+    
+    import bcrypt
+    password_hash = bcrypt.hashpw("Admin@2024".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    admin.password_hash = password_hash
+    db.commit()
+    
+    return {
+        "message": "Password reset successfully",
+        "email": "admin@mtaalink.com",
+        "password": "Admin@2024"
+    }

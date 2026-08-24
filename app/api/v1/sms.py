@@ -200,13 +200,25 @@ async def test_sms(request: Request):
         phone = data.get('phone', '')
         message = data.get('message', 'Test message from MtaaLink')
         
-        # Format phone number
+        # Format phone number - clean it properly
+        phone = phone.strip().replace(' ', '')
+        # Remove any + sign
+        if phone.startswith('+'):
+            phone = phone[1:]
+        # If it starts with 0, replace with 254
         if phone.startswith('0'):
             phone = '254' + phone[1:]
+        # If it doesn't start with 254, add it (but only if not already there)
         elif not phone.startswith('254'):
             phone = '254' + phone
+        # If it already starts with 254, keep it as is
         
         result = SMSService.send_sms(phone, message)
         return {"status": "success", "result": result}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+@router.get("/ping")
+async def ping():
+    """Simple ping endpoint to test if router is working"""
+    return {"status": "pong", "router": "sms"}

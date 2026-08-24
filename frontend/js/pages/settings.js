@@ -13,6 +13,10 @@ export async function renderSettings() {
     
     try {
         currentUser = await getCurrentUser();
+        // Get village data from API
+        const villageData = await fetch('/api/v1/villages/' + localStorage.getItem('village_id'), {
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+        }).then(r => r.json()).catch(() => ({}));
         
         content.innerHTML = `
             <div class="page-header">
@@ -26,11 +30,11 @@ export async function renderSettings() {
                         <button class="btn btn-sm btn-outline" onclick="window.editVillageProfile()">Edit</button>
                     </div>
                     <div class="card-body">
-                        <div><strong>Name:</strong> ${localStorage.getItem('village_name') || 'Not set'}</div>
-                        <div><strong>County:</strong> ${localStorage.getItem('village_county') || 'Not set'}</div>
-                        <div><strong>Ward:</strong> ${localStorage.getItem('village_ward') || 'Not set'}</div>
-                        <div><strong>Phone:</strong> ${localStorage.getItem('village_phone') || 'Not set'}</div>
-                        <div><strong>Email:</strong> ${localStorage.getItem('village_email') || 'Not set'}</div>
+                        <div><strong>Name:</strong> ${villageData.name || 'Not set'}</div>
+                        <div><strong>County:</strong> ${villageData.county || 'Not set'}</div>
+                        <div><strong>Ward:</strong> ${villageData.ward || 'Not set'}</div>
+                        <div><strong>Phone:</strong> ${villageData.phone || 'Not set'}</div>
+                        <div><strong>Email:</strong> ${villageData.admin_email || 'Not set'}</div>
                     </div>
                 </div>
                 

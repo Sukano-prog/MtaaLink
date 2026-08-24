@@ -58,49 +58,10 @@ app.include_router(elections.router)
 async def health_check():
     return {"status": "healthy"}
 
-# Serve frontend static files
+# Serve all frontend files as static files
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-
 if os.path.exists(frontend_dir):
-    # Mount directories only if they exist
-    css_dir = os.path.join(frontend_dir, "css")
-    if os.path.exists(css_dir):
-        app.mount("/css", StaticFiles(directory=css_dir), name="css")
-    
-    js_dir = os.path.join(frontend_dir, "js")
-    if os.path.exists(js_dir):
-        app.mount("/js", StaticFiles(directory=js_dir), name="js")
-    
-    icons_dir = os.path.join(frontend_dir, "icons")
-    if os.path.exists(icons_dir):
-        app.mount("/icons", StaticFiles(directory=icons_dir), name="icons")
-    
-    assets_dir = os.path.join(frontend_dir, "assets")
-    if os.path.exists(assets_dir):
-        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
-    
-    # Serve favicon
-    @app.get("/favicon.ico")
-    async def serve_favicon():
-        return FileResponse(os.path.join(frontend_dir, "favicon.ico"))
-    
-    # PWA files - explicit routes
-    @app.get("/sw.js")
-    async def serve_sw():
-        return FileResponse(os.path.join(frontend_dir, "sw.js"), media_type="application/javascript")
-    
-    @app.get("/manifest.json")
-    async def serve_manifest():
-        return FileResponse(os.path.join(frontend_dir, "manifest.json"), media_type="application/json")
-    
-    @app.get("/offline.html")
-    async def serve_offline():
-        return FileResponse(os.path.join(frontend_dir, "offline.html"))
-    
-    @app.get("/")
-    async def serve_index():
-        return FileResponse(os.path.join(frontend_dir, "index.html"))
-    
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
     logger.info(f"Serving frontend from: {frontend_dir}")
 else:
     logger.warning(f"Frontend directory not found: {frontend_dir}")

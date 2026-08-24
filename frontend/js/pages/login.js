@@ -175,19 +175,21 @@ function clearError(id) {
 }
 
     // Password toggle
-    const toggleBtn = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('loginPassword');
-    if (toggleBtn && passwordInput) {
-        toggleBtn.addEventListener('click', function() {
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleBtn.textContent = 'Hide';
-            } else {
-                passwordInput.type = 'password';
-                toggleBtn.textContent = 'Show';
-            }
-        });
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('loginPassword');
+        if (toggleBtn && passwordInput) {
+            toggleBtn.addEventListener('click', function() {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleBtn.textContent = 'Hide';
+                } else {
+                    passwordInput.type = 'password';
+                    toggleBtn.textContent = 'Show';
+                }
+            });
+        }
+    });
 
 window.renderLogin = renderLogin;
 window.showLogin = renderLogin;

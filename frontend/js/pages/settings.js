@@ -26,13 +26,13 @@ export async function renderSettings() {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Village Profile</h3>
-                        <button class="btn btn-sm btn-outline" onclick="window.editVillageProfile()">Edit</button>
+                        <h3>Organization Profile</h3>
+                        <button class="btn btn-sm btn-outline" onclick="window.editOrganizationProfile()">Edit</button>
                     </div>
                     <div class="card-body">
                         <div><strong>Name:</strong> ${villageData.name || 'Not set'}</div>
-                        <div><strong>County:</strong> ${villageData.county || 'Not set'}</div>
-                        <div><strong>Ward:</strong> ${villageData.ward || 'Not set'}</div>
+                        <div><strong>Region:</strong> ${villageData.county || 'Not set'}</div>
+                        <div><strong>Sub-Location:</strong> ${villageData.ward || 'Not set'}</div>
                         <div><strong>Phone:</strong> ${villageData.phone || 'Not set'}</div>
                         <div><strong>Email:</strong> ${villageData.admin_email || 'Not set'}</div>
                     </div>
@@ -84,7 +84,7 @@ export async function renderSettings() {
                 <div class="card-body">
                     <div><strong>App Name:</strong> Management System</div>
                     <div><strong>Version:</strong> 1.0.0</div>
-                    <div><strong>Village ID:</strong> ${localStorage.getItem('village_id') || 'N/A'}</div>
+                    <div><strong>Organization ID:</strong> ${localStorage.getItem('village_id') || 'N/A'}</div>
                     <div><strong>Member ID:</strong> ${localStorage.getItem('member_id') || 'N/A'}</div>
                     <div><strong>Role:</strong> ${localStorage.getItem('role') || 'Member'}</div>
                 </div>
@@ -101,59 +101,59 @@ export async function renderSettings() {
     }
 }
 
-window.editVillageProfile = function() {
+window.editOrganizationProfile = function() {
     showFormModal({
-        title: 'Edit Village Profile',
+        title: 'Edit Organization Profile',
         size: 'md',
         submitLabel: 'Update',
         fields: [
             {
-                id: 'village_name',
-                label: 'Village Name',
+                id: 'org_name',
+                label: 'Organization Name',
                 type: 'text',
-                value: localStorage.getItem('village_name') || '',
+                value: localStorage.getItem('org_name') || '',
                 required: true,
                 placeholder: 'Enter village name'
             },
             {
-                id: 'village_county',
-                label: 'County',
+                id: 'org_region',
+                label: 'Region',
                 type: 'text',
-                value: localStorage.getItem('village_county') || '',
+                value: localStorage.getItem('org_region') || '',
                 required: false,
                 placeholder: 'Enter county'
             },
             {
-                id: 'village_ward',
-                label: 'Ward',
+                id: 'org_sublocation',
+                label: 'Sub-Location',
                 type: 'text',
-                value: localStorage.getItem('village_ward') || '',
+                value: localStorage.getItem('org_sublocation') || '',
                 required: false,
                 placeholder: 'Enter ward'
             },
             {
-                id: 'village_phone',
+                id: 'org_phone',
                 label: 'Phone',
                 type: 'tel',
-                value: localStorage.getItem('village_phone') || '',
+                value: localStorage.getItem('org_phone') || '',
                 required: false,
                 placeholder: '0712345678'
             },
             {
-                id: 'village_email',
+                id: 'org_email',
                 label: 'Email',
                 type: 'email',
-                value: localStorage.getItem('village_email') || '',
+                value: localStorage.getItem('org_email') || '',
                 required: false,
                 placeholder: 'village@example.com'
             }
         ],
         onSubmit: function(data, done) {
-            localStorage.setItem('village_name', data.village_name);
-            localStorage.setItem('village_county', data.village_county);
-            localStorage.setItem('village_ward', data.village_ward);
-            localStorage.setItem('village_phone', data.village_phone);
-            localStorage.setItem('village_email', data.village_email);
+            localStorage.setItem('org_name', data.org_name);
+            localStorage.setItem('org_region', data.org_region);
+            localStorage.setItem('org_sublocation', data.org_sublocation);
+            localStorage.setItem('org_phone', data.org_phone);
+            localStorage.setItem('org_email', data.org_email);
             
             showSuccess('Village profile updated');
             done();
@@ -318,11 +318,11 @@ window.handleLogout = function() {
         onConfirm: function(done) {
             localStorage.removeItem('token');
             localStorage.removeItem('village_id');
-            localStorage.removeItem('village_name');
-            localStorage.removeItem('village_county');
-            localStorage.removeItem('village_ward');
-            localStorage.removeItem('village_phone');
-            localStorage.removeItem('village_email');
+            localStorage.removeItem('org_name');
+            localStorage.removeItem('org_region');
+            localStorage.removeItem('org_sublocation');
+            localStorage.removeItem('org_phone');
+            localStorage.removeItem('org_email');
             localStorage.removeItem('role');
             localStorage.removeItem('member_id');
             localStorage.removeItem('current_page');

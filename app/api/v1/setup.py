@@ -62,12 +62,7 @@ async def create_admin(db: Session = Depends(get_db)):
     }
 
 
-@router.get("/reset")
-async def reset_password(db: Session = Depends(get_db)):
-    """Reset admin password"""
-    admin = db.query(Member).filter(Member.email == "admin@mtaalink.com").first()
-    if not admin:
-        return {"message": "Admin not found"}
+
     
     import bcrypt
     password_hash = bcrypt.hashpw("Admin@2024".encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -81,9 +76,21 @@ async def reset_password(db: Session = Depends(get_db)):
     }
 
 
+
+    
+    admin.password_hash = hash_password("Admin@2024")
+    db.commit()
+    
+    return {
+        "message": "Password reset successfully",
+        "email": "admin@mtaalink.com",
+        "password": "Admin@2024"
+    }
+
+
 @router.get("/reset")
 async def reset_password(db: Session = Depends(get_db)):
-    """Reset admin password using correct hash"""
+    """Reset admin password using hash_password (same as auth service)"""
     from app.core.security import hash_password
     admin = db.query(Member).filter(Member.email == "admin@mtaalink.com").first()
     if not admin:

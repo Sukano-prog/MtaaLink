@@ -80,8 +80,30 @@ if os.path.exists(frontend_dir):
     async def serve_favicon():
         return FileResponse(os.path.join(frontend_dir, "favicon.ico"))
     
-    # Serve sw.js and manifest.json as static files
-    # They will be served by the catch-all route below
+    # PWA files - explicit routes
+    @app.get("/sw.js")
+    async def serve_sw():
+        return FileResponse(os.path.join(frontend_dir, "sw.js"), media_type="application/javascript")
+
+    @app.get("/manifest.json")
+    async def serve_manifest():
+        return FileResponse(os.path.join(frontend_dir, "manifest.json"), media_type="application/json")
+
+    @app.get("/offline.html")
+    async def serve_offline():
+        return FileResponse(os.path.join(frontend_dir, "offline.html"))
+
+    @app.get("/")
+    async def serve_index():
+        return FileResponse(os.path.join(frontend_dir, "index.html"))
+
+    # Catch-all for other static files
+    @app.get("/{path:path}")
+    async def serve_static(path: str):
+        file_path = os.path.join(frontend_dir, path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(frontend_dir, "index.html"))
     
     logger.info(f"Serving frontend from: {frontend_dir}")
 else:

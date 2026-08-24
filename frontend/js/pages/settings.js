@@ -14,7 +14,7 @@ export async function renderSettings() {
     try {
         currentUser = await getCurrentUser();
         // Get village data from API
-        const villageData = await fetch('/api/v1/villages/' + localStorage.getItem('village_id'), {
+        const villageData = await fetch('/api/v1/organizations/' + localStorage.getItem('village_id'), {
             headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
         }).then(r => r.json()).catch(() => ({}));
         

@@ -61,10 +61,19 @@ async def health_check():
 # Serve frontend static files
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
 if os.path.exists(frontend_dir):
-    app.mount("/css", StaticFiles(directory=os.path.join(frontend_dir, "css")), name="css")
-    app.mount("/js", StaticFiles(directory=os.path.join(frontend_dir, "js")), name="js")
-    app.mount("/icons", StaticFiles(directory=os.path.join(frontend_dir, "icons")), name="icons")
-    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dir, "assets")), name="assets")
+    # Mount directories only if they exist
+    css_dir = os.path.join(frontend_dir, "css")
+    if os.path.exists(css_dir):
+        app.mount("/css", StaticFiles(directory=css_dir), name="css")
+    js_dir = os.path.join(frontend_dir, "js")
+    if os.path.exists(js_dir):
+        app.mount("/js", StaticFiles(directory=js_dir), name="js")
+    icons_dir = os.path.join(frontend_dir, "icons")
+    if os.path.exists(icons_dir):
+        app.mount("/icons", StaticFiles(directory=icons_dir), name="icons")
+    assets_dir = os.path.join(frontend_dir, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
     
     # Serve manifest.json and sw.js
     @app.get("/manifest.json")

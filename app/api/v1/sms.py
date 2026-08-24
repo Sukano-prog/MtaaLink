@@ -191,3 +191,22 @@ async def process_results(phone_number: str, voter_code: str):
     except Exception as e:
         logger.error(f"Process results error: {str(e)}")
         return {"status": "error", "message": str(e)}
+
+@router.post("/test")
+async def test_sms(request: Request):
+    """Test endpoint for sending SMS"""
+    try:
+        data = await request.json()
+        phone = data.get('phone', '')
+        message = data.get('message', 'Test message from MtaaLink')
+        
+        # Format phone number
+        if phone.startswith('0'):
+            phone = '254' + phone[1:]
+        elif not phone.startswith('254'):
+            phone = '254' + phone
+        
+        result = SMSService.send_sms(phone, message)
+        return {"status": "success", "result": result}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}

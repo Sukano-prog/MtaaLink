@@ -927,3 +927,19 @@ textarea.form-control {
         border-top-color: #3D3D4D;
     }
 }
+
+
+/* ===== FORCE LIGHT THEME - Override all dark mode ===== */
+* {
+    color-scheme: light !important;
+}
+body, .auth-screen, .auth-card, .card, .sidebar, .navbar, .modal {
+    background: #ffffff !important;
+    color: #1a1a2e !important;
+}
+:root {
+    --bg-color: #f8f9fa !important;
+    --text-color: #1a1a2e !important;
+    --card-bg: #ffffff !important;
+    --border-color: #e5e7eb !important;
+}

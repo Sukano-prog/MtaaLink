@@ -877,24 +877,7 @@ textarea.form-control {
     }
 }
 
-/* ===== DARK MODE ===== */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --gray-50: #2D2D3D;
-        --gray-100: #3D3D4D;
-        --gray-200: #4D4D5D;
-        --gray-300: #5D5D6D;
-        --gray-400: #8D8D9D;
-        --gray-500: #ADADBD;
-        --gray-600: #CDCDDD;
-        --gray-700: #E5E5ED;
-        --gray-800: #F5F5F5;
-        --gray-900: #FFFFFF;
-        --white: #1A1A2E;
-    }
-    body {
-        background: #12121E;
-    }
+/* Dark mode disabled - using light theme only */
     .auth-screen {
         background: linear-gradient(135deg, #1A1A2E, #16213E);
     }

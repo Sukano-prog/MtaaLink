@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - MtaaLink</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+    .container {
+      text-align: center;
+      max-width: 400px;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      background: #1A73E8;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+    .btn:hover {
+      background: #1557B0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>You're Offline</h1>
+    <p>Please check your internet connection and try again.</p>
+    <button class="btn" onclick="location.reload()">Retry</button>
+  </div>
+</body>
+</html>

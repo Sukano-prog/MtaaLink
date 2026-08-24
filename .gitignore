@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.env
+*.db
+*.sqlite3
+
+# Backups
+*.backup
+*_backup_*.tar.gz
+MtaaLink_Backup_*/
+MtaaLink_Backup_*.tar.gz
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test data
+token.txt
+contributions.csv
+members.csv
+test_*.py
+add_*.py
+fix_*.py
+clean_*.py
+
+# Environment
+.env*
+!.env.example
+
+# Render deployment
+render_deploy/
+deploy_*.sh

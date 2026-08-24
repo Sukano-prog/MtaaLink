@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MtaaLink - Village Management</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1A73E8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MtaaLink">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/pages.css">
+</head>
+<body>
+  <div id="app"></div>
+  <div class="toast-container" id="toastContainer"></div>
+  <script type="module">
+    import { renderLogin } from './js/pages/login.js';
+    import { renderRegister } from './js/pages/register.js';
+    import { renderDashboard } from './js/pages/dashboard.js';
+    import { navigateTo, restorePage } from './js/core/router.js';
+    import { registerServiceWorker, listenToNetworkStatus } from './js/core/sw.js';
+
+    window.renderLogin = renderLogin;
+    window.renderRegister = renderRegister;
+    window.renderDashboard = renderDashboard;
+    window.navigateTo = navigateTo;
+
+    registerServiceWorker();
+
+    listenToNetworkStatus(function(isOnline) {
+      const toastType = isOnline ? 'success' : 'warning';
+      const message = isOnline ? 'Back online!' : 'You are offline. Some features may not work.';
+      if (typeof showToast === 'function') {
+        showToast(message, toastType);
+      }
+    });
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      renderDashboard();
+      setTimeout(function() {
+        requestAnimationFrame(function() {
+          restorePage();
+        });
+      }, 100);
+    } else {
+      renderLogin();
+    }
+  </script>
+</body>
+</html>

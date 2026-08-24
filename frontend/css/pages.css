@@ -1,0 +1,74 @@
+/* ============================================================
+   MtaaLink - Page Specific Styles
+   ============================================================ */
+
+/* ----- Auth Pages (Login, Register) ----- */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: var(--spacing-xl);
+    background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+}
+.auth-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-2xl);
+    max-width: 420px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--gray-200);
+}
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+.auth-header h1 {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+}
+.auth-header p {
+    color: var(--gray-500);
+    font-size: var(--font-size-base);
+    margin-top: var(--spacing-xs);
+}
+.auth-footer {
+    text-align: center;
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--gray-200);
+    font-size: var(--font-size-sm);
+}
+.auth-footer a {
+    color: var(--primary);
+    cursor: pointer;
+}
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+.auth-footer .credit {
+    display: block;
+    margin-top: var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    color: var(--gray-400);
+}
+
+/* ----- Members Page ----- */
+.member-count {
+    font-size: var(--font-size-sm);
+    color: var(--gray-500);
+}
+
+/* ----- Dark Mode Auth ----- */
+@media (prefers-color-scheme: dark) {
+    .auth-container {
+        background: linear-gradient(135deg, #0F172A, #1E293B);
+    }
+    .auth-card {
+        background: #1E293B;
+        border-color: #334155;
+    }
+}

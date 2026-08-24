@@ -1,0 +1,142 @@
+
+// ===================== COMPLETE FIXED SUBMIT FUNCTION =====================
+// Replace the entire submit function in ModalManager
+
+submit: function() {
+    var form = document.getElementById('modalForm');
+    if (!form) {
+        showToast('Form not found', 'error');
+        return;
+    }
+
+    var formData = new FormData(form);
+    var rawData = Object.fromEntries(formData);
+    var data = {};
+    
+    for (var key in rawData) {
+        var value = rawData[key];
+        if (value === '' || value === null || value === undefined) {
+            continue;
+        }
+        
+        // Fix phone number
+        if (key === 'phone') {
+            // Clean phone number
+            var cleaned = value.replace(/\D/g, '');
+            if (cleaned.startsWith('254')) {
+                cleaned = '0' + cleaned.substring(3);
+            }
+            if (cleaned.length === 9) {
+                cleaned = '0' + cleaned;
+            }
+            if (cleaned.length !== 10) {
+                showToast('Phone number must be 10 digits (e.g., 0712345678)', 'warning');
+                return;
+            }
+            data[key] = cleaned;
+            continue;
+        }
+        
+        // Fix date of birth
+        if (key === 'date_of_birth' && value) {
+            var parts = value.split('-');
+            if (parts.length === 3) {
+                // Fix 2-digit year
+                if (parts[0].length === 2) {
+                    parts[0] = '20' + parts[0];
+                }
+                // Ensure valid date
+                if (parts[0].length === 4 && parts[1].length === 2 && parts[2].length === 2) {
+                    data[key] = parts.join('-');
+                }
+            }
+            continue;
+        }
+        
+        // Handle boolean fields
+        if (key === 'is_active') {
+            data[key] = value === 'true';
+        } else {
+            data[key] = value;
+        }
+    }
+
+    // Validate required fields
+    var required = form.querySelectorAll('[required]');
+    var hasError = false;
+    for (var i = 0; i < required.length; i++) {
+        var field = required[i];
+        var value = rawData[field.name];
+        if (!value || value.trim() === '') {
+            field.classList.add('error');
+            hasError = true;
+        } else {
+            field.classList.remove('error');
+        }
+    }
+
+    if (hasError) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+    }
+
+    var type = this.currentType;
+    var isEdit = this.isEdit;
+    var id = this.currentId;
+
+    var endpoints = {
+        'member': '/members/',
+        'meeting': '/meetings/',
+        'contribution': '/contributions/',
+        'announcement': '/announcements/',
+        'campaign': '/campaigns/',
+        'expense': '/expenses/',
+        'group': '/groups/'
+    };
+
+    var url = endpoints[type] || '';
+    var method = 'POST';
+    if (isEdit && id) {
+        url = url + id;
+        method = 'PUT';
+    }
+
+    console.log('📤 Sending data:', data);
+
+    var token = localStorage.getItem('token');
+    fetch('http://localhost:8000/api/v1' + url, {
+        method: method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(data)
+    })
+    .then(function(response) {
+        if (response.ok) {
+            return response.json();
+        } else {
+            return response.json().then(function(err) {
+                var errorMsg = err.detail || 'Request failed';
+                if (typeof errorMsg === 'object') {
+                    errorMsg = JSON.stringify(errorMsg);
+                }
+                throw new Error(errorMsg);
+            });
+        }
+    })
+    .then(function(result) {
+        showToast('✅ ' + (isEdit ? 'Updated' : 'Created') + ' successfully!', 'success');
+        ModalManager.close();
+        var currentPage = document.querySelector('.nav-link.active')?.dataset.page || 'dashboard';
+        if (typeof navigateTo === 'function') {
+            navigateTo(currentPage);
+        } else {
+            window.location.reload();
+        }
+    })
+    .catch(function(error) {
+        showToast('❌ Failed: ' + error.message, 'error');
+        console.error('Error:', error);
+    });
+}

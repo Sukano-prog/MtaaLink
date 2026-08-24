@@ -79,10 +79,14 @@ if os.path.exists(frontend_dir):
     @app.get("/manifest.json")
     async def serve_manifest():
         return FileResponse(os.path.join(frontend_dir, "manifest.json"))
-    
+
     @app.get("/sw.js")
     async def serve_sw():
-        return FileResponse(os.path.join(frontend_dir, "sw.js"))
+        return FileResponse(
+            os.path.join(frontend_dir, "sw.js"),
+            media_type="application/javascript",
+            headers={"Service-Worker-Allowed": "/"}
+        )
     
     @app.get("/offline.html")
     async def serve_offline():
@@ -126,3 +130,10 @@ async def startup():
         logger.info("Admin user initialized")
     finally:
         db.close()
+
+# Serve sw.js and other static files from frontend root
+from fastapi.staticfiles import StaticFiles
+frontend_root = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+if os.path.exists(frontend_root):
+
+# Catch-all route for SPA - serves index.html for any unmatched route

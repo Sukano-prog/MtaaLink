@@ -6,6 +6,7 @@ from datetime import datetime
 from app.core.database import get_db
 from app.models.village import Village
 from app.models.member import Member
+from app.core.security import hash_password
 
 router = APIRouter(prefix="/api/v1/setup", tags=["Setup"])
 

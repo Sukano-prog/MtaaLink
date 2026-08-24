@@ -9,7 +9,7 @@ from app.models.member import Member
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
 
-@router.post("/setup")
+@router.get("/setup")
 async def setup_admin(db: Session = Depends(get_db)):
     """Create default admin and village if they don't exist"""
     

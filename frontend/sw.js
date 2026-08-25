@@ -129,18 +129,36 @@ self.addEventListener('fetch', function(event) {
   // Cache API responses
   if (url.pathname.startsWith('/api/v1/') && request.method === 'GET') {
     event.respondWith(
-      fetch(request).then(function(response) {
-        // Cache successful responses
-        if (response.status === 200) {
-          const clone = response.clone();
-          caches.open('api-cache').then(function(cache) {
-            cache.put(request, clone);
+      caches.match(request).then(function(cachedResponse) {
+        if (cachedResponse) {
+          // Return cached response immediately, then update in background
+          fetch(request).then(function(response) {
+            if (response.status === 200) {
+              const clone = response.clone();
+              caches.open('api-cache').then(function(cache) {
+                cache.put(request, clone);
+              });
+            }
+          }).catch(function() {
+            // Silently fail background update
           });
+          return cachedResponse;
         }
-        return response;
-      }).catch(function() {
-        // Return cached response when offline
-        return caches.match(request);
+        // No cache, try network
+        return fetch(request).then(function(response) {
+          if (response.status === 200) {
+            const clone = response.clone();
+            caches.open('api-cache').then(function(cache) {
+              cache.put(request, clone);
+            });
+          }
+          return response;
+        }).catch(function() {
+          return new Response(JSON.stringify({error: 'Offline'}), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        });
       })
     );
     return;

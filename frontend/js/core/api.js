@@ -177,8 +177,8 @@ export const getExpense = (id) => apiCall('/expenses/' + id + '/');
 export const createExpense = (data) => apiCall('/expenses/', 'POST', data);
 export const updateExpense = (id, data) => apiCall('/expenses/' + id + '/', 'PUT', data);
 export const deleteExpense = (id) => apiCall('/expenses/' + id + '/', 'DELETE');
-export const getExpenseCategories = () => apiCall('/expenses/categories/');
-export const createExpenseCategory = (data) => apiCall('/expenses/categories/', 'POST', data);
+export const getExpenseCategories = () => apiCall('/expenses/categories');
+export const createExpenseCategory = (data) => apiCall('/expenses/categories', 'POST', data);
 
 // ===== ELECTIONS =====
 export const getElections = () => apiCall('/elections/');

@@ -156,8 +156,8 @@ class ElectionService:
     @staticmethod
     def start_election(db: Session, village_id: str, election_id: str) -> Dict:
         from datetime import datetime
-from zoneinfo import ZoneInfo
-from datetime import timezone
+        from zoneinfo import ZoneInfo
+        from datetime import timezone
         
         election = db.query(Election).filter(
             Election.id == election_id,

@@ -230,8 +230,12 @@ class ElectionService:
         if election.status != 'active':
             raise AppException("This election is not active")
         
-        now = datetime.utcnow()
-        if now < election.start_date or now > election.end_date:
+        from zoneinfo import ZoneInfo
+        nairobi_tz = ZoneInfo("Africa/Nairobi")
+        now = datetime.now(nairobi_tz)
+        start = election.start_date.replace(tzinfo=nairobi_tz)
+        end = election.end_date.replace(tzinfo=nairobi_tz)
+        if now < start or now > end:
             raise AppException("Election is not currently open")
         
         candidate_name = None

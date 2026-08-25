@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import List, Dict, Optional
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from datetime import timezone
 import uuid
 import hashlib
 import secrets
@@ -153,7 +155,9 @@ class ElectionService:
     
     @staticmethod
     def start_election(db: Session, village_id: str, election_id: str) -> Dict:
-        from datetime import datetime, timezone
+        from datetime import datetime
+from zoneinfo import ZoneInfo
+from datetime import timezone
         
         election = db.query(Election).filter(
             Election.id == election_id,
@@ -169,9 +173,10 @@ class ElectionService:
         
         # Check if election can be started (must be between start and end time)
         if election.start_date and election.end_date:
-            now = datetime.now(timezone.utc)
-            start = election.start_date.replace(tzinfo=timezone.utc)
-            end = election.end_date.replace(tzinfo=timezone.utc)
+            nairobi_tz = ZoneInfo("Africa/Nairobi")
+            now = datetime.now(nairobi_tz)
+            start = election.start_date.replace(tzinfo=nairobi_tz)
+            end = election.end_date.replace(tzinfo=nairobi_tz)
             if now < start:
                 raise AppException(f"Election starts at {start.strftime('%Y-%m-%d %H:%M')}")
             if now > end:

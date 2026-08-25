@@ -167,9 +167,15 @@ class ElectionService:
         if election.status != 'draft':
             raise AppException("Election already started or closed")
         
-        # Check if election has started
-        if election.start_date and datetime.now(timezone.utc) < election.start_date.replace(tzinfo=timezone.utc):
-            raise AppException("Election has not started yet")
+        # Check if election can be started (must be between start and end time)
+        if election.start_date and election.end_date:
+            now = datetime.now(timezone.utc)
+            start = election.start_date.replace(tzinfo=timezone.utc)
+            end = election.end_date.replace(tzinfo=timezone.utc)
+            if now < start:
+                raise AppException(f"Election starts at {start.strftime('%Y-%m-%d %H:%M')}")
+            if now > end:
+                raise AppException(f"Election ended at {end.strftime('%Y-%m-%d %H:%M')}")
         
         election.status = 'active'
         db.commit()

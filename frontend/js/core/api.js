@@ -127,10 +127,10 @@ export const getContributions = (params = {}) => {
 export const createContribution = (data) => apiCall('/contributions/', 'POST', data);
 export const updateContribution = (id, data) => apiCall('/contributions/' + id + '/', 'PUT', data);
 export const deleteContribution = (id) => apiCall('/contributions/' + id + '/', 'DELETE');
-export const getContributionTypes = () => apiCall('/contributions/types/');
-export const createContributionType = (data) => apiCall('/contributions/types/', 'POST', data);
-export const updateContributionType = (id, data) => apiCall('/contributions/types/' + id + '/', 'PUT', data);
-export const deleteContributionType = (id) => apiCall('/contributions/types/' + id + '/', 'DELETE');
+export const getContributionTypes = () => apiCall('/contributions/types');
+export const createContributionType = (data) => apiCall('/contributions/types', 'POST', data);
+export const updateContributionType = (id, data) => apiCall('/contributions/types/' + id, 'PUT', data);
+export const deleteContributionType = (id) => apiCall('/contributions/types/' + id, 'DELETE');
 
 // ===== ANNOUNCEMENTS =====
 export const getAnnouncements = (params = {}) => {

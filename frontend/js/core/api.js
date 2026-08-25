@@ -181,17 +181,17 @@ export const getExpenseCategories = () => apiCall('/expenses/categories/');
 export const createExpenseCategory = (data) => apiCall('/expenses/categories/', 'POST', data);
 
 // ===== ELECTIONS =====
-export const getElections = () => apiCall('/elections/');
-export const getElection = (id) => apiCall('/elections/' + id + '/');
-export const createElection = (data) => apiCall('/elections/', 'POST', data);
-export const updateElection = (id, data) => apiCall('/elections/' + id + '/', 'PUT', data);
-export const startElection = (id) => apiCall('/elections/' + id + '/start/', 'POST');
-export const closeElection = (id) => apiCall('/elections/' + id + '/close/', 'POST');
-export const getElectionResults = (id) => apiCall('/elections/' + id + '/results/');
+export const getElections = () => apiCall('/elections');
+export const getElection = (id) => apiCall('/elections/' + id);
+export const createElection = (data) => apiCall('/elections', 'POST', data);
+export const updateElection = (id, data) => apiCall('/elections/' + id, 'PUT', data);
+export const startElection = (id) => apiCall('/elections/' + id + '/start', 'POST');
+export const closeElection = (id) => apiCall('/elections/' + id + '/close', 'POST');
+export const getElectionResults = (id) => apiCall('/elections/' + id + '/results');
 export const castVote = (data) => apiCall('/elections/vote', 'POST', data);
 
 // ===== ELECTIONS - Voter Codes =====
-export const getVoterCodes = (electionId) => apiCall('/elections/' + electionId + '/voters/');
-export const generateVoterCodes = (electionId) => apiCall('/elections/' + electionId + '/generate-codes/', 'POST');
+export const getVoterCodes = (electionId) => apiCall('/elections/' + electionId + '/voters');
+export const generateVoterCodes = (electionId) => apiCall('/elections/' + electionId + '/generate-codes', 'POST');
 export const resendVoterCode = (voterCode) => apiCall('/elections/resend-code/', 'POST', { voter_code: voterCode });
-export const verifyVoterCode = (electionId, voterCode) => apiCall('/elections/' + electionId + '/verify/' + voterCode + '/');
+export const verifyVoterCode = (electionId, voterCode) => apiCall('/elections/' + electionId + '/verify/' + voterCode);

@@ -185,8 +185,8 @@ export const getElections = () => apiCall('/elections/');
 export const getElection = (id) => apiCall('/elections/' + id + '/');
 export const createElection = (data) => apiCall('/elections/', 'POST', data);
 export const updateElection = (id, data) => apiCall('/elections/' + id + '/', 'PUT', data);
-export const startElection = (id) => apiCall('/elections/' + id + '/start/', 'POST');
-export const closeElection = (id) => apiCall('/elections/' + id + '/close/', 'POST');
+export const startElection = (id) => apiCall('/elections/' + id + '/start', 'POST');
+export const closeElection = (id) => apiCall('/elections/' + id + '/close', 'POST');
 export const getElectionResults = (id) => apiCall('/elections/' + id + '/results/');
 export const castVote = (data) => apiCall('/elections/vote', 'POST', data);
 

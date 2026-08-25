@@ -120,3 +120,29 @@ self.addEventListener('message', function(event) {
     self.skipWaiting();
   }
 });
+
+// Add API caching
+self.addEventListener('fetch', function(event) {
+  const request = event.request;
+  const url = new URL(request.url);
+
+  // Cache API responses
+  if (url.pathname.startsWith('/api/v1/') && request.method === 'GET') {
+    event.respondWith(
+      fetch(request).then(function(response) {
+        // Cache successful responses
+        if (response.status === 200) {
+          const clone = response.clone();
+          caches.open('api-cache').then(function(cache) {
+            cache.put(request, clone);
+          });
+        }
+        return response;
+      }).catch(function() {
+        // Return cached response when offline
+        return caches.match(request);
+      })
+    );
+    return;
+  }
+});

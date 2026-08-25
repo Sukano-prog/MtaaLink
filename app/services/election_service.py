@@ -168,7 +168,7 @@ class ElectionService:
             raise AppException("Election already started or closed")
         
         # Check if election has started
-        if election.start_date and datetime.now(timezone.utc) < election.start_date:
+        if election.start_date and datetime.now(timezone.utc) < election.start_date.replace(tzinfo=timezone.utc):
             raise AppException("Election has not started yet")
         
         election.status = 'active'

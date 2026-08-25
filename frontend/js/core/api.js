@@ -181,7 +181,7 @@ export const getExpenseCategories = () => apiCall('/expenses/categories/');
 export const createExpenseCategory = (data) => apiCall('/expenses/categories/', 'POST', data);
 
 // ===== ELECTIONS =====
-export const getElections = () => apiCall('/elections');
+export const getElections = () => apiCall('/elections/');
 export const getElection = (id) => apiCall('/elections/' + id);
 export const createElection = (data) => apiCall('/elections', 'POST', data);
 export const updateElection = (id, data) => apiCall('/elections/' + id, 'PUT', data);

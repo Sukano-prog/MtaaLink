@@ -87,10 +87,26 @@ async def startup():
         db.close()
 
 
-# Serve all frontend files as static files (must be last)
+# Serve frontend via catch-all route (must be last - after all API routes)
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+
+@app.get("/{path:path}")
+async def serve_frontend(path: str):
+    """Serve frontend files or index.html for SPA routing"""
+    import os
+    from fastapi.responses import FileResponse
+    
+    # Skip API routes - they are handled by the routers
+    if path.startswith('api/'):
+        raise HTTPException(status_code=404, detail="Not found")
+    
+    file_path = os.path.join(frontend_dir, path)
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    return FileResponse(os.path.join(frontend_dir, "index.html"))
+
 if os.path.exists(frontend_dir):
-    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
     logger.info(f"Serving frontend from: {frontend_dir}")
 else:
     logger.warning(f"Frontend directory not found: {frontend_dir}")

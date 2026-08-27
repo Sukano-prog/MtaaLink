@@ -102,7 +102,7 @@ export const getMeetings = (params = {}) => {
     const qs = new URLSearchParams(params).toString();
     return apiCall('/meetings/' + (qs ? '?' + qs : ''));
 };
-export const getMeeting = (id) => apiCall('/meetings/' + id + '/');
+export const getMeeting = (id) => apiCall('/meetings/' + id);
 export const createMeeting = (data) => apiCall('/meetings/', 'POST', data);
 export const updateMeeting = (id, data) => apiCall('/meetings/' + id + '/', 'PUT', data);
 export const deleteMeeting = (id) => apiCall('/meetings/' + id + '/', 'DELETE');

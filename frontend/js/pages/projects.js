@@ -37,10 +37,7 @@ export async function renderProjects() {
                 <span class="project-count" id="projectCount">0 projects</span>
             </div>
             <div id="projectsContainer">
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Loading projects...</p>
-                </div>
+                ${Skeletons.projects()}
             </div>
         `;
         

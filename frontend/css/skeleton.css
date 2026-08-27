@@ -1,0 +1,278 @@
+/* ============================================================
+   Skeleton Loader Styles - Improved Design
+   ============================================================ */
+
+/* Gradient animation instead of simple pulse */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Skeleton line - improved */
+.skeleton-line {
+    height: 14px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    background: linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+.skeleton-line-sm { height: 10px; }
+.skeleton-line-lg { height: 20px; }
+.skeleton-line-xl { height: 28px; }
+.skeleton-line-w-25 { width: 25%; }
+.skeleton-line-w-33 { width: 33%; }
+.skeleton-line-w-50 { width: 50%; }
+.skeleton-line-w-66 { width: 66%; }
+.skeleton-line-w-75 { width: 75%; }
+.skeleton-line-w-100 { width: 100%; }
+
+/* Skeleton circle */
+.skeleton-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #e5e7eb 25%, #d1d5db 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.skeleton-circle-sm { width: 30px; height: 30px; }
+.skeleton-circle-lg { width: 56px; height: 56px; }
+
+/* Skeleton card - improved */
+.skeleton-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+}
+
+/* Skeleton list item */
+.skeleton-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.skeleton-item:last-child {
+    border-bottom: none;
+}
+
+.skeleton-item .skeleton-content {
+    flex: 1;
+}
+
+/* Dashboard stats */
+.skeleton-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.skeleton-stat {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+}
+
+.skeleton-stat .skeleton-line {
+    margin-bottom: 4px;
+}
+
+/* Election cards */
+.skeleton-elections {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.skeleton-election-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+    border-left: 4px solid #e5e7eb;
+}
+
+/* Meeting cards */
+.skeleton-meetings {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.skeleton-meeting-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+}
+
+/* Project cards */
+.skeleton-projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.skeleton-project-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+}
+
+/* Member cards (grid view) */
+.skeleton-members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.skeleton-member-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+}
+
+.skeleton-member-card .skeleton-circle {
+    margin: 0 auto 10px auto;
+}
+
+/* Table skeleton */
+.skeleton-table {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+    overflow: hidden;
+}
+
+.skeleton-table-header {
+    display: flex;
+    gap: 16px;
+    padding: 14px 20px;
+    background: #f9fafb;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.skeleton-table-header .skeleton-line {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.skeleton-table-row {
+    display: flex;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.skeleton-table-row:last-child {
+    border-bottom: none;
+}
+
+.skeleton-table-row .skeleton-line {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* Group cards */
+.skeleton-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.skeleton-group-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+    text-align: center;
+}
+
+/* Contribution type cards */
+.skeleton-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.skeleton-type-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    border: 1px solid #f1f3f4;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .skeleton-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .skeleton-elections {
+        grid-template-columns: 1fr;
+    }
+    .skeleton-meetings {
+        grid-template-columns: 1fr;
+    }
+    .skeleton-projects {
+        grid-template-columns: 1fr;
+    }
+    .skeleton-members-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .skeleton-groups {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .skeleton-types {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .skeleton-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .skeleton-stat {
+        padding: 14px;
+    }
+    .skeleton-members-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .skeleton-groups {
+        grid-template-columns: 1fr;
+    }
+    .skeleton-types {
+        grid-template-columns: 1fr;
+    }
+}

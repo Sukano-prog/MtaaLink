@@ -28,10 +28,7 @@ export async function renderGroups() {
             </div>
             
             <div id="groupsContainer">
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Loading groups...</p>
-                </div>
+                ${Skeletons.groups()}
             </div>
         `;
         

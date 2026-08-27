@@ -5,6 +5,7 @@
 import { getContributionTypes, createContributionType, updateContributionType, deleteContributionType } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
 import { showFormModal, showConfirm } from '../components/modal.js';
+import { Skeletons } from '../components/skeleton.js';
 
 let typesData = [];
 let currentPage = 1;

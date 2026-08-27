@@ -5,7 +5,7 @@ from app.models.base import BaseModel
 class Announcement(BaseModel):
     __tablename__ = "announcements"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     
     title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)

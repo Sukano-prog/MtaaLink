@@ -6,7 +6,7 @@ from app.models.base import BaseModel
 class Event(BaseModel):
     __tablename__ = "events"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)

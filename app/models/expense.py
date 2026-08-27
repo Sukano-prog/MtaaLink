@@ -6,7 +6,7 @@ from app.models.base import BaseModel
 class Expense(BaseModel):
     __tablename__ = "expenses"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     
     description = Column(Text, nullable=False)
     amount = Column(DECIMAL(12, 2), nullable=False)
@@ -40,7 +40,7 @@ class Expense(BaseModel):
 class ExpenseCategory(BaseModel):
     __tablename__ = "expense_categories"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     
     name = Column(String(50), nullable=False)
     description = Column(Text, nullable=True)

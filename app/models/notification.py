@@ -5,7 +5,7 @@ from app.models.base import BaseModel
 class Notification(BaseModel):
     __tablename__ = "notifications"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     member_id = Column(String(36), ForeignKey("members.id"), nullable=False)
     
     title = Column(String(255), nullable=False)

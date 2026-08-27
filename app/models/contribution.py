@@ -5,7 +5,7 @@ from app.models.base import BaseModel
 class ContributionType(BaseModel):
     __tablename__ = "contribution_types"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     
     name = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)
@@ -24,7 +24,7 @@ class ContributionType(BaseModel):
 class Contribution(BaseModel):
     __tablename__ = "contributions"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     member_id = Column(String(36), ForeignKey("members.id"), nullable=False)
     contribution_type_id = Column(String(36), ForeignKey("contribution_types.id"), nullable=True)
     
@@ -54,7 +54,7 @@ class Contribution(BaseModel):
 class ContributionCampaign(BaseModel):
     __tablename__ = "contribution_campaigns"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     contribution_type_id = Column(String(36), ForeignKey("contribution_types.id"), nullable=False)
     
     title = Column(String(255), nullable=False)

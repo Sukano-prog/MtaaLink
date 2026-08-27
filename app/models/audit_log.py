@@ -5,7 +5,7 @@ from app.models.base import BaseModel
 class AuditLog(BaseModel):
     __tablename__ = "audit_logs"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     member_id = Column(String(36), ForeignKey("members.id"), nullable=True)
     
     action = Column(String(50), nullable=False)

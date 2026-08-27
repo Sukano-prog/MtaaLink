@@ -5,7 +5,7 @@ from app.models.base import BaseModel
 class Group(BaseModel):
     __tablename__ = "groups"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     
     name = Column(String(100), nullable=False)
     description = Column(Text, nullable=True)

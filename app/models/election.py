@@ -7,7 +7,7 @@ from app.models.base import BaseModel
 class Election(BaseModel):
     __tablename__ = "elections"
     
-    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False)
+    village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     election_type = Column(String(50), nullable=False)

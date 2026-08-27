@@ -106,7 +106,7 @@ export const getMeeting = (id) => apiCall('/meetings/' + id + '/');
 export const createMeeting = (data) => apiCall('/meetings/', 'POST', data);
 export const updateMeeting = (id, data) => apiCall('/meetings/' + id + '/', 'PUT', data);
 export const deleteMeeting = (id) => apiCall('/meetings/' + id + '/', 'DELETE');
-export const startMeeting = (id) => apiCall('/meetings/' + id + '/start/', 'POST');
+export const startMeeting = (id) => apiCall('/meetings/' + id + '/start', 'POST');
 export const completeMeeting = (id, minutes) => apiCall('/meetings/' + id + '/complete/?minutes=' + encodeURIComponent(minutes), 'POST');
 export const markAttendance = (id, memberIds) => apiCall('/meetings/' + id + '/attendance/', 'POST', memberIds);
 

@@ -606,3 +606,193 @@ class ReportService:
         doc.build(elements)
         buffer.seek(0)
         return buffer
+
+    @staticmethod
+    def export_projects_pdf(db: Session, organization_id: str) -> io.BytesIO:
+        from app.models.project import Project
+        from app.models.village import Village
+        
+        village = db.query(Village).filter(Village.id == organization_id).first()
+        village_name = village.name if village else "Organization"
+        
+        projects = db.query(Project).filter(
+            Project.village_id == organization_id,
+            Project.deleted_at.is_(None)
+        ).all()
+        
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
+        story.append(Paragraph(f"{village_name} - Projects Report", title_style))
+        story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        data = []
+        for p in projects:
+            data.append([p.title, p.status or 'Draft', str(p.budget or 0), str(p.amount_spent or 0)])
+        
+        if data:
+            table = Table([['Title', 'Status', 'Budget', 'Spent']] + data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ]))
+            story.append(table)
+        else:
+            story.append(Paragraph("No projects found", styles['Normal']))
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer
+
+    @staticmethod
+    def export_events_pdf(db: Session, organization_id: str) -> io.BytesIO:
+        from app.models.event import Event
+        from app.models.village import Village
+        
+        village = db.query(Village).filter(Village.id == organization_id).first()
+        village_name = village.name if village else "Organization"
+        
+        events = db.query(Event).filter(
+            Event.village_id == organization_id,
+            Event.deleted_at.is_(None)
+        ).all()
+        
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
+        story.append(Paragraph(f"{village_name} - Events Report", title_style))
+        story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        data = []
+        for e in events:
+            data.append([e.title, e.event_type or 'General', e.status or 'Upcoming'])
+        
+        if data:
+            table = Table([['Title', 'Type', 'Status']] + data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ]))
+            story.append(table)
+        else:
+            story.append(Paragraph("No events found", styles['Normal']))
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer
+
+    @staticmethod
+    def export_announcements_pdf(db: Session, organization_id: str) -> io.BytesIO:
+        from app.models.announcement import Announcement
+        from app.models.village import Village
+        
+        village = db.query(Village).filter(Village.id == organization_id).first()
+        village_name = village.name if village else "Organization"
+        
+        announcements = db.query(Announcement).filter(
+            Announcement.village_id == organization_id,
+            Announcement.deleted_at.is_(None)
+        ).all()
+        
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
+        story.append(Paragraph(f"{village_name} - Announcements Report", title_style))
+        story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        data = []
+        for a in announcements:
+            data.append([a.title, a.message[:50] + '...' if len(a.message) > 50 else a.message, a.status or 'Draft'])
+        
+        if data:
+            table = Table([['Title', 'Message', 'Status']] + data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ]))
+            story.append(table)
+        else:
+            story.append(Paragraph("No announcements found", styles['Normal']))
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer
+
+    @staticmethod
+    def export_summary_pdf(db: Session, organization_id: str) -> io.BytesIO:
+        from app.models.village import Village
+        from app.models.member import Member
+        from app.models.meeting import Meeting
+        from app.models.group import Group
+        from app.models.contribution import Contribution
+        
+        village = db.query(Village).filter(Village.id == organization_id).first()
+        village_name = village.name if village else "Organization"
+        
+        total_members = db.query(Member).filter(Member.village_id == organization_id, Member.deleted_at.is_(None)).count()
+        total_meetings = db.query(Meeting).filter(Meeting.village_id == organization_id, Meeting.deleted_at.is_(None)).count()
+        total_groups = db.query(Group).filter(Group.village_id == organization_id, Group.deleted_at.is_(None)).count()
+        
+        contributions = db.query(Contribution).filter(Contribution.village_id == organization_id, Contribution.deleted_at.is_(None)).all()
+        total_contributions = sum(c.amount for c in contributions)
+        
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
+        story.append(Paragraph(f"{village_name} - Summary Report", title_style))
+        story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        data = [
+            ['Total Members', str(total_members)],
+            ['Total Meetings', str(total_meetings)],
+            ['Total Groups', str(total_groups)],
+            ['Total Contributions', f"KES {total_contributions:,.2f}"],
+        ]
+        
+        table = Table(data, colWidths=[200, 100])
+        table.setStyle(TableStyle([
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+        ]))
+        story.append(table)
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer

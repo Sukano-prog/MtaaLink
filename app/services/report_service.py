@@ -19,7 +19,7 @@ class ReportService:
     @staticmethod
     def get_member_report(db: Session, organization_id: str) -> Dict:
         members = db.query(Member).filter(
-            Member.org_id == org_id,
+            Member.organization_id == organization_id,
             Member.deleted_at.is_(None)
         ).all()
         
@@ -49,7 +49,7 @@ class ReportService:
     @staticmethod
     def get_meeting_report(db: Session, organization_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict:
         query = db.query(Meeting).filter(
-            Meeting.org_id == org_id,
+            Meeting.organization_id == organization_id,
             Meeting.deleted_at.is_(None)
         )
         
@@ -85,7 +85,7 @@ class ReportService:
     @staticmethod
     def get_contribution_report(db: Session, organization_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict:
         query = db.query(Contribution).filter(
-            Contribution.org_id == org_id,
+            Contribution.organization_id == organization_id,
             Contribution.deleted_at.is_(None)
         )
         
@@ -124,7 +124,7 @@ class ReportService:
     def get_attendance_report(db: Session, organization_id: str, member_id: Optional[str] = None) -> Dict:
         attendance_query = db.query(MeetingAttendance).filter(
             MeetingAttendance.deleted_at.is_(None)
-        ).join(Meeting).filter(Meeting.org_id == org_id)
+        ).join(Meeting).filter(Meeting.organization_id == organization_id)
         
         if member_id:
             attendance_query = attendance_query.filter(MeetingAttendance.member_id == member_id)
@@ -146,9 +146,9 @@ class ReportService:
     @staticmethod
     def export_members_pdf(db: Session, organization_id: str) -> io.BytesIO:
         from app.models.village import Village
-        village = db.query(Village).filter(Village.id == org_id).first()
+        village = db.query(Village).filter(Village.id == organization_id).first()
         village_name = village.name if village else "Organization"
-        data = ReportService.get_member_report(db, org_id)
+        data = ReportService.get_member_report(db, organization_id)
         
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
@@ -232,9 +232,9 @@ class ReportService:
     @staticmethod
     def export_meetings_pdf(db: Session, organization_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> io.BytesIO:
         from app.models.village import Village
-        village = db.query(Village).filter(Village.id == org_id).first()
+        village = db.query(Village).filter(Village.id == organization_id).first()
         village_name = village.name if village else "Organization"
-        data = ReportService.get_meeting_report(db, org_id, start_date, end_date)
+        data = ReportService.get_meeting_report(db, organization_id, start_date, end_date)
         
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
@@ -303,9 +303,9 @@ class ReportService:
     @staticmethod
     def export_contributions_pdf(db: Session, organization_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> io.BytesIO:
         from app.models.village import Village
-        village = db.query(Village).filter(Village.id == org_id).first()
+        village = db.query(Village).filter(Village.id == organization_id).first()
         village_name = village.name if village else "Organization"
-        data = ReportService.get_contribution_report(db, org_id, start_date, end_date)
+        data = ReportService.get_contribution_report(db, organization_id, start_date, end_date)
         
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
@@ -379,9 +379,9 @@ class ReportService:
     @staticmethod
     def export_attendance_pdf(db: Session, organization_id: str, member_id: Optional[str] = None) -> io.BytesIO:
         from app.models.village import Village
-        village = db.query(Village).filter(Village.id == org_id).first()
+        village = db.query(Village).filter(Village.id == organization_id).first()
         village_name = village.name if village else "Organization"
-        data = ReportService.get_attendance_report(db, org_id, member_id)
+        data = ReportService.get_attendance_report(db, organization_id, member_id)
         
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=72, leftMargin=72, topMargin=72, bottomMargin=72)
@@ -426,7 +426,7 @@ class ReportService:
         from app.models.election import Election, ElectionCandidate, ElectionVoter
         
         elections = db.query(Election).filter(
-            Election.org_id == org_id,
+            Election.organization_id == organization_id,
             Election.deleted_at.is_(None)
         ).all()
         
@@ -484,7 +484,7 @@ class ReportService:
         from reportlab.lib import colors
         from reportlab.lib.units import inch
         
-        data = ReportService.get_election_report(db, org_id)
+        data = ReportService.get_election_report(db, organization_id)
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter)
         styles = getSampleStyleSheet()
@@ -536,7 +536,7 @@ class ReportService:
         from app.models.group import Group, GroupMember
         
         groups = db.query(Group).filter(
-            Group.org_id == org_id,
+            Group.organization_id == organization_id,
             Group.deleted_at.is_(None)
         ).all()
         
@@ -572,7 +572,7 @@ class ReportService:
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib import colors
         
-        data = ReportService.get_group_report(db, org_id)
+        data = ReportService.get_group_report(db, organization_id)
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter)
         styles = getSampleStyleSheet()

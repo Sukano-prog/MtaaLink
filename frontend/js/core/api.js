@@ -124,7 +124,7 @@ export const getContributions = (params = {}) => {
     const qs = new URLSearchParams(params).toString();
     return apiCall('/contributions/' + (qs ? '?' + qs : ''));
 };
-export const createContribution = (data) => apiCall('/contributions', 'POST', data);
+export const createContribution = (data) => apiCall('/contributions/', 'POST', data);
 export const updateContribution = (id, data) => apiCall('/contributions/' + id, 'PUT', data);
 export const deleteContribution = (id) => apiCall('/contributions/' + id, 'DELETE');
 export const getContributionTypes = () => apiCall('/contributions/types');
@@ -149,7 +149,7 @@ export const getProjects = (params = {}) => {
     return apiCall('/projects/' + (qs ? '?' + qs : ''));
 };
 export const getProject = (id) => apiCall('/projects/' + id);
-export const createProject = (data) => apiCall('/projects', 'POST', data);
+export const createProject = (data) => apiCall('/projects/', 'POST', data);
 export const updateProject = (id, data) => apiCall('/projects/' + id, 'PUT', data);
 export const deleteProject = (id) => apiCall('/projects/' + id, 'DELETE');
 
@@ -159,7 +159,7 @@ export const getEvents = (params = {}) => {
     return apiCall('/events/' + (qs ? '?' + qs : ''));
 };
 export const getEvent = (id) => apiCall('/events/' + id);
-export const createEvent = (data) => apiCall('/events', 'POST', data);
+export const createEvent = (data) => apiCall('/events/', 'POST', data);
 export const updateEvent = (id, data) => apiCall('/events/' + id, 'PUT', data);
 export const deleteEvent = (id) => apiCall('/events/' + id, 'DELETE');
 export const addEventAttendance = (eventId, memberId, role = null) => {

@@ -8,7 +8,7 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
-    village_name: str = Field(..., min_length=2)
+    organization_name: str = Field(..., min_length=2)
     first_name: str = Field(..., min_length=2)
     last_name: str = Field(..., min_length=2)
     phone: str = Field(..., pattern=r'^0[17]\d{8}$')

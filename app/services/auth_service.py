@@ -54,7 +54,7 @@ class AuthService:
             action="REGISTER",
             table_name="villages",
             record_id=village.id,
-            new_data={"email": data['email'], "village": data['village_name']}
+            new_data={"email": data['email'], "village": data['organization_name']}
         )
         db.add(audit)
         db.commit()

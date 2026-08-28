@@ -450,21 +450,28 @@ window.deleteEvent = async function() {
 };
 
 window.exportPDF = function() {
-    fetch(`/api/v1/events/${currentEvent.id}/export/pdf`, {
+    // Use the event report endpoint
+    const eventId = currentEvent.id;
+    const eventTitle = currentEvent.title || 'event';
+    fetch(`/api/v1/reports/export/events/pdf?event_id=${eventId}`, {
         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     })
     .then(function(response) {
+        if (!response.ok) {
+            throw new Error('PDF generation failed');
+        }
         return response.blob();
     })
     .then(function(blob) {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `event_${currentEvent.title}_report.pdf`;
+        a.download = `event_${eventTitle}_report.pdf`;
         document.body.appendChild(a);
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
+        showSuccess('PDF downloaded successfully');
     })
     .catch(function(error) {
         showError('Failed to download PDF: ' + error.message);

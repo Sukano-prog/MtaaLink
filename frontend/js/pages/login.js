@@ -69,6 +69,9 @@ export function renderLogin() {
                     <a id="registerLink">Don't have an account? Register</a>
                     <span class="credit">Built for Kenya</span>
                 </div>
+                <div style="text-align:center;margin-top:8px;font-size:11px;color:#rgba(255,255,255,0.6);">
+                    🔍 CSS Loaded: auth-container background check
+                </div>
             </div>
         </div>
     `;

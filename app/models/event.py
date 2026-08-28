@@ -34,11 +34,16 @@ class EventAttendance(BaseModel):
     __tablename__ = "event_attendance"
     
     event_id = Column(String(36), ForeignKey("events.id"), nullable=False)
-    member_id = Column(String(36), ForeignKey("members.id"), nullable=False)
+    member_id = Column(String(36), ForeignKey("members.id"), nullable=True)
     
     attended = Column(Boolean, default=True)
     check_in_time = Column(DateTime, nullable=True)
-    role = Column(String(50), nullable=True)  # e.g., organizer, volunteer, guest, elder
+    role = Column(String(50), nullable=True)
+    is_visitor = Column(Boolean, default=False)
+    member_name = Column(String(100), nullable=True)
+    member_gender = Column(String(20), nullable=True)
+    member_age_category = Column(String(20), nullable=True)
+    member_phone = Column(String(20), nullable=True)  # e.g., organizer, volunteer, guest, elder
     
     # Relationships
     event = relationship("Event", backref="attendance")

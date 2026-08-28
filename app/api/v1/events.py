@@ -80,6 +80,45 @@ async def add_attendance(
     except AppException as e:
         raise e
 
+@router.post("/{event_id}/attendance")
+async def add_attendance_with_visitor(
+    event_id: str,
+    data: dict,
+    current_user: Member = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Add attendance with visitor support"""
+    try:
+        from app.models.event import EventAttendance
+        from datetime import datetime
+        import uuid
+        
+        if data.get('is_visitor'):
+            # Create a temporary member or just track visitor
+            attendance = EventAttendance(
+                id=str(uuid.uuid4()),
+                event_id=event_id,
+                member_id=None,
+                member_name=data.get('visitor_name', 'Visitor'),
+                member_gender=data.get('visitor_gender'),
+                member_age_category=data.get('visitor_age'),
+                member_phone=data.get('visitor_phone'),
+                attended=True,
+                is_visitor=True,
+                check_in_time=datetime.utcnow()
+            )
+            db.add(attendance)
+            db.commit()
+            return {"message": "Visitor added", "attended": True}
+        
+        # Regular member attendance
+        if data.get('member_id'):
+            return await add_attendance(event_id, data['member_id'], data.get('role'), current_user, db)
+        
+        raise ValueError("Invalid attendance data")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/{event_id}/attendance/{member_id}/toggle")
 async def toggle_attendance(
     event_id: str,

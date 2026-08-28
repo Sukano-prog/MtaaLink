@@ -1074,9 +1074,7 @@ body {
     color: #1a1a2e !important;
 }
 
-.auth-container, .auth-screen {
-    background: #f8f9fa !important;
-}
+
 
 .auth-card {
     background: white;
@@ -1192,11 +1190,13 @@ input:focus, textarea:focus, select:focus,
 }
 
 
-.auth-container {
+
+
+.auth-container, .auth-screen {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     min-height: 100vh;
-    background: #e8ecf1;
     padding: 20px;
+    background: #e8ecf1;
 }

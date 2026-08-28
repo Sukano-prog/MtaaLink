@@ -61,20 +61,6 @@ export async function renderElections() {
             
             <div id="electionsContainer">
                 ${Skeletons.elections()}
-                <div class="form-group">
-                    <label for="voterCodeInput">Voter Code</label>
-                    <input type="text" id="voterCodeInput" class="form-control" placeholder="Enter your voter code (e.g., ELEC-XXXXXX-XXXXXX)" style="font-family:monospace;font-size:var(--font-size-md);">
-                    <button class="btn btn-primary btn-block" id="verifyCodeBtn" style="margin-top:8px;">Verify Code</button>
-                    <div class="form-helper">Your voter code is unique and confidential. Do not share it with anyone.</div>
-                </div>
-                <div id="voterCandidatesContainer" style="margin-top:12px;display:none;">
-                    <div style="border-top:1px solid var(--gray-200);padding-top:12px;">
-                        <strong>Select Your Candidate</strong>
-                        <div id="candidateOptions" style="margin-top:8px;"></div>
-                        <button class="btn btn-success btn-block" id="castVoteBtn" style="margin-top:12px;display:none;">Cast Your Vote</button>
-                    </div>
-                </div>
-                <div id="voterStatus" style="margin-top:12px;"></div>
             </div>
         `,
         size: 'md',

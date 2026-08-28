@@ -373,17 +373,7 @@ window.addContribution = function() {
                 required: true,
                 placeholder: '0.00'
             },
-            {
-                id: 'payment_method',
-                label: 'Payment Method',
-                type: 'select',
-                options: [
-                    { value: 'cash', label: 'Cash' },
-                    { value: 'mpesa', label: 'M-PESA' },
-                    { value: 'bank', label: 'Bank Transfer' }
-                ],
-                required: true
-            }
+
         ],
         onSubmit: async function(data, done) {
             try {
@@ -396,8 +386,8 @@ window.addContribution = function() {
                     },
                     body: JSON.stringify({
                         member_id: data.member_id,
-                        amount: parseFloat(data.amount),
-                        payment_method: data.payment_method
+                        contribution_type: 'money',
+                        amount: parseFloat(data.amount)
                     })
                 });
                 

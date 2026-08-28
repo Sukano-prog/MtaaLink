@@ -403,8 +403,7 @@ window.addContribution = function() {
                     body: JSON.stringify({
                         member_id: data.member_id,
                         amount: parseFloat(data.amount),
-                        payment_method: data.payment_method,
-                        status: 'paid'
+                        payment_method: data.payment_method
                     })
                 });
                 
@@ -451,11 +450,27 @@ window.deleteEvent = async function() {
 };
 
 window.exportPDF = function() {
-    window.open(`/api/v1/events/${currentEvent.id}/export/pdf`, '_blank');
+    fetch(`/api/v1/events/${currentEvent.id}/export/pdf`, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    })
+    .then(function(response) {
+        return response.blob();
+    })
+    .then(function(blob) {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `event_${currentEvent.title}_report.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(function(error) {
+        showError('Failed to download PDF: ' + error.message);
+    });
 };
 
-window.exportCSV = function() {
-    window.open(`/api/v1/events/${currentEvent.id}/export/csv`, '_blank');
-};
+
 
 window.renderEventDetail = renderEventDetail;

@@ -51,7 +51,7 @@ body {
     justify-content: center;
     min-height: 100vh;
     padding: 20px;
-    background: linear-gradient(135deg, #E8F0FE 0%, #D4E4F7 100%);
+    background: #e8ecf1;
 }
 
 .auth-container {

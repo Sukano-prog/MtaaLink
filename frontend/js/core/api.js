@@ -22,6 +22,11 @@ function getHeaders() {
 
 async function apiCall(endpoint, method = 'GET', data = null) {
     let url = API_BASE + endpoint;
+    // Add cache-busting for GET requests
+    if (method === 'GET') {
+        const separator = url.includes('?') ? '&' : '?';
+        url = url + separator + '_t=' + Date.now();
+    }
     
     const options = {
         method: method,

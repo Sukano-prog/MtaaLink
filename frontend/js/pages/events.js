@@ -259,65 +259,6 @@ function viewEventDetail(event) {
         showError("Failed to load event detail");
     });
 }
-    getEvent(event.id)
-        .then(function(detail) {
-            const attendanceList = (detail.attendance || []).map(function(a) {
-                return `<div style="padding:4px 0;border-bottom:1px dotted var(--gray-100);font-size:var(--font-size-sm);">
-                    ${a.member_name} ${a.role ? '(' + a.role + ')' : ''}
-                </div>`;
-            }).join('');
-            
-            const contribList = (detail.contributions || []).map(function(c) {
-                const amount = c.amount ? 'KES ' + c.amount.toLocaleString() : '';
-                return `<div style="padding:4px 0;border-bottom:1px dotted var(--gray-100);font-size:var(--font-size-sm);">
-                    ${c.member_name || 'Anonymous'}: ${c.contribution_type} ${amount} ${c.description || ''}
-                </div>`;
-            }).join('');
-            
-            showModal({
-                title: event.title,
-                content: `
-                    <div style="margin-bottom:12px;">
-                        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-                            <span class="badge badge-${event.status}">${event.status}</span>
-                            <span class="badge badge-gray">${event.event_type}</span>
-                        </div>
-                        <p>${event.description || 'No description'}</p>
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:var(--font-size-sm);">
-                            <div><strong>Date:</strong> ${event.date}</div>
-                            <div><strong>Location:</strong> ${event.location || 'Not specified'}</div>
-                            <div><strong>Organizer:</strong> ${event.organizer_name || 'Not specified'}</div>
-                            <div><strong>Total Contributions:</strong> KES ${(detail.total_contributions || 0).toLocaleString()}</div>
-                        </div>
-                        ${detail.attendance && detail.attendance.length > 0 ? `
-                            <div style="margin-top:12px;border-top:1px solid var(--gray-200);padding-top:12px;">
-                                <strong>Attendance (${detail.attendance.length})</strong>
-                                ${attendanceList}
-                            </div>
-                        ` : ''}
-                        ${detail.contributions && detail.contributions.length > 0 ? `
-                            <div style="margin-top:12px;border-top:1px solid var(--gray-200);padding-top:12px;">
-                                <strong>Contributions (${detail.contributions.length})</strong>
-                                ${contribList}
-                            </div>
-                        ` : ''}
-                    </div>
-                `,
-                size: 'lg',
-                buttons: [
-                    {
-                        label: 'Close',
-                        action: 'close',
-                        class: 'btn-outline',
-                        onClick: function(done) { done(); }
-                    }
-                ]
-            });
-        })
-        .catch(function() {
-            showError('Failed to load event details');
-        });
-}
 
 function manageAttendanceModal(event) {
     const memberOptions = membersData.map(function(m) {

@@ -660,6 +660,104 @@ class ReportService:
         return buffer
 
     @staticmethod
+    def export_event_pdf(db: Session, organization_id: str, event_id: str) -> io.BytesIO:
+        from app.models.event import Event, EventAttendance, EventContribution
+        from app.models.village import Village
+        from app.models.member import Member
+        
+        village = db.query(Village).filter(Village.id == organization_id).first()
+        org_name = village.name if village else "Organization"
+        
+        event = db.query(Event).filter(
+            Event.id == event_id,
+            Event.village_id == organization_id,
+            Event.deleted_at.is_(None)
+        ).first()
+        
+        if not event:
+            raise ValueError("Event not found")
+        
+        # Get attendance
+        attendance = db.query(EventAttendance).filter(
+            EventAttendance.event_id == event_id,
+            EventAttendance.deleted_at.is_(None)
+        ).all()
+        
+        # Get contributions
+        contributions = db.query(EventContribution).filter(
+            EventContribution.event_id == event_id,
+            EventContribution.deleted_at.is_(None)
+        ).all()
+        
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=20)
+        story.append(Paragraph(f"{org_name} - Event Report", title_style))
+        story.append(Paragraph(f"{event.title}", styles['Heading2']))
+        story.append(Paragraph(f"Date: {event.date.strftime('%B %d, %Y') if event.date else 'Not set'}", styles['Normal']))
+        story.append(Paragraph(f"Type: {event.event_type or 'General'}", styles['Normal']))
+        story.append(Paragraph(f"Status: {event.status or 'Upcoming'}", styles['Normal']))
+        story.append(Paragraph(f"Location: {event.location or 'Not set'}", styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        # Attendance section
+        story.append(Paragraph("Attendees", styles['Heading3']))
+        if attendance:
+            table_data = [["Member", "Checked In", "Role"]]
+            for a in attendance:
+                member = db.query(Member).filter(Member.id == a.member_id).first()
+                member_name = member.full_name if member else "Unknown"
+                table_data.append([member_name, "Yes" if a.attended else "No", a.role or "-"])
+            table = Table(table_data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 11),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ]))
+            story.append(table)
+        else:
+            story.append(Paragraph("No attendees recorded", styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        # Contributions section
+        story.append(Paragraph("Contributions", styles['Heading3']))
+        if contributions:
+            total = 0
+            table_data = [["Member", "Type", "Amount"]]
+            for c in contributions:
+                member = db.query(Member).filter(Member.id == c.member_id).first()
+                member_name = member.full_name if member else "Unknown"
+                amount = c.amount or 0
+                total += amount
+                table_data.append([member_name, c.contribution_type or "Money", f"KES {amount:,.2f}"])
+            table_data.append(["", "TOTAL", f"KES {total:,.2f}"])
+            table = Table(table_data)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 11),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('BACKGROUND', (-1, -1), (-1, -1), colors.lightgrey),
+                ('FONTNAME', (-1, -1), (-1, -1), 'Helvetica-Bold'),
+            ]))
+            story.append(table)
+        else:
+            story.append(Paragraph("No contributions recorded", styles['Normal']))
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer
+
     def export_events_pdf(db: Session, organization_id: str) -> io.BytesIO:
         from app.models.event import Event
         from app.models.village import Village

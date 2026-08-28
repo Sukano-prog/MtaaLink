@@ -26,6 +26,31 @@ export async function renderMeetingDetail(meetingId) {
         currentMeeting = data.meeting;
         currentAttendance = data.attendance || [];
         
+        // Fetch motions and action items
+        try {
+            const motionsResponse = await fetch('/api/v1/meetings/' + meetingId + '/motions', {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            });
+            if (motionsResponse.ok) {
+                const motionsData = await motionsResponse.json();
+                data.meeting.motions = motionsData;
+            }
+        } catch (e) {
+            data.meeting.motions = [];
+        }
+        
+        try {
+            const actionsResponse = await fetch('/api/v1/meetings/' + meetingId + '/action-items', {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            });
+            if (actionsResponse.ok) {
+                const actionsData = await actionsResponse.json();
+                data.meeting.action_items = actionsData;
+            }
+        } catch (e) {
+            data.meeting.action_items = [];
+        }
+        
         attendanceCache = {};
         currentAttendance.forEach(function(a) {
             attendanceCache[a.member_id] = {

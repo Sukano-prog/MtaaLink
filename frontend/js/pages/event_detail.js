@@ -1,5 +1,5 @@
 /* ============================================================
-   MtaaLink - Event Detail Page (Tabs)
+   MtaaLink - Event Detail Page (Tabs with Filters)
    ============================================================ */
 
 import { getEvent, updateEvent, deleteEvent } from '../core/api.js';
@@ -14,11 +14,13 @@ let eventContributions = [];
 let allMembers = [];
 let eventId = null;
 let currentTab = 'overview';
+let filterPaymentMethod = 'all';
+let filterDateRange = 'all';
+let filterMemberSearch = '';
 
 export async function renderEventDetail(id) {
     eventId = id;
     const content = document.getElementById('pageContent');
-    // Clear cached data to force reload
     currentEvent = null;
     eventMembers = [];
     eventContributions = [];
@@ -52,12 +54,10 @@ export async function renderEventDetail(id) {
             </div>
         `;
         
-        // Switch to the stored tab after rendering
         setTimeout(function() {
             switchTab(currentTab);
         }, 50);
         
-        // Add styles
         if (!document.getElementById('eventDetailStyles')) {
             const style = document.createElement('style');
             style.id = 'eventDetailStyles';
@@ -98,255 +98,328 @@ export async function renderEventDetail(id) {
                     border-radius: 4px;
                     font-size: 10px;
                     color: #6b7280;
-                    margin-left: 6px;
+                }
+                .filter-bar {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                    padding: 12px 16px;
+                    background: #f8fafc;
+                    border-radius: 8px;
+                    margin-bottom: 16px;
+                    align-items: center;
+                }
+                .filter-bar label {
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: #374151;
+                    margin-right: 4px;
+                }
+                .filter-bar select, .filter-bar input {
+                    padding: 6px 12px;
+                    border: 1px solid #d1d5db;
+                    border-radius: 6px;
+                    font-size: 13px;
+                    background: white;
+                    outline: none;
+                }
+                .filter-bar select:focus, .filter-bar input:focus {
+                    border-color: #1A73E8;
+                    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+                }
+                .filter-bar .filter-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .filter-bar .clear-filter {
+                    color: #ef4444;
+                    cursor: pointer;
+                    font-size: 13px;
+                    font-weight: 500;
+                    background: none;
+                    border: none;
+                    padding: 4px 8px;
+                }
+                .filter-bar .clear-filter:hover {
+                    text-decoration: underline;
+                }
+                .payments-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .payments-table th {
+                    text-align: left;
+                    padding: 10px 12px;
+                    background: #f8fafc;
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #6b7280;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    border-bottom: 2px solid #e5e7eb;
+                }
+                .payments-table td {
+                    padding: 10px 12px;
+                    border-bottom: 1px solid #f3f4f6;
+                    font-size: 14px;
+                }
+                .payments-table tr:hover {
+                    background: #f9fafb;
+                }
+                .payment-summary {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 12px;
+                    margin-bottom: 16px;
+                }
+                .payment-summary .summary-item {
+                    background: white;
+                    padding: 12px 16px;
+                    border-radius: 8px;
+                    border: 1px solid #e5e7eb;
+                }
+                .payment-summary .summary-item .label {
+                    font-size: 12px;
+                    color: #6b7280;
+                }
+                .payment-summary .summary-item .value {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #1a1a2e;
+                }
+                .no-results {
+                    text-align: center;
+                    padding: 40px;
+                    color: #6b7280;
+                }
+                @media (max-width: 640px) {
+                    .filter-bar {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+                    .filter-bar .filter-group {
+                        flex-wrap: wrap;
+                    }
+                    .payments-table {
+                        font-size: 12px;
+                    }
+                    .payments-table th, .payments-table td {
+                        padding: 6px 8px;
+                    }
                 }
             `;
             document.head.appendChild(style);
         }
         
     } catch (error) {
-        content.innerHTML = `
-            <div class="card">
-                <div class="card-body">
-                    <p style="color:var(--danger);">Failed to load event: ${error.message}</p>
-                    <button class="btn btn-primary" onclick="renderEventDetail('${eventId}')">Retry</button>
-                </div>
-            </div>
-        `;
+        showError('Failed to load event: ' + error.message);
+        content.innerHTML = '<div class="error-box">Failed to load event details</div>';
     }
 }
-
-// ===== TAB 1: OVERVIEW =====
 
 function renderOverview() {
+    if (!currentEvent) return '<div>Loading...</div>';
     const e = currentEvent;
-    const checkedIn = eventMembers.filter(m => m.attended).length;
-    const totalCollected = eventContributions.reduce((sum, c) => sum + (c.amount || 0), 0);
-    
     return `
-        <div class="card">
-            <div class="card-body">
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
-                    <div style="background:var(--gray-50);padding:16px;border-radius:8px;text-align:center;">
-                        <div style="font-size:24px;font-weight:700;color:var(--primary);">${eventMembers.length}</div>
-                        <div style="font-size:13px;color:var(--gray-500);">Attendees</div>
-                    </div>
-                    <div style="background:var(--gray-50);padding:16px;border-radius:8px;text-align:center;">
-                        <div style="font-size:24px;font-weight:700;color:var(--success);">${checkedIn}</div>
-                        <div style="font-size:13px;color:var(--gray-500);">Checked In</div>
-                    </div>
-                    <div style="background:var(--gray-50);padding:16px;border-radius:8px;text-align:center;">
-                        <div style="font-size:24px;font-weight:700;color:var(--info);">KES ${totalCollected}</div>
-                        <div style="font-size:13px;color:var(--gray-500);">Collected</div>
-                    </div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px;">
-                    <div><strong>Type:</strong> ${e.event_type || 'General'}</div>
-                    <div><strong>Date:</strong> ${e.date ? new Date(e.date).toLocaleDateString() : 'Not set'}</div>
-                    <div><strong>Time:</strong> ${e.time || 'Not set'}</div>
-                    <div><strong>Location:</strong> ${e.location || 'Not set'}</div>
-                    <div><strong>Status:</strong> <span class="badge badge-${e.status === 'completed' ? 'success' : e.status === 'ongoing' ? 'warning' : 'primary'}">${e.status || 'Upcoming'}</span></div>
-                    <div><strong>Organizer:</strong> ${e.organizer_name || 'Not set'}</div>
-                </div>
-                ${e.description ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-200);"><strong>Description</strong><p style="margin-top:4px;color:var(--gray-600);">${e.description}</p></div>` : ''}
-            </div>
+        <div style="display:grid;gap:16px;max-width:800px;">
+            <div><strong>Description:</strong> ${e.description || 'No description'}</div>
+            <div><strong>Date:</strong> ${e.date || e.start_date || 'TBD'}</div>
+            <div><strong>Time:</strong> ${e.time || e.start_time || 'TBD'}</div>
+            <div><strong>Location:</strong> ${e.location || e.venue || e.address || 'TBD'}</div>
+            <div><strong>Status:</strong> <span style="background:${e.status === 'completed' ? '#d4edda' : '#fff3cd'};padding:4px 12px;border-radius:4px;">${e.status || 'pending'}</span></div>
+            <div><strong>Attendees:</strong> ${eventMembers.filter(m => m.attended).length} / ${eventMembers.length}</div>
+            <div><strong>Contributions:</strong> ${eventContributions.length} payments</div>
+            <div><strong>Total Collected:</strong> KES ${eventContributions.reduce((sum, c) => sum + (c.amount || 0), 0).toFixed(2)}</div>
         </div>
     `;
 }
-
-// ===== TAB 2: ATTENDEES =====
 
 function renderAttendees() {
-    if (eventMembers.length === 0) {
-        return `
-            <div class="card">
-                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-                    <h3 style="margin:0;">Attendees</h3>
-                    <button class="btn btn-primary btn-sm" onclick="addAttendee()">+ Add</button>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">No attendees yet.</p>
-                </div>
-            </div>
-        `;
-    }
-    
-    let html = `
-        <div class="card">
-            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-                <h3 style="margin:0;">Attendees (${eventMembers.length})</h3>
-                <button class="btn btn-primary btn-sm" onclick="addAttendee()">+ Add</button>
-            </div>
-            <div class="card-body" style="padding:0;">
-                <div style="overflow-x:auto;">
-                    <table class="table" style="margin:0;">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Gender</th>
-                                <th>Age</th>
-                                <th>Phone</th>
-                                <th>Status</th>
-                                <th style="text-align:center;">Check In</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    `;
-    
-    eventMembers.forEach(function(m) {
-        const isVisitor = m.is_visitor || false;
-        const nameDisplay = m.member_name || 'Unknown';
-        const badge = isVisitor ? ' <span class="visitor-badge">Visitor</span>' : '';
-        const genderDisplay = m.member_gender || '-';
-        const ageDisplay = m.member_age_category || '-';
-        const phoneDisplay = m.phone || m.member_phone || '-';
-        const statusText = m.attended ? 'Checked In' : 'Not Checked In';
-        const statusColor = m.attended ? 'var(--success)' : 'var(--gray-400)';
-        const btnClass = m.attended ? 'checked' : 'unchecked';
-        const btnText = m.attended ? 'Checked In' : 'Check In';
-        const typeDisplay = isVisitor ? 'Visitor' : 'Member';
-        const memberId = m.member_id || m.id || 'unknown';
-        
-        html += `
-            <tr>
-                <td><strong>${nameDisplay}</strong>${badge}</td>
-                <td>${typeDisplay}</td>
-                <td>${genderDisplay}</td>
-                <td>${ageDisplay}</td>
-                <td>${phoneDisplay}</td>
-                <td><span style="color:${statusColor};">${statusText}</span></td>
-                <td style="text-align:center;">
-                    <button class="check-in-btn ${btnClass}" onclick="toggleCheckIn('${m.record_id || m.id || m.member_id || 'unknown'}')">${btnText}</button>
-                </td>
-            </tr>
-        `;
-    });
-    
-    html += `
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    const checkedIn = eventMembers.filter(m => m.attended).length;
+    return `
+        <div style="margin-bottom:12px;">
+            <strong>Checked in:</strong> ${checkedIn} / ${eventMembers.length}
+            <button class="btn btn-primary" style="margin-left:12px;padding:4px 16px;font-size:13px;" onclick="recordAttendance()">+ Record Attendance</button>
+        </div>
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px 12px;text-align:left;font-size:12px;">Member</th>
+                    <th style="padding:8px 12px;text-align:left;font-size:12px;">Role</th>
+                    <th style="padding:8px 12px;text-align:left;font-size:12px;">Status</th>
+                    <th style="padding:8px 12px;text-align:left;font-size:12px;">Action</th>
+                </tr>
+                ${eventMembers.map(m => `
+                    <tr>
+                        <td style="padding:8px 12px;">${m.member_name || m.name || 'Unknown'}</td>
+                        <td style="padding:8px 12px;">${m.role || 'member'}</td>
+                        <td style="padding:8px 12px;">${m.attended ? '✅ Checked in' : '❌ Not checked in'}</td>
+                        <td style="padding:8px 12px;">
+                            <button class="check-in-btn ${m.attended ? 'checked' : 'unchecked'}" 
+                                    onclick="toggleAttendance('${m.id || m.member_id}')">
+                                ${m.attended ? 'Undo' : 'Check in'}
+                            </button>
+                        </td>
+                    </tr>
+                `).join('')}
+            </table>
         </div>
     `;
-    
-    return html;
 }
-
-// ===== TAB 3: PAYMENTS =====
 
 function renderPayments() {
-    if (eventContributions.length === 0) {
-        return `
-            <div class="card">
-                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-                    <h3 style="margin:0;">Payments</h3>
-                    <button class="btn btn-primary btn-sm" onclick="addPayment()">+ Record</button>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">No payments recorded.</p>
-                </div>
-            </div>
-        `;
+    // Apply filters
+    let filtered = [...eventContributions];
+    
+    // Filter by payment method
+    if (filterPaymentMethod !== 'all') {
+        filtered = filtered.filter(c => (c.payment_method || '').toLowerCase() === filterPaymentMethod.toLowerCase());
     }
     
-    let html = `
-        <div class="card">
-            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-                <h3 style="margin:0;">Payments (${eventContributions.length})</h3>
-                <button class="btn btn-primary btn-sm" onclick="addPayment()">+ Record</button>
-            </div>
-            <div class="card-body" style="padding:0;">
-                <div style="overflow-x:auto;">
-                    <table class="table" style="margin:0;">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Method</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-    `;
+    // Filter by date range
+    if (filterDateRange !== 'all') {
+        const now = new Date();
+        let startDate = new Date();
+        if (filterDateRange === 'today') {
+            startDate.setHours(0, 0, 0, 0);
+        } else if (filterDateRange === 'week') {
+            startDate.setDate(now.getDate() - 7);
+        } else if (filterDateRange === 'month') {
+            startDate.setMonth(now.getMonth() - 1);
+        }
+        filtered = filtered.filter(c => {
+            const dateStr = c.payment_date || c.created_at;
+            if (!dateStr) return false;
+            const d = new Date(dateStr);
+            return d >= startDate;
+        });
+    }
     
-    eventContributions.forEach(function(c) {
-        const dateStr = c.payment_date ? new Date(c.payment_date).toLocaleDateString() : (c.created_at ? new Date(c.created_at).toLocaleDateString() : '-');
-        html += `
-            <tr>
-                <td><strong>${c.member_name || 'Anonymous'}</strong></td>
-                <td>${c.contribution_type || 'Money'}</td>
-                <td>KES ${c.amount || 0}</td>
-                <td>${c.payment_method || 'Cash'}</td>
-                <td>${c.payment_date || dateStr}</td>
-            </tr>
-        `;
-    });
+    // Filter by member name search
+    if (filterMemberSearch.trim()) {
+        const search = filterMemberSearch.toLowerCase().trim();
+        filtered = filtered.filter(c => {
+            const name = c.member_name || c.name || '';
+            return name.toLowerCase().includes(search);
+        });
+    }
     
-    html += `
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    return html;
-}
-
-// ===== TAB 4: REPORT =====
-
-function renderReport() {
-    const totalCollected = eventContributions.reduce((sum, c) => sum + (c.amount || 0), 0);
-    const checkedIn = eventMembers.filter(m => m.attended).length;
-    
-    let attendeesList = '';
-    eventMembers.forEach(function(m) {
-        const visitorTag = m.is_visitor ? ' (Visitor)' : '';
-        attendeesList += `<li>${m.member_name || 'Unknown'} - ${m.attended ? 'Checked In' : 'Not Checked In'}${visitorTag}</li>`;
-    });
-    
-    let contributionsList = '';
-    eventContributions.forEach(function(c) {
-        contributionsList += `<li>${c.member_name || 'Anonymous'} - KES ${c.amount || 0}</li>`;
-    });
+    const total = filtered.reduce((sum, c) => sum + (c.amount || 0), 0);
+    const count = filtered.length;
     
     return `
-        <div class="card">
-            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
-                <h3 style="margin:0;">Event Report</h3>
-                <button class="btn btn-success btn-sm" onclick="exportPDF()">Export PDF</button>
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label>Method:</label>
+                <select id="filterMethod" onchange="applyFilter('method', this.value)">
+                    <option value="all">All</option>
+                    <option value="cash">Cash</option>
+                    <option value="mpesa">M-PESA</option>
+                    <option value="bank">Bank Transfer</option>
+                </select>
             </div>
-            <div class="card-body">
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
-                    <div><strong>Total Attendees:</strong> ${eventMembers.length}</div>
-                    <div><strong>Checked In:</strong> ${checkedIn}</div>
-                    <div><strong>Total Collected:</strong> KES ${totalCollected}</div>
-                </div>
-                <div style="border-top:1px solid var(--gray-200);padding-top:16px;">
-                    <h4>Attendees</h4>
-                    <ul>${attendeesList}</ul>
-                </div>
-                <div style="border-top:1px solid var(--gray-200);padding-top:16px;margin-top:16px;">
-                    <h4>Payments</h4>
-                    <ul>${contributionsList}</ul>
-                </div>
+            <div class="filter-group">
+                <label>Date:</label>
+                <select id="filterDate" onchange="applyFilter('date', this.value)">
+                    <option value="all">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Member:</label>
+                <input type="text" id="filterMember" placeholder="Search member..." oninput="applyFilter('member', this.value)">
+            </div>
+            <button class="clear-filter" onclick="clearFilters()">Clear Filters</button>
+        </div>
+        
+        <div class="payment-summary">
+            <div class="summary-item">
+                <div class="label">Total Payments</div>
+                <div class="value">${count}</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">Total Amount</div>
+                <div class="value">KES ${total.toFixed(2)}</div>
+            </div>
+            <div class="summary-item">
+                <div class="label">Average Payment</div>
+                <div class="value">KES ${count > 0 ? (total / count).toFixed(2) : '0.00'}</div>
             </div>
         </div>
+        
+        ${count === 0 ? `
+            <div class="no-results">
+                <p>No payments found matching the filters</p>
+            </div>
+        ` : `
+            <div style="overflow-x:auto;">
+                <table class="payments-table">
+                    <thead>
+                        <tr>
+                            <th>Member</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(c => {
+                            const dateStr = c.payment_date ? new Date(c.payment_date).toLocaleDateString() : (c.created_at ? new Date(c.created_at).toLocaleDateString() : '-');
+                            return `
+                                <tr>
+                                    <td><strong>${c.member_name || c.name || 'Anonymous'}</strong></td>
+                                    <td>KES ${(c.amount || 0).toFixed(2)}</td>
+                                    <td><span style="background:#f3f4f6;padding:2px 8px;border-radius:4px;font-size:12px;">${c.payment_method || 'cash'}</span></td>
+                                    <td>${c.contribution_type || 'money'}</td>
+                                    <td>${dateStr}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `}
     `;
 }
 
-// ===== TAB SWITCHING =====
+function renderReport() {
+    const total = eventContributions.reduce((sum, c) => sum + (c.amount || 0), 0);
+    const checkedIn = eventMembers.filter(m => m.attended).length;
+    
+    return `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px;">
+            <div style="background:white;padding:16px;border-radius:8px;border:1px solid #e5e7eb;">
+                <div style="font-size:12px;color:#6b7280;">Total Attendees</div>
+                <div style="font-size:24px;font-weight:700;">${eventMembers.length}</div>
+            </div>
+            <div style="background:white;padding:16px;border-radius:8px;border:1px solid #e5e7eb;">
+                <div style="font-size:12px;color:#6b7280;">Checked In</div>
+                <div style="font-size:24px;font-weight:700;">${checkedIn}</div>
+            </div>
+            <div style="background:white;padding:16px;border-radius:8px;border:1px solid #e5e7eb;">
+                <div style="font-size:12px;color:#6b7280;">Total Payments</div>
+                <div style="font-size:24px;font-weight:700;">${eventContributions.length}</div>
+            </div>
+            <div style="background:white;padding:16px;border-radius:8px;border:1px solid #e5e7eb;">
+                <div style="font-size:12px;color:#6b7280;">Total Collected</div>
+                <div style="font-size:24px;font-weight:700;">KES ${total.toFixed(2)}</div>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="exportReport()">📊 Export Report</button>
+    `;
+}
 
+// Tab switching
 window.switchTab = function(tab) {
     currentTab = tab;
-    document.querySelectorAll('.tab-btn').forEach(function(t) {
-        t.classList.remove('active');
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs.forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
     });
-    document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
-    
     const content = document.getElementById('tabContent');
     if (tab === 'overview') content.innerHTML = renderOverview();
     else if (tab === 'attendees') content.innerHTML = renderAttendees();
@@ -354,419 +427,158 @@ window.switchTab = function(tab) {
     else if (tab === 'report') content.innerHTML = renderReport();
 };
 
-// ===== ADD ATTENDEE =====
-
-window.addAttendee = function() {
-    const available = allMembers.filter(function(m) {
-        return !eventMembers.some(function(em) { return em.member_id === m.id; });
-    });
-    
-    const memberOptions = available.map(function(m) {
-        const name = m.full_name || (m.first_name || '') + ' ' + (m.last_name || '');
-        return { value: m.id, label: name.trim() || 'Unknown Member' };
-    });
-    memberOptions.unshift({ value: '', label: '' });
-    
-    showFormModal({
-        title: 'Add Attendee',
-        fields: [
-            {
-                id: 'attendee_type',
-                label: 'Attendee Type',
-                type: 'select',
-                value: 'member',
-                required: true,
-                options: [
-                    { value: 'member', label: 'Existing Member' },
-                    { value: 'visitor', label: 'Visitor/Guest' }
-                ]
-            },
-            {
-                id: 'member_id',
-                label: 'Member',
-                type: 'select',
-                options: memberOptions,
-                required: false,
-                placeholder: 'Search for a member...'
-            },
-            {
-                id: 'visitor_name',
-                label: 'Visitor Name',
-                type: 'text',
-                value: '',
-                required: false,
-                placeholder: 'Enter visitor name...'
-            },
-            {
-                id: 'visitor_gender',
-                label: 'Gender',
-                type: 'select',
-                value: '',
-                required: false,
-                options: [
-                    { value: '', label: 'Select gender...' },
-                    { value: 'male', label: 'Male' },
-                    { value: 'female', label: 'Female' },
-                    { value: 'other', label: 'Other' }
-                ]
-            },
-            {
-                id: 'visitor_age',
-                label: 'Age Category',
-                type: 'select',
-                value: '',
-                required: false,
-                options: [
-                    { value: '', label: 'Select age category...' },
-                    { value: 'child', label: 'Child (0-12)' },
-                    { value: 'teen', label: 'Teen (13-17)' },
-                    { value: 'adult', label: 'Adult (18-59)' },
-                    { value: 'elder', label: 'Elder (60+)' }
-                ]
-            },
-            {
-                id: 'visitor_phone',
-                label: 'Phone (optional)',
-                type: 'text',
-                value: '',
-                required: false,
-                placeholder: '0712345678'
-            }
-        ],
-        onShow: function() {
-            // Add CSS to fix dropdown overflow
-            var style = document.createElement('style');
-            style.textContent = '.modal-body { overflow: visible !important; } .searchable-select-dropdown { z-index: 99999 !important; }';
-            document.head.appendChild(style);
-            
-            setTimeout(function() {
-                const typeSelect = document.getElementById('attendee_type');
-                const memberSelect = document.getElementById('member_id');
-                const visitorName = document.getElementById('visitor_name');
-                const visitorGender = document.getElementById('visitor_gender');
-                const visitorAge = document.getElementById('visitor_age');
-                const visitorPhone = document.getElementById('visitor_phone');
-                
-                function toggleFields() {
-                    if (typeSelect && typeSelect.value === 'visitor') {
-                        if (memberSelect) {
-                            const container = memberSelect.parentElement;
-                            if (container) container.style.display = 'none';
-                        }
-                        if (visitorName) visitorName.parentElement.style.display = 'block';
-                        if (visitorGender) visitorGender.parentElement.style.display = 'block';
-                        if (visitorAge) visitorAge.parentElement.style.display = 'block';
-                        if (visitorPhone) visitorPhone.parentElement.style.display = 'block';
-                    } else {
-                        if (memberSelect) {
-                            const container = memberSelect.parentElement;
-                            if (container) {
-                                container.style.display = 'block';
-                                container.style.overflow = 'visible';
-                            }
-                            const select = document.getElementById('member_id');
-                            if (select) {
-                                const container2 = select.parentElement;
-                                const options = available.map(function(m) {
-                                    const name = m.full_name || (m.first_name || '') + ' ' + (m.last_name || '');
-                                    return { value: m.id, label: name.trim() || 'Unknown Member' };
-                                });
-                                options.unshift({ value: '', label: '' });
-                                const searchable = createSearchableSelect(options, '', 'Search for a member...');
-                                if (container2) {
-                                    container2.style.overflow = 'visible';
-                                    // Set position relative for dropdown
-                                    container2.style.position = 'relative';
-                                    container2.style.zIndex = '99999';
-                                    container2.replaceChild(searchable, select);
-                                }
-                            }
-                        }
-                        if (visitorName) visitorName.parentElement.style.display = 'none';
-                        if (visitorGender) visitorGender.parentElement.style.display = 'none';
-                        if (visitorAge) visitorAge.parentElement.style.display = 'none';
-                        if (visitorPhone) visitorPhone.parentElement.style.display = 'none';
-                    }
-                }
-                
-                if (typeSelect) {
-                    typeSelect.addEventListener('change', toggleFields);
-                }
-                toggleFields();
-            }, 150);
-        },
-        onSubmit: async function(data, done) {
-            try {
-                const token = localStorage.getItem('token');
-                
-                // Get the actual member_id from the searchable select
-                let memberId = data.member_id;
-                const memberContainer = document.querySelector('.searchable-select-container');
-                if (memberContainer) {
-                    const hiddenSelect = memberContainer.querySelector('.searchable-select-hidden');
-                    if (hiddenSelect) {
-                        memberId = hiddenSelect.value;
-                    }
-                }
-                
-                if (data.attendee_type === 'visitor') {
-                    if (!data.visitor_name || data.visitor_name.trim() === '') {
-                        showError('Please enter visitor name');
-                        return;
-                    }
-                    const body = {
-                        is_visitor: true,
-                        visitor_name: data.visitor_name.trim(),
-                        visitor_gender: data.visitor_gender || null,
-                        visitor_age: data.visitor_age || null,
-                        visitor_phone: data.visitor_phone || null,
-                        attended: true
-                    };
-                    
-                    const response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + token
-                        },
-                        body: JSON.stringify(body)
-                    });
-                    
-                    if (!response.ok) throw new Error('Failed to add visitor');
-                    showSuccess('Visitor added');
-                    done();
-                    // Force reload from API
-                    setTimeout(function() {
-                        renderEventDetail(currentEvent.id, currentTab);
-                    }, 500);
-                } else {
-                    if (!memberId) {
-                        showError('Please select a member');
-                        return;
-                    }
-                    const response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + memberId, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + token
-                        }
-                    });
-                    
-                    if (!response.ok) throw new Error('Failed to add attendee');
-                    showSuccess('Member added');
-                    done();
-                    setTimeout(function() {
-                        renderEventDetail(currentEvent.id, currentTab);
-                    }, 500);
-                }
-            } catch (error) {
-                showError(error.message || 'Failed to add attendee');
-            }
-        }
-    });
-};
-
-// ===== TOGGLE CHECK-IN =====
-
-window.toggleCheckIn = async function(id) {
-    try {
-        
-        // Find the attendee by record_id, member_id, or id
-        let attendee = null;
-        for (var i = 0; i < eventMembers.length; i++) {
-            var m = eventMembers[i];
-            if (m.record_id === id || m.member_id === id || m.id === id || 
-                String(m.record_id) === String(id) || String(m.member_id) === String(id) || String(m.id) === String(id)) {
-                attendee = m;
-                break;
-            }
-        }
-        
-        if (!attendee) {
-            showError('Attendee not found');
-            return;
-        }
-        
-        const token = localStorage.getItem('token');
-        
-        // Use the record_id or id for the toggle endpoint
-        const toggleId = attendee.record_id || attendee.id || attendee.member_id || id;
-        
-        const response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + toggleId + '/toggle', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            }
-        });
-        
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.detail || 'Failed to update check-in');
-        }
-        const data = await response.json();
-        
-        attendee.attended = data.attended;
-        showSuccess(data.attended ? 'Checked in' : 'Check-in removed');
-        renderEventDetail(currentEvent.id, currentTab);
-    } catch (error) {
-        console.error('❌ Toggle error:', error);
-        showError(error.message || 'Failed to update check-in');
+// Filter functions
+window.applyFilter = function(type, value) {
+    if (type === 'method') {
+        filterPaymentMethod = value;
+        document.getElementById('filterMethod').value = value;
+    } else if (type === 'date') {
+        filterDateRange = value;
+        document.getElementById('filterDate').value = value;
+    } else if (type === 'member') {
+        filterMemberSearch = value;
     }
+    const content = document.getElementById('tabContent');
+    content.innerHTML = renderPayments();
 };
 
-// ===== ADD PAYMENT =====
+window.clearFilters = function() {
+    filterPaymentMethod = 'all';
+    filterDateRange = 'all';
+    filterMemberSearch = '';
+    const methodSelect = document.getElementById('filterMethod');
+    const dateSelect = document.getElementById('filterDate');
+    const memberInput = document.getElementById('filterMember');
+    if (methodSelect) methodSelect.value = 'all';
+    if (dateSelect) dateSelect.value = 'all';
+    if (memberInput) memberInput.value = '';
+    const content = document.getElementById('tabContent');
+    content.innerHTML = renderPayments();
+};
 
-window.addPayment = function() {
-    const memberOptions = eventMembers.map(function(m) {
-        return { value: m.member_id || m.id, label: m.member_name || 'Unknown' };
-    });
-    
-    if (memberOptions.length === 0) {
-        showError('No attendees to record payment for');
+// Export report
+window.exportReport = function() {
+    if (!eventContributions.length) {
+        showError('No payments to export');
         return;
     }
     
-    showFormModal({
-        title: 'Record Payment',
-        fields: [
-            {
-                id: 'member_id',
-                label: 'Member/Visitor',
-                type: 'select',
-                options: memberOptions,
-                required: true,
-                placeholder: 'Search for a member...'
-            },
-            {
-                id: 'amount',
-                label: 'Amount (KES)',
-                type: 'number',
-                required: true,
-                placeholder: '0.00'
-            },
-            {
-                id: 'payment_method',
-                label: 'Payment Method',
-                type: 'select',
-                value: 'cash',
-                required: true,
-                options: [
-                    { value: 'cash', label: 'Cash' },
-                    { value: 'mpesa', label: 'M-PESA' },
-                    { value: 'bank', label: 'Bank Transfer' }
-                ]
-            },
-            {
-                id: 'payment_date',
-                label: 'Payment Date',
-                type: 'date',
-                value: new Date().toISOString().split('T')[0],
-                required: true
-            }
-        ],
-        onShow: function() {
-            setTimeout(function() {
-                var select = document.getElementById('member_id');
-                if (select) {
-                    var container = select.parentElement;
-                    var options = memberOptions;
-                    var searchable = createSearchableSelect(options, '', 'Search for a member...');
-                    if (container) {
-                        container.style.overflow = 'visible';
-                        container.replaceChild(searchable, select);
-                    }
-                }
-            }, 100);
-        },
-        onSubmit: async function(data, done) {
-            try {
-                const response = await fetch('/api/v1/events/' + currentEvent.id + '/contributions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + localStorage.getItem('token')
-                    },
-                    body: JSON.stringify({
-                        member_id: data.member_id,
-                        contribution_type: 'money',
-                        amount: parseFloat(data.amount),
-                        payment_method: data.payment_method || 'cash',
-                        payment_date: data.payment_date || new Date().toISOString().split('T')[0]
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.detail || 'Failed to record payment');
-                }
-                
-                showSuccess('Payment recorded');
-                done();
-                renderEventDetail(currentEvent.id, currentTab);
-            } catch (error) {
-                showError(error.message || 'Failed to record payment');
-            }
-        }
+    let csv = 'Member,Amount,Method,Type,Date\n';
+    eventContributions.forEach(c => {
+        const dateStr = c.payment_date ? new Date(c.payment_date).toLocaleDateString() : (c.created_at ? new Date(c.created_at).toLocaleDateString() : '-');
+        csv += `"${c.member_name || c.name || 'Anonymous'}",${c.amount || 0},${c.payment_method || 'cash'},${c.contribution_type || 'money'},${dateStr}\n`;
     });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `event-payments-${currentEvent?.title || 'export'}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Report exported!', 'success');
 };
 
-// ===== EXPORT PDF =====
-
-window.exportPDF = function() {
-    fetch('/api/v1/reports/export/events/pdf?event_id=' + currentEvent.id, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    })
-    .then(function(response) {
-        if (!response.ok) throw new Error('PDF generation failed');
-        return response.blob();
-    })
-    .then(function(blob) {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'event_' + currentEvent.title + '_report.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        showSuccess('PDF downloaded');
-    })
-    .catch(function(error) {
-        showError('Failed to download PDF: ' + error.message);
-    });
-};
-
-// ===== EDIT & DELETE =====
-
+// Other functions (keep existing)
 window.editEvent = function() {
-    import('./events.js').then(function(module) {
-        if (typeof module.openEventModal === 'function') {
-            module.openEventModal(currentEvent);
-        } else {
-            showError('Edit function not available');
+    if (!currentEvent) return;
+    showFormModal('Edit Event', [
+        { id: 'title', label: 'Title', type: 'text', value: currentEvent.title, required: true },
+        { id: 'description', label: 'Description', type: 'textarea', value: currentEvent.description || '' },
+        { id: 'date', label: 'Date', type: 'date', value: currentEvent.date || currentEvent.start_date?.split('T')[0] || '', required: true },
+        { id: 'time', label: 'Time', type: 'time', value: currentEvent.time || currentEvent.start_time || '' },
+        { id: 'location', label: 'Location', type: 'text', value: currentEvent.location || currentEvent.venue || '' },
+        { id: 'status', label: 'Status', type: 'select', value: currentEvent.status || 'pending', options: [
+            { value: 'pending', label: 'Pending' },
+            { value: 'ongoing', label: 'Ongoing' },
+            { value: 'completed', label: 'Completed' },
+            { value: 'cancelled', label: 'Cancelled' }
+        ]}
+    ], async function(data) {
+        try {
+            const updated = await updateEvent(eventId, data);
+            currentEvent = updated;
+            showSuccess('Event updated!');
+            renderEventDetail(eventId);
+        } catch (error) {
+            showError('Failed to update event: ' + error.message);
         }
-    }).catch(function(error) {
-        showError('Failed to load edit function');
     });
 };
 
 window.deleteEvent = function() {
-    showConfirm({
-        title: 'Delete Event',
-        message: 'Delete "' + currentEvent.title + '"?',
-        confirmLabel: 'Delete',
-        confirmClass: 'btn-danger',
-        onConfirm: async function(done) {
-            try {
-                await deleteEvent(currentEvent.id);
-                showSuccess('Event deleted');
-                done();
-                navigateTo('events');
-            } catch (error) {
-                showError(error.message || 'Failed to delete event');
-            }
+    showConfirm('Delete Event', 'Are you sure you want to delete this event? This action cannot be undone.', async function() {
+        try {
+            await deleteEvent(eventId);
+            showSuccess('Event deleted!');
+            navigateTo('events');
+        } catch (error) {
+            showError('Failed to delete event: ' + error.message);
         }
+    });
+};
+
+window.toggleAttendance = function(memberId) {
+    // Find member
+    const member = eventMembers.find(m => (m.id === memberId || m.member_id === memberId));
+    if (!member) return;
+    
+    const newStatus = !member.attended;
+    // Update locally
+    member.attended = newStatus;
+    // Refresh the attendees tab
+    const content = document.getElementById('tabContent');
+    content.innerHTML = renderAttendees();
+    // Also update the count in the tab button
+    const tabBtn = document.querySelector('[data-tab="attendees"]');
+    if (tabBtn) {
+        tabBtn.textContent = `Attendees (${eventMembers.filter(m => m.attended).length})`;
+    }
+    showToast(member.member_name + ' ' + (newStatus ? 'checked in' : 'unchecked'), 'info');
+};
+
+window.recordAttendance = function() {
+    const available = allMembers.filter(function(m) {
+        return !eventMembers.some(function(em) { return em.member_id === m.id || em.id === m.id; });
+    });
+    
+    if (!available.length) {
+        showToast('All members are already registered', 'info');
+        return;
+    }
+    
+    const options = available.map(function(m) {
+        return { value: m.id, label: m.first_name + ' ' + m.last_name + ' (' + m.phone + ')' };
+    });
+    
+    showFormModal('Record Attendance', [
+        { id: 'member_id', label: 'Member', type: 'select', options: options, required: true },
+        { id: 'role', label: 'Role', type: 'select', value: 'member', options: [
+            { value: 'member', label: 'Member' },
+            { value: 'visitor', label: 'Visitor' },
+            { value: 'guest', label: 'Guest' }
+        ]}
+    ], function(data) {
+        const member = allMembers.find(function(m) { return m.id === data.member_id; });
+        if (!member) return;
+        
+        const newMember = {
+            id: member.id,
+            member_id: member.id,
+            member_name: member.first_name + ' ' + member.last_name,
+            role: data.role || 'member',
+            attended: true,
+            is_visitor: data.role === 'visitor'
+        };
+        eventMembers.push(newMember);
+        const content = document.getElementById('tabContent');
+        content.innerHTML = renderAttendees();
+        // Update count
+        const tabBtn = document.querySelector('[data-tab="attendees"]');
+        if (tabBtn) {
+            tabBtn.textContent = 'Attendees (' + eventMembers.length + ')';
+        }
+        showToast('Attendance recorded', 'success');
     });
 };
 

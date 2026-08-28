@@ -1209,3 +1209,29 @@ input:focus, textarea:focus, select:focus,
     background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920') no-repeat center center fixed;
     background-size: cover;
 }
+/* ===== MOBILE AUTH FIX ===== */
+@media (max-width: 768px) {
+    .auth-wrapper {
+        background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1200') no-repeat center center fixed !important;
+        background-size: cover !important;
+        min-height: 100dvh !important;
+        height: 100dvh !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+    }
+    .auth-container {
+        padding: 16px !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    .auth-card {
+        padding: 24px 20px !important;
+        margin: 0 !important;
+        border-radius: 12px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px) !important;
+    }
+}

@@ -24,8 +24,7 @@ export async function renderContributions() {
     try {
         await Promise.all([
             loadMembers(),
-            loadTypes(),
-            loadEventsForSelect()
+            loadTypes()
         ]);
         
         content.innerHTML = `
@@ -414,46 +413,8 @@ function openContributionModal() {
                 notes: data.notes || null
             };
             
-            // If event is selected, link contribution to event
-            if (formattedData.event_id) {
-                // Create contribution first, then link to event
-                createContribution(formattedData)
-                    .then(function(contribResult) {
-                        // Link to event
-                        return fetch('/api/v1/events/' + formattedData.event_id + '/contributions', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': 'Bearer ' + localStorage.getItem('token')
-                            },
-                            body: JSON.stringify({
-                                member_id: formattedData.member_id,
-                                amount: formattedData.amount,
-                                payment_method: formattedData.payment_method
-                            })
-                        });
-                    })
-                    .then(function() {
-                        showSuccess('Contribution recorded and linked to event!');
-                        done();
-                        loadContributions();
-                        loadDashboardData();
-                    })
-                    .catch(function(error) {
-                        showError(error.message || 'Failed to link contribution to event');
-                    });
-            } else {
-                createContribution(formattedData)
-                    .then(function() {
-                        showSuccess('Contribution recorded!');
-                        done();
-                        loadContributions();
-                        loadDashboardData();
-                    })
-                    .catch(function(error) {
-                        showError(error.message || 'Failed to record contribution');
-                    });
-            }
+            createContribution(formattedData)
+                .then(function() {
                     showSuccess('Contribution recorded!');
                     done();
                     loadContributions();

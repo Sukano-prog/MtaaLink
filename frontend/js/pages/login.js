@@ -152,6 +152,7 @@ async function handleLogin(e) {
         
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('organization_id', data.organization_id);
+        localStorage.setItem('village_id', data.organization_id);
         localStorage.setItem('organization_name', data.organization_name);
         localStorage.setItem('role', data.role);
         localStorage.setItem('member_id', data.member_id);

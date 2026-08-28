@@ -314,7 +314,7 @@ function openMemberModal(member = null) {
             { value: 'women_rep', label: 'Women Representative' },
             { value: 'elder_rep', label: 'Elder Representative' },
             { value: 'community_elder', label: 'Community Elder' },
-            { value: 'village_admin', label: 'Village Administrator' },
+            { value: 'org_admin', label: 'Organization Administrator' },
             { value: 'clerk', label: 'Clerk' },
             { value: 'messenger', label: 'Messenger' },
             { value: 'security_rep', label: 'Security Representative' },

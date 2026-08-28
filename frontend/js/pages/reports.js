@@ -23,7 +23,7 @@ export async function renderReports() {
         content.innerHTML = `
             <div class="page-header">
                 <h2>Reports</h2>
-                <span style="font-size:var(--font-size-sm);color:var(--gray-500);">Export PDF reports for all village activities</span>
+                <span style="font-size:var(--font-size-sm);color:var(--gray-500);">Export PDF reports for all organization activities</span>
             </div>
             
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
@@ -120,10 +120,10 @@ export async function renderReports() {
                 
                 <div class="card" style="grid-column:span 1;">
                     <div class="card-header">
-                        <h3>Village Summary</h3>
+                        <h3>Organization Summary</h3>
                     </div>
                     <div class="card-body">
-                        <p style="font-size:var(--font-size-sm);color:var(--gray-500);">Complete village overview</p>
+                        <p style="font-size:var(--font-size-sm);color:var(--gray-500);">Complete organization overview</p>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
                             <button class="btn btn-sm btn-primary" onclick="window.viewSummaryReport()">View</button>
                             <button class="btn btn-sm btn-success" onclick="window.exportSummaryPDF()">PDF</button>
@@ -454,7 +454,7 @@ async function viewSummaryReport() {
         const contribData = contributions.contributions || [];
         const totalContrib = contribData.reduce((sum, c) => sum + parseFloat(c.paid_amount || 0), 0);
         
-        showReportPreview('Village Summary Report', `
+        showReportPreview('Organization Summary Report', `
             <div style="overflow-x:auto;">
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
                     <div class="stat-card"><div class="stat-label">Members</div><div class="stat-value">${members.length}</div></div>
@@ -491,7 +491,7 @@ function exportProjectPDF() { downloadPDF('/reports/export/projects/pdf', 'proje
 function exportEventPDF() { downloadPDF('/reports/export/events/pdf', 'events_report'); }
 function exportContributionPDF() { downloadPDF('/reports/export/contributions/pdf', 'contributions_report'); }
 function exportAnnouncementPDF() { downloadPDF('/reports/export/announcements/pdf', 'announcements_report'); }
-function exportSummaryPDF() { downloadPDF('/reports/export/summary/pdf', 'village_summary'); }
+function exportSummaryPDF() { downloadPDF('/reports/export/summary/pdf', 'organization_summary'); }
 
 function downloadPDF(endpoint, filename) {
     const token = localStorage.getItem('token');

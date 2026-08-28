@@ -18,7 +18,7 @@ let selectedElection = null;
 let resultsInterval = null;
 
 const ELECTION_TYPES = [
-    { value: 'village_elders', label: 'Village Elders' },
+    { value: 'org_elders', label: 'Organization Elders' },
     { value: 'chairperson', label: 'Chairperson' },
     { value: 'secretary', label: 'Secretary' },
     { value: 'treasurer', label: 'Treasurer' },
@@ -516,7 +516,7 @@ function openElectionModal(election = null) {
             type: 'text',
             value: election?.title || '',
             required: true,
-            placeholder: 'e.g., Village Elders Election 2026'
+            placeholder: 'e.g., Organization Elders Election 2026'
         },
         {
             id: 'description',
@@ -703,7 +703,7 @@ function openVoterPortal(election) {
                 <div style="background:var(--gray-50);padding:12px;border-radius:var(--radius-md);margin-bottom:12px;">
                     <p style="margin:0;font-size:var(--font-size-sm);color:var(--gray-600);">
                         Enter your voter code to cast your vote. 
-                        Your voter code was provided to you by the village administrator.
+                        Your voter code was provided to you by the org administrator.
                     </p>
                 </div>
                 <div class="form-group">

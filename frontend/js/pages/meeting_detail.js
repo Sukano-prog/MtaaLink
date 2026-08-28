@@ -104,7 +104,7 @@ function renderMeetingContent(data) {
                         </div>
                         <div style="font-size:var(--font-size-sm);color:var(--gray-500);margin-top:8px;">
                             <div>${meeting.date} at ${meeting.time}</div>
-                            <div>${meeting.location || 'Village Hall'}</div>
+                            <div>${meeting.location || 'Organization Hall'}</div>
                             <div>Chairperson: ${meeting.chairperson_name || 'Not assigned'}</div>
                             <div>Secretary: ${meeting.secretary_name || 'Not assigned'}</div>
                         </div>
@@ -468,7 +468,7 @@ function openEditMeetingModal(meetingId) {
             type: 'text',
             value: meeting.title || '',
             required: true,
-            placeholder: 'e.g., Monthly Village Baraza'
+            placeholder: 'e.g., Monthly Organization Baraza'
         },
         {
             id: 'mfDate',
@@ -490,7 +490,7 @@ function openEditMeetingModal(meetingId) {
             type: 'text',
             value: meeting.location || '',
             required: false,
-            placeholder: 'Village Hall'
+            placeholder: 'Organization Hall'
         },
         {
             id: 'mfAgenda',
@@ -1031,7 +1031,7 @@ function printMeetingMinutes(meetingId) {
     const html = `<!DOCTYPE html>
     <html>
     <head>
-        <title>${localStorage.getItem("village_name") || "Village"} - ${meeting.title} - Meeting Report</title>
+        <title>${localStorage.getItem("organization_name") || "Organization"} - ${meeting.title} - Meeting Report</title>
         <meta charset="UTF-8">
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1214,7 +1214,7 @@ function printMeetingMinutes(meetingId) {
     </head>
     <body>
         <div class="header">
-            <h1>${localStorage.getItem("village_name") || "Village"} - Meeting Report</h1>
+            <h1>${localStorage.getItem("organization_name") || "Organization"} - Meeting Report</h1>
             <div class="subtitle">${meeting.title}</div>
             <div class="meta">
                 <span>Date: ${meeting.date}</span>

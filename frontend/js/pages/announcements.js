@@ -171,7 +171,7 @@ function openAnnouncementModal(announcement = null) {
             type: 'text',
             value: announcement?.title || '',
             required: true,
-            placeholder: 'e.g., Village Meeting Tomorrow'
+            placeholder: 'e.g., Organization Meeting Tomorrow'
         },
         {
             id: 'message',

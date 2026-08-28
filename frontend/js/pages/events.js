@@ -499,7 +499,7 @@ function openEventModal(event = null) {
             type: 'text',
             value: event?.location || '',
             required: false,
-            placeholder: 'e.g., Village Hall, Family Home'
+            placeholder: 'e.g., Organization Hall, Family Home'
         },
         {
             id: 'organizer',

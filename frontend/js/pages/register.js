@@ -15,14 +15,14 @@ export function renderRegister() {
             <div class="auth-card">
                 <div class="auth-header">
                     <h1>Management System</h1>
-                    <p>Register Your Village</p>
+                    <p>Register Your Organization</p>
                 </div>
                 
                 <form id="registerForm" novalidate>
                     <div class="form-group">
-                        <label for="regVillageName">Village Name</label>
-                        <input type="text" id="regVillageName" class="form-control" placeholder="Enter your village name" required>
-                        <div class="form-error" id="villageNameError"></div>
+                        <label for="regOrganizationName">Organization Name</label>
+                        <input type="text" id="regOrganizationName" class="form-control" placeholder="Enter your organization name" required>
+                        <div class="form-error" id="organizationNameError"></div>
                     </div>
                     
                     <div class="form-row">
@@ -47,7 +47,7 @@ export function renderRegister() {
                     
                     <div class="form-group">
                         <label for="regEmail">Email Address</label>
-                        <input type="email" id="regEmail" class="form-control" placeholder="admin@village.com" required>
+                        <input type="email" id="regEmail" class="form-control" placeholder="admin@organization.com" required>
                         <div class="form-error" id="emailError"></div>
                     </div>
                     
@@ -59,7 +59,7 @@ export function renderRegister() {
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
-                        Register Village
+                        Register Organization
                     </button>
                 </form>
                 
@@ -79,8 +79,8 @@ export function renderRegister() {
         }
     });
     
-    document.getElementById('regVillageName').addEventListener('input', function() {
-        clearError('villageNameError');
+    document.getElementById('regOrganizationName').addEventListener('input', function() {
+        clearError('organizationNameError');
     });
     document.getElementById('regFirstName').addEventListener('input', function() {
         clearError('firstNameError');
@@ -104,7 +104,7 @@ async function handleRegister(e) {
     
     if (isLoading) return;
     
-    const villageName = document.getElementById('regVillageName').value.trim();
+    const organizationName = document.getElementById('regOrganizationName').value.trim();
     const firstName = document.getElementById('regFirstName').value.trim();
     const lastName = document.getElementById('regLastName').value.trim();
     const phone = document.getElementById('regPhone').value.trim();
@@ -113,8 +113,8 @@ async function handleRegister(e) {
     
     let hasError = false;
     
-    if (!villageName || villageName.length < 2) {
-        showFieldError('villageNameError', 'Please enter a valid village name');
+    if (!organizationName || organizationName.length < 2) {
+        showFieldError('organizationNameError', 'Please enter a valid organization name');
         hasError = true;
     }
     
@@ -153,7 +153,7 @@ async function handleRegister(e) {
     
     try {
         const data = {
-            village_name: villageName,
+            organization_name: organizationName,
             first_name: firstName,
             last_name: lastName,
             phone: phone,
@@ -172,7 +172,7 @@ async function handleRegister(e) {
         showError(error.message || 'Registration failed. Please try again.');
     } finally {
         isLoading = false;
-        btn.textContent = 'Register Village';
+        btn.textContent = 'Register Organization';
         btn.disabled = false;
         btn.classList.remove('btn-loading');
     }

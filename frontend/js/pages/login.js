@@ -14,7 +14,7 @@ export function renderLogin() {
         <div class="auth-container">
             <div class="auth-card">
                 <div class="auth-header">
-                    <h1 id="loginVillageName">Management System</h1>
+                    <h1 id="loginOrganizationName">Management System</h1>
                     <p>Complete Management System</p>
                 </div>
                 
@@ -26,7 +26,7 @@ export function renderLogin() {
                             id="loginEmail" 
                             class="form-control" 
                             placeholder="admin@mtaalink.com"
-                            placeholder="admin@village.com" 
+                            placeholder="admin@organization.com" 
                             required
                             autocomplete="email"
                             
@@ -151,12 +151,12 @@ async function handleLogin(e) {
         const data = await login(email, password);
         
         localStorage.setItem('token', data.access_token);
-        localStorage.setItem('village_id', data.village_id);
-        localStorage.setItem('village_name', data.village_name);
+        localStorage.setItem('organization_id', data.organization_id);
+        localStorage.setItem('organization_name', data.organization_name);
         localStorage.setItem('role', data.role);
         localStorage.setItem('member_id', data.member_id);
         
-        showToast('Welcome back, ' + data.village_name + '!', 'success');
+        showToast('Welcome back, ' + data.organization_name + '!', 'success');
         
         if (typeof renderDashboard === 'function') {
             renderDashboard();
@@ -195,13 +195,13 @@ function clearError(id) {
 window.renderLogin = renderLogin;
 window.showLogin = renderLogin;
 
-// Update village name after login
-function updateVillageName(villageName) {
-    const nameEl = document.getElementById('loginVillageName');
-    if (nameEl && villageName) {
-        nameEl.textContent = villageName;
+// Update organization name after login
+function updateOrganizationName(organizationName) {
+    const nameEl = document.getElementById('loginOrganizationName');
+    if (nameEl && organizationName) {
+        nameEl.textContent = organizationName;
     }
 }
 
 // Export for use in other pages
-window.updateVillageName = updateVillageName;
+window.updateOrganizationName = updateOrganizationName;

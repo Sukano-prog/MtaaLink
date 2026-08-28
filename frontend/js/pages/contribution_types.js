@@ -19,7 +19,7 @@ export async function renderContributionTypes() {
         <div class="page-header">
             <div>
                 <h2>Contribution Types</h2>
-                <p class="text-muted">Manage contribution categories used for tracking village contributions</p>
+                <p class="text-muted">Manage contribution categories used for tracking org contributions</p>
             </div>
             <button class="btn btn-primary" id="addTypeBtn">Add Type</button>
         </div>

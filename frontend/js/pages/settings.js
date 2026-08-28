@@ -13,8 +13,8 @@ export async function renderSettings() {
     
     try {
         currentUser = await getCurrentUser();
-        // Get village data from API
-        const villageData = await fetch('/api/v1/organizations/' + localStorage.getItem('village_id'), {
+        // Get organization data from API
+        const organizationData = await fetch('/api/v1/organizations/' + localStorage.getItem('organization_id'), {
             headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
         }).then(r => r.json()).catch(() => ({}));
         
@@ -30,11 +30,11 @@ export async function renderSettings() {
                         <button class="btn btn-sm btn-outline" onclick="window.editOrganizationProfile()">Edit</button>
                     </div>
                     <div class="card-body">
-                        <div><strong>Name:</strong> ${villageData.name || 'Not set'}</div>
-                        <div><strong>Region:</strong> ${villageData.county || 'Not set'}</div>
-                        <div><strong>Sub-Location:</strong> ${villageData.ward || 'Not set'}</div>
-                        <div><strong>Phone:</strong> ${villageData.phone || 'Not set'}</div>
-                        <div><strong>Email:</strong> ${villageData.admin_email || 'Not set'}</div>
+                        <div><strong>Name:</strong> ${organizationData.name || 'Not set'}</div>
+                        <div><strong>Region:</strong> ${organizationData.county || 'Not set'}</div>
+                        <div><strong>Sub-Location:</strong> ${organizationData.ward || 'Not set'}</div>
+                        <div><strong>Phone:</strong> ${organizationData.phone || 'Not set'}</div>
+                        <div><strong>Email:</strong> ${organizationData.admin_email || 'Not set'}</div>
                     </div>
                 </div>
                 
@@ -84,7 +84,7 @@ export async function renderSettings() {
                 <div class="card-body">
                     <div><strong>App Name:</strong> Management System</div>
                     <div><strong>Version:</strong> 1.0.0</div>
-                    <div><strong>Organization ID:</strong> ${localStorage.getItem('village_id') || 'N/A'}</div>
+                    <div><strong>Organization ID:</strong> ${localStorage.getItem('organization_id') || 'N/A'}</div>
                     <div><strong>Member ID:</strong> ${localStorage.getItem('member_id') || 'N/A'}</div>
                     <div><strong>Role:</strong> ${localStorage.getItem('role') || 'Member'}</div>
                 </div>
@@ -113,7 +113,7 @@ window.editOrganizationProfile = function() {
                 type: 'text',
                 value: localStorage.getItem('org_name') || '',
                 required: true,
-                placeholder: 'Enter village name'
+                placeholder: 'Enter organization name'
             },
             {
                 id: 'org_region',
@@ -145,7 +145,7 @@ window.editOrganizationProfile = function() {
                 type: 'email',
                 value: localStorage.getItem('org_email') || '',
                 required: false,
-                placeholder: 'village@example.com'
+                placeholder: 'organization@example.com'
             }
         ],
         onSubmit: function(data, done) {
@@ -155,7 +155,7 @@ window.editOrganizationProfile = function() {
             localStorage.setItem('org_phone', data.org_phone);
             localStorage.setItem('org_email', data.org_email);
             
-            showSuccess('Village profile updated');
+            showSuccess('Organization profile updated');
             done();
             renderSettings();
         }
@@ -317,7 +317,7 @@ window.handleLogout = function() {
         confirmClass: 'btn-danger',
         onConfirm: function(done) {
             localStorage.removeItem('token');
-            localStorage.removeItem('village_id');
+            localStorage.removeItem('organization_id');
             localStorage.removeItem('org_name');
             localStorage.removeItem('org_region');
             localStorage.removeItem('org_sublocation');

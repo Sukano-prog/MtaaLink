@@ -431,7 +431,7 @@ function openGroupModal(group = null) {
                 type: 'text',
                 value: group?.name || '',
                 required: true,
-                placeholder: 'e.g., Village Elders, Youth Group'
+                placeholder: 'e.g., Organization Elders, Youth Group'
             },
             {
                 id: 'description',
@@ -479,7 +479,7 @@ async function saveGroup(data, isEdit, done) {
 async function deleteGroupHandler(group) {
     showConfirm({
         title: 'Delete Group',
-        message: 'Delete "' + group.name + '"? Members will not be removed from the village, just from this group.',
+        message: 'Delete "' + group.name + '"? Members will not be removed from the organization, just from this group.',
         confirmLabel: 'Delete',
         confirmClass: 'btn-danger',
         onConfirm: function(done) {

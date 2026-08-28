@@ -12,7 +12,7 @@ let currentMeetingId = null;
 
 const MEETING_TYPES = [
     { value: 'general', label: 'General Meeting' },
-    { value: 'baraza', label: 'Baraza (Village Assembly)' },
+    { value: 'baraza', label: 'Baraza (Organization Assembly)' },
     { value: 'committee', label: 'Committee Meeting' },
     { value: 'emergency', label: 'Emergency Meeting' },
     { value: 'election', label: 'Election Meeting' },
@@ -170,7 +170,7 @@ function renderMeetingsList(filtered = null) {
                     </div>
                     <div style="font-size:var(--font-size-sm);color:var(--gray-500);margin-top:8px;">
                         <div>${meeting.date} at ${meeting.time}</div>
-                        <div>${meeting.location || 'Village Hall'}</div>
+                        <div>${meeting.location || 'Organization Hall'}</div>
                         <div>${meeting.attendance_count || 0} attending</div>
                     </div>
                     <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
@@ -260,7 +260,7 @@ function openMeetingModal(meeting = null) {
             type: 'text',
             value: meeting?.title || '',
             required: true,
-            placeholder: 'e.g., Monthly Village Baraza'
+            placeholder: 'e.g., Monthly Organization Baraza'
         },
         {
             id: 'mfType',
@@ -291,7 +291,7 @@ function openMeetingModal(meeting = null) {
             type: 'text',
             value: meeting?.location || '',
             required: false,
-            placeholder: 'Village Hall'
+            placeholder: 'Organization Hall'
         },
         {
             id: 'mfAgenda',
@@ -474,7 +474,7 @@ function viewMeeting(meetingId) {
                 </div>
                 <div style="font-size:var(--font-size-sm);color:var(--gray-500);">
                     <div>${meeting.date} at ${meeting.time}</div>
-                    <div>${meeting.location || 'Village Hall'}</div>
+                    <div>${meeting.location || 'Organization Hall'}</div>
                     <div>${meeting.attendance_count || 0} attending</div>
                     <div>Quorum: ${meeting.quorum_required || 10}</div>
                 </div>

@@ -106,41 +106,36 @@ export async function renderEventDetail(eventId) {
 
 function renderOverviewTab() {
     const e = currentEvent;
+    const checkedIn = eventMembers.filter(function(m) { return m.attended; }).length;
+    const totalCollected = eventContributions.reduce(function(sum, c) { return sum + c.amount; }, 0);
+    
     return `
         <div class="card">
             <div class="card-body">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-                    <div><strong>Event Type:</strong> ${e.event_type || 'General'}</div>
-                    <div><strong>Date:</strong> ${new Date(e.date).toLocaleDateString()}</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+                    <div style="background:var(--gray-50);padding:16px;border-radius:8px;text-align:center;">
+                        <div style="font-size:24px;font-weight:700;color:var(--primary);">${eventMembers.length}</div>
+                        <div style="font-size:13px;color:var(--gray-500);">Attendees</div>
+                    </div>
+                    <div style="background:var(--gray-50);padding:16px;border-radius:8px;text-align:center;">
+                        <div style="font-size:24px;font-weight:700;color:var(--success);">${checkedIn}</div>
+                        <div style="font-size:13px;color:var(--gray-500);">Checked In</div>
+                    </div>
+                    <div style="background:var(--gray-50);padding:16px;border-radius:8px;text-align:center;">
+                        <div style="font-size:24px;font-weight:700;color:var(--info);">KES ${totalCollected}</div>
+                        <div style="font-size:13px;color:var(--gray-500);">Collected</div>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:14px;">
+                    <div><strong>Type:</strong> ${e.event_type || 'General'}</div>
+                    <div><strong>Date:</strong> ${e.date ? new Date(e.date).toLocaleDateString() : 'Not set'}</div>
                     <div><strong>Time:</strong> ${e.time || 'Not set'}</div>
                     <div><strong>Location:</strong> ${e.location || 'Not set'}</div>
                     <div><strong>Status:</strong> <span class="badge badge-${e.status === 'completed' ? 'success' : e.status === 'ongoing' ? 'warning' : 'primary'}">${e.status || 'Upcoming'}</span></div>
                     <div><strong>Organizer:</strong> ${e.organizer || 'Not set'}</div>
                 </div>
-                ${e.description ? `<div style="margin-top:16px;"><strong>Description:</strong><p>${e.description}</p></div>` : ''}
-                ${e.notes ? `<div style="margin-top:12px;"><strong>Notes:</strong><p>${e.notes}</p></div>` : ''}
-            </div>
-        </div>
-        
-        <!-- Stats -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px;">
-            <div class="card">
-                <div class="card-body" style="text-align:center;">
-                    <div style="font-size:28px;font-weight:700;color:var(--primary);">${eventMembers.length}</div>
-                    <div style="color:var(--gray-500);font-size:13px;">Attendees</div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body" style="text-align:center;">
-                    <div style="font-size:28px;font-weight:700;color:var(--success);">${eventMembers.filter(m => m.attended).length}</div>
-                    <div style="color:var(--gray-500);font-size:13px;">Checked In</div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-body" style="text-align:center;">
-                    <div style="font-size:28px;font-weight:700;color:var(--info);">${eventContributions.reduce((sum, c) => sum + c.amount, 0)}</div>
-                    <div style="color:var(--gray-500);font-size:13px;">Total Collected</div>
-                </div>
+                ${e.description ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-200);"><strong>Description</strong><p style="margin-top:4px;color:var(--gray-600);">${e.description}</p></div>` : ''}
+                ${e.notes ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-200);"><strong>Notes</strong><p style="margin-top:4px;color:var(--gray-600);">${e.notes}</p></div>` : ''}
             </div>
         </div>
     `;

@@ -233,7 +233,6 @@ function renderReportTab() {
                 <h3>Event Report</h3>
                 <div>
                     <button class="btn btn-success" onclick="window.exportPDF()"> Export PDF</button>
-                    <button class="btn btn-outline" onclick="window.exportCSV()"> Export CSV</button>
                 </div>
             </div>
             <div class="card-body">

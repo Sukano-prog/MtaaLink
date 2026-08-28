@@ -21,9 +21,9 @@ class AuthService:
         if existing_phone:
             raise AlreadyExistsException("Phone number")
         
-        # Create village
+        # Create organization
         village = Village(
-            name=data['village_name'],
+            name=data['organization_name'],
             admin_email=data['email'],
             admin_phone=data['phone'],
             is_verified=True,
@@ -96,7 +96,9 @@ class AuthService:
             "access_token": token,
             "token_type": "bearer",
             "village_id": str(village.id),
+            "organization_id": str(village.id),
             "village_name": village.name,
+            "organization_name": village.name,
             "role": admin.role,
             "member_id": str(admin.id)
         }

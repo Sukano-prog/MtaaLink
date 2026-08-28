@@ -594,6 +594,7 @@ function openElectionModal(election = null) {
                     .then(function() {
                         showSuccess('Election updated successfully');
                         done();
+                        // Force refresh the list
                         loadElections();
                     })
                     .catch(function(error) {

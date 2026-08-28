@@ -588,7 +588,30 @@ function openElectionModal(election = null) {
                 candidates: candidates
             };
             
-            saveElection(formattedData, isEdit, done);
+            // Pass the election ID directly from the outer scope
+            const electionId = currentElectionId;
+            console.log('Saving election - isEdit:', isEdit, 'id:', electionId);
+            if (isEdit && electionId) {
+                updateElection(electionId, formattedData)
+                    .then(function() {
+                        showSuccess('Election updated successfully');
+                        done();
+                        loadElections();
+                    })
+                    .catch(function(error) {
+                        showError(error.message || 'Failed to update election');
+                    });
+            } else {
+                createElection(formattedData)
+                    .then(function() {
+                        showSuccess('Election created successfully');
+                        done();
+                        loadElections();
+                    })
+                    .catch(function(error) {
+                        showError(error.message || 'Failed to create election');
+                    });
+            }
         }
     });
 }

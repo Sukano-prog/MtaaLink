@@ -80,6 +80,46 @@ async def add_attendance(
     except AppException as e:
         raise e
 
+@router.post("/{event_id}/attendance/{member_id}/toggle")
+async def toggle_attendance(
+    event_id: str,
+    member_id: str,
+    current_user: Member = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    """Toggle check-in status for a member"""
+    try:
+        from app.models.event import EventAttendance
+        from datetime import datetime
+        
+        # Find the attendance record
+        attendance = db.query(EventAttendance).filter(
+            EventAttendance.event_id == event_id,
+            EventAttendance.member_id == member_id,
+            EventAttendance.deleted_at.is_(None)
+        ).first()
+        
+        if not attendance:
+            # If not found, create a new attendance record
+            attendance = EventAttendance(
+                event_id=event_id,
+                member_id=member_id,
+                attended=True,
+                check_in_time=datetime.utcnow()
+            )
+            db.add(attendance)
+            db.commit()
+            return {"attended": True, "message": "Checked in"}
+        
+        # Toggle the status
+        attendance.attended = not attendance.attended
+        attendance.check_in_time = datetime.utcnow() if attendance.attended else None
+        db.commit()
+        
+        return {"attended": attendance.attended, "message": "Checked in" if attendance.attended else "Check-in removed"}
+    except AppException as e:
+        raise e
+
 @router.post("/{event_id}/contributions")
 async def add_contribution(
     event_id: str,

@@ -157,6 +157,15 @@ export function showFormModal(options) {
             
             if (field.type === 'textarea') {
                 html += `<textarea id="${field.id}" name="${field.id}" class="form-control" rows="${field.rows || 3}" placeholder="${field.placeholder || ''}" ${field.required ? 'required' : ''}>${field.value || ''}</textarea>`;
+            } else if (field.type === 'combobox') {
+                const optionsList = field.options ? field.options.map(function(opt) {
+                    return `<option value="${opt.value}">${opt.label}</option>`;
+                }).join('') : '';
+                html += `<input type="text" id="${field.id}" name="${field.id}" class="form-control" value="${field.value || ''}" placeholder="${field.placeholder || 'Search...'}" ${field.required ? 'required' : ''} ${field.disabled ? 'disabled' : ''} list="${field.id}_datalist">`;
+                html += `<datalist id="${field.id}_datalist">${optionsList}</datalist>`;
+                if (field.helper) {
+                    html += `<div class="form-helper">${field.helper}</div>`;
+                }
             } else if (field.type === 'select') {
                 html += `<select id="${field.id}" name="${field.id}" class="form-control form-select" ${field.disabled ? 'disabled' : ''}>`;
                 if (field.options) {

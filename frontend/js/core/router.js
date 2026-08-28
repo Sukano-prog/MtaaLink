@@ -78,10 +78,7 @@ export async function navigateTo(page) {
     
     const content = document.getElementById('pageContent');
     if (content) {
-        content.innerHTML = `
-                <p>Loading ${titles[page] || page}...</p>
-            </div>
-        `;
+        // Skeleton will be shown by the page render function
     }
     
     const pageFn = pageMap[page];

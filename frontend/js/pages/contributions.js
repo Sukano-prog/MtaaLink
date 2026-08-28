@@ -362,6 +362,14 @@ function openContributionModal() {
                 ]
             },
             {
+                id: 'event_id',
+                label: 'Link to Event',
+                type: 'select',
+                value: '',
+                required: false,
+                options: window.eventOptions || [{ value: '', label: 'Loading events...' }]
+            },
+            {
                 id: 'notes',
                 label: 'Notes',
                 type: 'textarea',
@@ -410,7 +418,8 @@ function openContributionModal() {
                 amount: parseFloat(data.amount),
                 due_date: data.due_date || null,
                 payment_method: data.payment_method || null,
-                notes: data.notes || null
+                notes: data.notes || null,
+                event_id: data.event_id || null
             };
             
             createContribution(formattedData)

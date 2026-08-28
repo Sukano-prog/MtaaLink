@@ -23,6 +23,9 @@ class ElectionCreate(ElectionBase):
 class ElectionUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=2, max_length=255)
     description: Optional[str] = None
+    election_type: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     status: Optional[str] = None
     candidates: Optional[List[dict]] = None
 

@@ -11,9 +11,9 @@ export function renderRegister() {
     const app = document.getElementById('app');
     
     app.innerHTML = `
-        <div class="auth-wrapper">
-            <div class="auth-overlay"></div>
-            <div class="auth-container">
+        <div class="auth-wrapper" style="position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920') no-repeat center center fixed;background-size:cover;">
+            <div class="auth-overlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);"></div>
+            <div class="auth-container" style="position:relative;z-index:1;width:100%;max-width:420px;padding:20px;">
                 <div class="auth-card">
                     <div class="auth-header">
                         <h1>MtaaLink</h1>

@@ -297,25 +297,32 @@ window.switchTab = function(tab) {
 window.toggleCheckIn = async function(memberId) {
     try {
         var attendee = eventMembers.find(function(m) { return m.member_id === memberId; });
+        if (!attendee) {
+            showError("Attendee not found");
+            return;
+        }
         var newStatus = !attendee.attended;
-        
-        var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + memberId, {
-            method: 'POST',
+        var token = localStorage.getItem("token");
+        if (!token) {
+            showError("Please login first");
+            return;
+        }
+        var response = await fetch("/api/v1/events/" + currentEvent.id + "/attendance/" + memberId + "/toggle", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            },
-            body: JSON.stringify({ attended: newStatus })
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            }
         });
-        
-        if (!response.ok) throw new Error('Failed to update check-in');
-        
-        attendee.attended = newStatus;
-        showSuccess(newStatus ? 'Checked in' : 'Check-in removed');
+        var data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.detail || "Failed to update check-in");
+        }
+        attendee.attended = data.attended;
+        showSuccess(data.attended ? "Checked in" : "Check-in removed");
         renderEventDetail(currentEvent.id);
-        
     } catch (error) {
-        showError(error.message || 'Failed to update check-in');
+        showError(error.message || "Failed to update check-in");
     }
 };
 

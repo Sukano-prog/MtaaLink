@@ -68,7 +68,7 @@ export async function renderSettings() {
                     <h3>System Information</h3>
                 </div>
                 <div class="card-body">
-                    <div><strong>App Name:</strong> Management System</div>
+                    <div><strong>App Name:</strong> MtaaLink</div>
                     <div><strong>Version:</strong> 1.0.0</div>
                     <div><strong>Organization ID:</strong> ${localStorage.getItem('organization_id') || localStorage.getItem('village_id') || 'N/A'}</div>
                     <div><strong>Member ID:</strong> ${localStorage.getItem('member_id') || 'N/A'}</div>

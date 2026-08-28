@@ -15,13 +15,19 @@ let allMembers = [];
 let eventId = null;
 let currentTab = 'overview';
 
-export async function renderEventDetail(id) {
+
+export async function renderEventDetail(id, tab = null) {
     eventId = id;
     const content = document.getElementById('pageContent');
     // Clear cached data to force reload
     currentEvent = null;
     eventMembers = [];
     eventContributions = [];
+    
+    // Set the tab to switch to after load
+    if (tab) {
+        currentTab = tab;
+    }
     
     try {
         const eventData = await getEvent(eventId);
@@ -32,7 +38,7 @@ export async function renderEventDetail(id) {
         
         content.innerHTML = `
             <div class="page-header">
-                <button class="btn btn-outline" onclick="navigateTo('events')">← Back</button>
+                <button class="btn btn-outline" onclick="navigateTo('events')">Back</button>
                 <h2>${currentEvent.title}</h2>
                 <div>
                     <button class="btn btn-primary" onclick="editEvent()">Edit</button>
@@ -273,14 +279,14 @@ function renderPayments() {
     `;
     
     eventContributions.forEach(function(c) {
-        const dateStr = c.payment_date ? new Date(c.payment_date).toLocaleDateString() : (c.created_at ? new Date(c.created_at).toLocaleDateString() : '-');
+        const dateStr = c.payment_date ? new Date(c.payment_date).toLocaleDateString() : (c.created_at ? new Date(c.created_at).toLocaleDateString() : "-");
         html += `
             <tr>
                 <td><strong>${c.member_name || 'Anonymous'}</strong></td>
                 <td>${c.contribution_type || 'Money'}</td>
                 <td>KES ${c.amount || 0}</td>
                 <td>${c.payment_method || 'Cash'}</td>
-                <td>${c.payment_date || dateStr}</td>
+                <td>${dateStr}</td>
             </tr>
         `;
     });

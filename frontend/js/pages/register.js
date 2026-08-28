@@ -11,61 +11,64 @@ export function renderRegister() {
     const app = document.getElementById('app');
     
     app.innerHTML = `
-        <div class="auth-container">
-            <div class="auth-card">
-                <div class="auth-header">
-                    <h1>MtaaLink</h1>
-                    <p>Create your organization account</p>
-                </div>
-                
-                <form id="registerForm" novalidate>
-                    <div class="form-group">
-                        <label for="regOrganizationName">Organization Name</label>
-                        <input type="text" id="regOrganizationName" class="form-control" placeholder="Enter your organization name" required>
-                        <div class="form-error" id="organizationNameError"></div>
+        <div class="auth-wrapper">
+            <div class="auth-overlay"></div>
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>MtaaLink</h1>
+                        <p>Create your organization account</p>
                     </div>
                     
-                    <div class="form-row">
+                    <form id="registerForm" novalidate>
                         <div class="form-group">
-                            <label for="regFirstName">First Name</label>
-                            <input type="text" id="regFirstName" class="form-control" placeholder="First name" required>
-                            <div class="form-error" id="firstNameError"></div>
+                            <label for="regOrganizationName">Organization Name</label>
+                            <input type="text" id="regOrganizationName" class="form-control" placeholder="Enter your organization name" required>
+                            <div class="form-error" id="organizationNameError"></div>
                         </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regFirstName">First Name</label>
+                                <input type="text" id="regFirstName" class="form-control" placeholder="First name" required>
+                                <div class="form-error" id="firstNameError"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="regLastName">Last Name</label>
+                                <input type="text" id="regLastName" class="form-control" placeholder="Last name" required>
+                                <div class="form-error" id="lastNameError"></div>
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
-                            <label for="regLastName">Last Name</label>
-                            <input type="text" id="regLastName" class="form-control" placeholder="Last name" required>
-                            <div class="form-error" id="lastNameError"></div>
+                            <label for="regPhone">Phone Number</label>
+                            <input type="tel" id="regPhone" class="form-control" placeholder="0712345678" required>
+                            <div class="form-helper">Format: 0712345678 (10 digits)</div>
+                            <div class="form-error" id="phoneError"></div>
                         </div>
-                    </div>
+                        
+                        <div class="form-group">
+                            <label for="regEmail">Email Address</label>
+                            <input type="email" id="regEmail" class="form-control" placeholder="admin@organization.com" required>
+                            <div class="form-error" id="emailError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regPassword">Password</label>
+                            <input type="password" id="regPassword" class="form-control" placeholder="Min 8 characters" required minlength="8">
+                            <div class="form-helper">Password must be at least 8 characters</div>
+                            <div class="form-error" id="passwordError"></div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+                            Register Organization
+                        </button>
+                    </form>
                     
-                    <div class="form-group">
-                        <label for="regPhone">Phone Number</label>
-                        <input type="tel" id="regPhone" class="form-control" placeholder="0712345678" required>
-                        <div class="form-helper">Format: 0712345678 (10 digits)</div>
-                        <div class="form-error" id="phoneError"></div>
+                    <div class="auth-footer">
+                        <a id="loginLink">Already have an account? Sign In</a>
+                        <span class="credit">Built for Kenya</span>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="regEmail">Email Address</label>
-                        <input type="email" id="regEmail" class="form-control" placeholder="admin@organization.com" required>
-                        <div class="form-error" id="emailError"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="regPassword">Password</label>
-                        <input type="password" id="regPassword" class="form-control" placeholder="Min 8 characters" required minlength="8">
-                        <div class="form-helper">Password must be at least 8 characters</div>
-                        <div class="form-error" id="passwordError"></div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
-                        Register Organization
-                    </button>
-                </form>
-                
-                <div class="auth-footer">
-                    <a id="loginLink">Already have an account? Sign In</a>
-                    <span class="credit">Built for Kenya</span>
                 </div>
             </div>
         </div>

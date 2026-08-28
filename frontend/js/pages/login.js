@@ -11,66 +11,63 @@ export function renderLogin() {
     const app = document.getElementById('app');
     
     app.innerHTML = `
-        <div class="auth-container">
-            <div class="auth-card">
-                <div class="auth-header">
-                    <h1 id="loginOrganizationName">MtaaLink</h1>
-                    <p>Sign in to your account</p>
-                </div>
-                
-                <form id="loginForm" novalidate>
-                    <div class="form-group">
-                        <label for="loginEmail">Email Address</label>
-                        <input 
-                            type="email" 
-                            id="loginEmail" 
-                            class="form-control" 
-                            placeholder="admin@mtaalink.com"
-                            placeholder="admin@organization.com" 
-                            required
-                            autocomplete="email"
-                            
-                        >
-                        <div class="form-error" id="emailError"></div>
+        <div class="auth-wrapper">
+            <div class="auth-overlay"></div>
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1 id="loginOrganizationName">MtaaLink</h1>
+                        <p>Sign in to your account</p>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="loginPassword">Password</label>
-                        <div style="position:relative;">
+                    <form id="loginForm" novalidate>
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
                             <input 
-                                type="password" 
-                                id="loginPassword" 
+                                type="email" 
+                                id="loginEmail" 
                                 class="form-control" 
-                                placeholder="Enter your password"
-                                placeholder="Enter your password" 
+                                placeholder="admin@mtaalink.com"
                                 required
-                                autocomplete="current-password"
-                                minlength="8"
-                                style="padding-right:65px;"
+                                autocomplete="email"
                             >
-                            <button type="button" id="togglePassword" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#f3f4f6;border:1px solid #d1d5db;cursor:pointer;color:#374151;font-size:12px;padding:4px 10px;border-radius:4px;font-family:sans-serif;">Show</button>
+                            <div class="form-error" id="emailError"></div>
                         </div>
-                        <div class="form-error" id="passwordError"></div>
-                    </div>
+                        
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <div style="position:relative;">
+                                <input 
+                                    type="password" 
+                                    id="loginPassword" 
+                                    class="form-control" 
+                                    placeholder="Enter your password"
+                                    required
+                                    autocomplete="current-password"
+                                    minlength="8"
+                                    style="padding-right:65px;"
+                                >
+                                <button type="button" id="togglePassword" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#f3f4f6;border:1px solid #d1d5db;cursor:pointer;color:#374151;font-size:12px;padding:4px 10px;border-radius:4px;font-family:sans-serif;">Show</button>
+                            </div>
+                            <div class="form-error" id="passwordError"></div>
+                        </div>
+                        
+                        <div class="form-group" style="display:flex;align-items:center;gap:8px;">
+                            <input type="checkbox" id="rememberMe" checked>
+                            <label for="rememberMe" style="margin:0;font-size:13px;font-weight:400;cursor:pointer;">
+                                Remember me
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+                            Sign In
+                        </button>
+                    </form>
                     
-                    <div class="form-group" style="display:flex;align-items:center;gap:8px;">
-                        <input type="checkbox" id="rememberMe" checked>
-                        <label for="rememberMe" style="margin:0;font-size:13px;font-weight:400;cursor:pointer;">
-                            Remember me
-                        </label>
+                    <div class="auth-footer">
+                        <a id="registerLink">Don't have an account? Register</a>
+                        <span class="credit">Built for Kenya</span>
                     </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                        Sign In
-                    </button>
-                </form>
-                
-                <div class="auth-footer">
-                    <a id="registerLink">Don't have an account? Register</a>
-                    <span class="credit">Built for Kenya</span>
-                </div>
-                <div style="text-align:center;margin-top:8px;font-size:11px;color:#rgba(255,255,255,0.6);">
-                    🔍 CSS Loaded: auth-container background check
                 </div>
             </div>
         </div>
@@ -92,7 +89,6 @@ export function renderLogin() {
         clearError('passwordError');
     });
     
-    // Password toggle - bind after form is rendered
     const toggleBtn = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('loginPassword');
     if (toggleBtn && passwordInput) {
@@ -194,12 +190,9 @@ function clearError(id) {
     }
 }
 
-
-
 window.renderLogin = renderLogin;
 window.showLogin = renderLogin;
 
-// Update organization name after login
 function updateOrganizationName(organizationName) {
     const nameEl = document.getElementById('loginOrganizationName');
     if (nameEl && organizationName) {
@@ -207,5 +200,4 @@ function updateOrganizationName(organizationName) {
     }
 }
 
-// Export for use in other pages
 window.updateOrganizationName = updateOrganizationName;

@@ -172,7 +172,7 @@ function renderAttendeesTab() {
                                     <tr>
                                         <td>${m.member_name || 'Unknown'}</td>
                                         <td>${m.phone || '-'}</td>
-                                        <td>${m.attended ? '<span style="color:green;">✅ Checked In</span>' : '<span style="color:gray;">⏳ Not Checked In</span>'}</td>
+                                        <td>${m.attended ? '<span style="color:green;"> Checked In</span>' : '<span style="color:gray;"> Not Checked In</span>'}</td>
                                         <td>
                                             <button class="check-in-btn ${m.attended ? 'checked' : 'unchecked'}" 
                                                     onclick="window.toggleCheckIn('${m.member_id}')">
@@ -237,8 +237,8 @@ function renderReportTab() {
             <div class="card-header">
                 <h3>Event Report</h3>
                 <div>
-                    <button class="btn btn-success" onclick="window.exportPDF()">📄 Export PDF</button>
-                    <button class="btn btn-outline" onclick="window.exportCSV()">📊 Export CSV</button>
+                    <button class="btn btn-success" onclick="window.exportPDF()"> Export PDF</button>
+                    <button class="btn btn-outline" onclick="window.exportCSV()"> Export CSV</button>
                 </div>
             </div>
             <div class="card-body">
@@ -251,7 +251,7 @@ function renderReportTab() {
                     <h4>Attendees List</h4>
                     <ul>
                         ${eventMembers.map(m => `
-                            <li>${m.member_name || 'Unknown'} - ${m.attended ? '✅ Checked In' : '⏳ Not Checked In'}</li>
+                            <li>${m.member_name || 'Unknown'} - ${m.attended ? ' Checked In' : ' Not Checked In'}</li>
                         `).join('')}
                     </ul>
                 </div>

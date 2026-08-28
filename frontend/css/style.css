@@ -953,10 +953,7 @@ body, .auth-screen, .auth-card, .card, .sidebar, .navbar, .modal {
     color-scheme: light !important;
 }
 
-body {
-    background: #f8f9fa !important;
-    color: #1a1a2e !important;
-}
+
 
 .card {
     background: #ffffff !important;
@@ -1049,10 +1046,7 @@ input:focus, textarea:focus, select:focus {
     color-scheme: light !important;
 }
 
-body {
-    background: #f8f9fa !important;
-    color: #1a1a2e !important;
-}
+
 
 .card, .card-body, .card-header, .card-footer {
     background: #ffffff !important;

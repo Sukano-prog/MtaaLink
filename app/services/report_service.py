@@ -19,7 +19,7 @@ class ReportService:
     @staticmethod
     def get_member_report(db: Session, organization_id: str) -> Dict:
         members = db.query(Member).filter(
-            Member.organization_id == organization_id,
+            Member.village_id == organization_id,
             Member.deleted_at.is_(None)
         ).all()
         
@@ -49,7 +49,7 @@ class ReportService:
     @staticmethod
     def get_meeting_report(db: Session, organization_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict:
         query = db.query(Meeting).filter(
-            Meeting.organization_id == organization_id,
+            Meeting.village_id == organization_id,
             Meeting.deleted_at.is_(None)
         )
         
@@ -85,7 +85,7 @@ class ReportService:
     @staticmethod
     def get_contribution_report(db: Session, organization_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Dict:
         query = db.query(Contribution).filter(
-            Contribution.organization_id == organization_id,
+            Contribution.village_id == organization_id,
             Contribution.deleted_at.is_(None)
         )
         
@@ -124,7 +124,7 @@ class ReportService:
     def get_attendance_report(db: Session, organization_id: str, member_id: Optional[str] = None) -> Dict:
         attendance_query = db.query(MeetingAttendance).filter(
             MeetingAttendance.deleted_at.is_(None)
-        ).join(Meeting).filter(Meeting.organization_id == organization_id)
+        ).join(Meeting).filter(Meeting.village_id == organization_id)
         
         if member_id:
             attendance_query = attendance_query.filter(MeetingAttendance.member_id == member_id)
@@ -536,7 +536,7 @@ class ReportService:
         from app.models.group import Group, GroupMember
         
         groups = db.query(Group).filter(
-            Group.organization_id == organization_id,
+            Group.village_id == organization_id,
             Group.deleted_at.is_(None)
         ).all()
         

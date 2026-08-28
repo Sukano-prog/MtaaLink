@@ -60,7 +60,7 @@ export async function renderDashboard() {
                         <div class="user-card">
                             <div class="user-avatar" id="userAvatar">A</div>
                             <div class="user-info">
-                                <span class="user-name" id="userName">Loading...</span>
+                                <span class="user-name" id="userName"></span>
                                 <span class="user-role" id="userRole">Member</span>
                             </div>
                             <button class="logout-btn" id="logoutBtn">Sign Out</button>
@@ -72,7 +72,7 @@ export async function renderDashboard() {
                     <header class="top-header">
                         <div class="header-left">
                             <button class="menu-toggle" id="menuToggle">☰</button>
-                            <h1 id="pageTitle">${localStorage.getItem("organization_name") || "Dashboard"}</h1>
+                            <h1 id="pageTitle">${localStorage.getItem("org_name") || localStorage.getItem("organization_name") || "Management System"}</h1>
                         </div>
                         <div class="header-right">
                             <span id="onlineStatus" style="font-size:12px;padding:4px 8px;border-radius:4px;background:var(--gray-50);">Online</span>
@@ -135,7 +135,7 @@ async function loadUserData() {
     } catch (error) {
         console.error('Error loading user data:', error);
         const role = localStorage.getItem('role');
-        const organizationName = localStorage.getItem('organization_name');
+        const organizationName = localStorage.getItem('org_name') || localStorage.getItem('organization_name') || "Management System";
         const userNameEl = document.getElementById('userName');
         const userRoleEl = document.getElementById('userRole');
         

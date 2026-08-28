@@ -1,4 +1,4 @@
-// Management System - Reports
+// MtaaLink - Reports
 
 async function renderReports() {
     var content = document.getElementById('pageContent');

@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Groups Page
+   MtaaLink - Groups Page
    ============================================================ */
 
 import { getGroups, createGroup, updateGroup, deleteGroup, getMembers, addMemberToGroup, removeMemberFromGroup } from '../core/api.js';

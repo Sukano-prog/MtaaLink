@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Router
+   MtaaLink - Router
    ============================================================ */
 
 import { renderDashboard } from '../pages/dashboard.js';

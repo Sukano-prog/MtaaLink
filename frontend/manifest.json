@@ -1,6 +1,6 @@
 {
-  "name": "Management System",
-  "short_name": "Management",
+  "name": "MtaaLink",
+  "short_name": "MtaaLink",
   "description": "Complete management system for organizations",
   "start_url": "/",
   "display": "standalone",

@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Announcements Page
+   MtaaLink - Announcements Page
    ============================================================ */
 
 import { getAnnouncements, createAnnouncement, updateAnnouncement, deleteAnnouncement, sendAnnouncement, getMembers, getGroups } from '../core/api.js';

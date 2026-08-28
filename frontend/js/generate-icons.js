@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Generate Icons using Canvas
+   MtaaLink - Generate Icons using Canvas
    ============================================================ */
 
 function generateIcon(size) {

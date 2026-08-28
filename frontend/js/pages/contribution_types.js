@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Contribution Types Page
+   MtaaLink - Contribution Types Page
    ============================================================ */
 
 import { getContributionTypes, createContributionType, updateContributionType, deleteContributionType } from '../core/api.js';

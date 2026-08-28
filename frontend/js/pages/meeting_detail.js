@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Meeting Detail Page (Fixed - No Edit for Ongoing/Completed)
+   MtaaLink - Meeting Detail Page (Fixed - No Edit for Ongoing/Completed)
    ============================================================ */
 
 import { getMeeting, updateMeeting, startMeeting, completeMeeting, markAttendance, getMembers } from '../core/api.js';
@@ -1362,7 +1362,7 @@ function printMeetingMinutes(meetingId) {
         </div>
         
         <div class="footer">
-            Printed on ${new Date().toLocaleString()} · Management System
+            Printed on ${new Date().toLocaleString()} · MtaaLink
         </div>
         
         <script>

@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Service Worker Registration
+   MtaaLink - Service Worker Registration
    ============================================================ */
 
 export function registerServiceWorker() {

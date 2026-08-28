@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Dashboard Page (No Emojis, Clean Labels)
+   MtaaLink - Dashboard Page (No Emojis, Clean Labels)
    ============================================================ */
 
 import { getMembers, getMeetings, getGroups, getContributions, getCurrentUser, getAnnouncements } from '../core/api.js';
@@ -32,7 +32,7 @@ export async function renderDashboard() {
             <div class="app-container">
                 <aside class="sidebar" id="sidebar">
                     <div class="sidebar-brand">
-                        <span class="brand-name">Management System</span>
+                        <span class="brand-name">MtaaLink</span>
                         <span class="brand-tagline">Complete Management</span>
                     </div>
                     <nav class="sidebar-nav">
@@ -72,7 +72,7 @@ export async function renderDashboard() {
                     <header class="top-header">
                         <div class="header-left">
                             <button class="menu-toggle" id="menuToggle">☰</button>
-                            <h1 id="pageTitle">${localStorage.getItem("org_name") || localStorage.getItem("organization_name") || "Management System"}</h1>
+                            <h1 id="pageTitle">${localStorage.getItem("org_name") || localStorage.getItem("organization_name") || "MtaaLink"}</h1>
                         </div>
                         <div class="header-right">
                             <span id="onlineStatus" style="font-size:12px;padding:4px 8px;border-radius:4px;background:var(--gray-50);">Online</span>
@@ -135,7 +135,7 @@ async function loadUserData() {
     } catch (error) {
         console.error('Error loading user data:', error);
         const role = localStorage.getItem('role');
-        const organizationName = localStorage.getItem('org_name') || localStorage.getItem('organization_name') || "Management System";
+        const organizationName = localStorage.getItem('org_name') || localStorage.getItem('organization_name') || "MtaaLink";
         const userNameEl = document.getElementById('userName');
         const userRoleEl = document.getElementById('userRole');
         

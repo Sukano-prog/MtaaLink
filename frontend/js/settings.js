@@ -1,4 +1,4 @@
-// Management System - Enhanced Settings
+// MtaaLink - Enhanced Settings
 
 // ===================== RENDER SETTINGS PAGE =====================
 function renderSettings() {
@@ -144,7 +144,7 @@ function renderSettings() {
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
                     <div>
                         <div style="font-size:12px;color:var(--gray-500);">App Name</div>
-                        <div style="font-weight:600;">Management System</div>
+                        <div style="font-weight:600;">MtaaLink</div>
                     </div>
                     <div>
                         <div style="font-size:12px;color:var(--gray-500);">Version</div>

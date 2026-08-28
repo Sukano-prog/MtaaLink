@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Settings Page
+   MtaaLink - Settings Page
    ============================================================ */
 
 import { getCurrentUser, updateMember } from '../core/api.js';
@@ -80,7 +80,7 @@ export async function renderSettings() {
                     <h3>System</h3>
                 </div>
                 <div class="card-body">
-                    <div><strong>App:</strong> Management System v1.0.0</div>
+                    <div><strong>App:</strong> MtaaLink v1.0.0</div>
                 </div>
             </div>
         `;

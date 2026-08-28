@@ -1,4 +1,4 @@
-// Management System - Meeting Print Function
+// MtaaLink - Meeting Print Function
 // Prints the complete meeting report
 
 async function printFullMeeting(meetingId) {
@@ -322,7 +322,7 @@ async function printFullMeeting(meetingId) {
         // FOOTER
         // ============================================================
         html += `<div class="footer">
-            Generated on ${new Date().toLocaleString()} · Management System
+            Generated on ${new Date().toLocaleString()} · MtaaLink
             <br>This is an official document of ${meeting.village_name || 'the village'}
         </div>`;
         

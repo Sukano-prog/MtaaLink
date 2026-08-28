@@ -1,5 +1,5 @@
 /* ============================================================
-   Management System - Reports Page
+   MtaaLink - Reports Page
    ============================================================ */
 
 import { getMembers, getMeetings, getContributions, getGroups, getProjects, getEvents, getAnnouncements } from '../core/api.js';

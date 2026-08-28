@@ -4,9 +4,8 @@
 
 import { getContributions, createContribution, getContributionTypes, createContributionType, getMembers, updateContribution, deleteContribution } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
-import { Skeletons } from '../components/skeleton.js';
+import { Skeletons } from "../components/skeleton.js";
 import { showFormModal, showConfirm, showModal } from '../components/modal.js';
-import { Skeletons } from '../components/skeleton.js';
 import { createSearchableSelect } from '../components/searchable_select.js';
 
 let contributionsData = [];

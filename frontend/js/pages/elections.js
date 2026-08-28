@@ -9,7 +9,6 @@ import {
     getCurrentUser
 } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
-import { Skeletons } from '../components/skeleton.js';
 import { showFormModal, showConfirm, showModal, closeModal } from '../components/modal.js';
 
 let electionsData = [];

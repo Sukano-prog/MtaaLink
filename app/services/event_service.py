@@ -78,15 +78,32 @@ class EventService:
         
         attendance_list = []
         for a in attendance:
-            member = db.query(Member).filter(Member.id == a.member_id).first()
-            if member:
+            if a.is_visitor:
                 attendance_list.append({
-                    "member_id": str(member.id),
-                    "member_name": member.full_name,
-                    "member_number": member.member_number,
+                    "record_id": str(a.id),
+                    "member_id": None,
+                    "member_name": a.member_name or "Visitor",
+                    "member_number": None,
                     "attended": a.attended,
-                    "role": a.role
+                    "role": a.role,
+                    "is_visitor": True,
+                    "member_gender": a.member_gender,
+                    "member_age_category": a.member_age_category,
+                    "phone": a.member_phone or "-"
                 })
+            else:
+                member = db.query(Member).filter(Member.id == a.member_id).first()
+                if member:
+                    attendance_list.append({
+                        "record_id": str(a.id),
+                        "member_id": str(member.id),
+                        "member_name": member.full_name,
+                        "member_number": member.member_number,
+                        "attended": a.attended,
+                        "role": a.role,
+                        "is_visitor": False,
+                        "phone": member.phone or '-'
+                    })
         
         contributions = db.query(EventContribution).filter(
             EventContribution.event_id == event_id,

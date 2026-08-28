@@ -18,7 +18,9 @@ class Member(BaseModel):
     id_number = Column(String(50), nullable=True)
     
     role = Column(String(50), default="member")
+    custom_role = Column(String(50), nullable=True)
     gender = Column(String(10), nullable=True)
+    age_category = Column(String(20), nullable=True)
     date_of_birth = Column(Date, nullable=True)
     
     is_active = Column(Boolean, default=True)

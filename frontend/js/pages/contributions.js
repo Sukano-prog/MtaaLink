@@ -452,7 +452,6 @@ function openContributionModal() {
                 });
         }
     });
-}
 
 function openPaymentModal(contribution) {
     const balance = parseFloat(contribution.balance || contribution.amount || 0);
@@ -589,3 +588,4 @@ function openTypeModal() {
 }
 
 window.renderContributions = renderContributions;
+}

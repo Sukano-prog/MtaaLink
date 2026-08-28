@@ -163,6 +163,8 @@ function renderMembersTable() {
         <th>Name</th>
         <th>Phone</th>
         <th>Role</th>
+        <th>Gender</th>
+        <th>Age</th>
         <th>Group</th>
         <th>Status</th>
         <th style="text-align:right;">Actions</th>
@@ -179,7 +181,9 @@ function renderMembersTable() {
             <td><span class="badge badge-gray">${memberNumber}</span></td>
             <td><strong>${fullName}</strong></td>
             <td>${member.phone || '-'}</td>
-            <td><span class="badge badge-primary">${member.role || 'member'}</span></td>
+            <td><span class="badge badge-primary">${member.role === 'other' ? (member.custom_role || 'Other') : (member.role || 'member')}</span></td>
+            <td>${member.gender || '-'}</td>
+            <td>${member.age_category || '-'}</td>
             <td><span class="badge badge-${groupName !== 'Unassigned' ? 'info' : 'gray'}">${groupName}</span></td>
             <td><span class="badge ${statusClass}">${statusText}</span></td>
             <td style="text-align:right;">
@@ -293,6 +297,35 @@ function openMemberModal(member = null) {
     });
     
     fields.push({
+        id: 'mfGender',
+        label: 'Gender',
+        type: 'select',
+        value: member?.gender || '',
+        required: false,
+        options: [
+            { value: '', label: 'Select gender...' },
+            { value: 'male', label: 'Male' },
+            { value: 'female', label: 'Female' },
+            { value: 'other', label: 'Other' }
+        ]
+    });
+    
+    fields.push({
+        id: 'mfAgeCategory',
+        label: 'Age Category',
+        type: 'select',
+        value: member?.age_category || '',
+        required: false,
+        options: [
+            { value: '', label: 'Select age category...' },
+            { value: 'child', label: 'Child (0-12)' },
+            { value: 'teen', label: 'Teen (13-17)' },
+            { value: 'adult', label: 'Adult (18-59)' },
+            { value: 'elder', label: 'Elder (60+)' }
+        ]
+    });
+    
+    fields.push({
         id: 'mfEmail',
         label: 'Email',
         type: 'email',
@@ -374,6 +407,10 @@ function openMemberModal(member = null) {
                 formattedData.first_name = data.mfFirstName;
                 formattedData.last_name = data.mfLastName;
                 formattedData.role = data.mfRole || 'member';
+                if (data.mfRole === 'other' && data.mfRole_custom && data.mfRole_custom.trim() !== '') {
+                    formattedData.role = data.mfRole_custom.trim();
+                }
+                formattedData.custom_role = data.mfRole_custom || null;
                 formattedData.is_active = data.mfStatus === 'true';
                 
                 if (!isEdit && data.mfMemberNumber && data.mfMemberNumber.trim() !== '') {

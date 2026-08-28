@@ -186,7 +186,7 @@ export function showFormModal(options) {
                 }
                 html += `</select>`;
                 html += `<div id="${field.id}_custom_container" style="margin-top:8px;display:${selectedValue === 'other' ? 'block' : 'none'};">`;
-                html += `<input type="text" id="${field.id}_custom" class="form-control" placeholder="Type custom role..." value="">`;
+                html += `<input type="text" id="${field.id}_custom" name="${field.id}_custom" class="form-control" placeholder="Type custom role..." value="">`;
                 html += `</div>`;
                 if (field.helper) {
                     html += `<div class="form-helper">${field.helper}</div>`;

@@ -45,11 +45,14 @@ class MemberService:
                 "phone": m.phone,
                 "email": m.email,
                 "role": m.role,
+                "custom_role": m.custom_role,
                 "is_active": m.is_active,
                 "full_name": m.full_name,
                 "group_name": group_name,
                 "group_id": str(m.group_id) if m.group_id else None,
-                "member_number": m.member_number
+                "member_number": m.member_number,
+                "gender": m.gender,
+                "age_category": m.age_category
             })
         
         return result
@@ -85,6 +88,7 @@ class MemberService:
             "phone": member.phone,
             "email": member.email,
             "role": member.role,
+            "custom_role": member.custom_role,
             "is_active": member.is_active,
             "full_name": member.full_name,
             "group_name": group_name,

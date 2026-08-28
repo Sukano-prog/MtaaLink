@@ -538,3 +538,6 @@ async function deleteEventHandler(event) {
 }
 
 window.renderEvents = renderEvents;
+
+// Export for use in other modules
+export { openEventModal };

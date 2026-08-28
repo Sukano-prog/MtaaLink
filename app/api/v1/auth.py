@@ -29,7 +29,14 @@ async def login(request: Request, data: LoginRequest, db: Session = Depends(get_
         raise AppException(str(e))
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user_info(current_user: Member = Depends(get_current_user)):
+async def get_current_user_info(
+    current_user: Member = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    from app.models.village import Village
+    village = db.query(Village).filter(Village.id == current_user.village_id).first()
+    org_name = village.name if village else "MtaaLink"
+    
     return {
         "id": str(current_user.id),
         "first_name": current_user.first_name,
@@ -38,7 +45,9 @@ async def get_current_user_info(current_user: Member = Depends(get_current_user)
         "phone": current_user.phone,
         "role": current_user.role,
         "village_id": str(current_user.village_id),
-        "full_name": current_user.full_name
+        "organization_id": str(current_user.village_id),
+        "full_name": current_user.full_name,
+        "organization_name": org_name
     }
 
 @router.post("/logout")

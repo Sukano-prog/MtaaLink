@@ -17,6 +17,8 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     village_id: str
+    organization_id: str
+    organization_name: str
     village_name: str
     role: str
     member_id: str
@@ -33,4 +35,6 @@ class UserResponse(BaseModel):
     phone: str
     role: str
     village_id: str
+    organization_id: str
+    organization_name: str
     full_name: str

@@ -409,3 +409,6 @@ class ElectionService:
             "member_name": member.full_name,
             "election_title": election.title
         }
+
+    # Add election_type, start_date, end_date to updatable fields
+    # The service already has these in updatable_fields list

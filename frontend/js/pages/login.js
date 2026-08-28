@@ -11,40 +11,40 @@ export function renderLogin() {
     const app = document.getElementById('app');
     
     app.innerHTML = `
-        <div class="login-wrapper">
-            <div class="login-box">
-                <div class="login-brand">
+        <div class="auth-page">
+            <div class="auth-card">
+                <div class="auth-header">
                     <h1>MtaaLink</h1>
                     <p>Sign in to your account</p>
                 </div>
                 
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" id="loginEmail" class="form-control" placeholder="you@example.com" required>
-                        <div class="error" id="emailError"></div>
+                <form id="loginForm" autocomplete="off">
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="you@example.com">
+                        <span class="err" id="emailError"></span>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="field">
                         <label>Password</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required>
-                            <button type="button" id="togglePassword" class="toggle-btn">Show</button>
+                        <div class="pass-wrap">
+                            <input type="password" id="loginPassword" placeholder="Enter your password">
+                            <button type="button" id="togglePass" class="show-btn">Show</button>
                         </div>
-                        <div class="error" id="passwordError"></div>
+                        <span class="err" id="passwordError"></span>
                     </div>
                     
-                    <div class="form-options">
-                        <label class="checkbox">
+                    <div class="options">
+                        <label class="check">
                             <input type="checkbox" id="rememberMe" checked>
                             Remember me
                         </label>
                     </div>
                     
-                    <button type="submit" class="btn-primary" id="loginBtn">Sign In</button>
+                    <button type="submit" class="btn" id="loginBtn">Sign In</button>
                 </form>
                 
-                <div class="login-footer">
+                <div class="auth-footer">
                     <a id="registerLink">Don't have an account? Register</a>
                 </div>
             </div>
@@ -57,7 +57,7 @@ export function renderLogin() {
         if (typeof renderRegister === 'function') renderRegister();
     });
     
-    document.getElementById('togglePassword').addEventListener('click', function() {
+    document.getElementById('togglePass').addEventListener('click', function() {
         const input = document.getElementById('loginPassword');
         if (input.type === 'password') {
             input.type = 'text';

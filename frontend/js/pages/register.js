@@ -11,65 +11,60 @@ export function renderRegister() {
     const app = document.getElementById('app');
     
     app.innerHTML = `
-        <div class="login-wrapper">
-            <div class="login-box">
-                <div class="login-brand">
+        <div class="auth-page">
+            <div class="auth-card">
+                <div class="auth-header">
                     <h1>MtaaLink</h1>
                     <p>Create your account</p>
                 </div>
                 
-                <form id="registerForm">
-                    <div class="form-group">
+                <form id="registerForm" autocomplete="off">
+                    <div class="field">
                         <label>Organization Name</label>
-                        <input type="text" id="regOrgName" class="form-control" placeholder="Enter organization name" required>
-                        <div class="error" id="orgNameError"></div>
+                        <input type="text" id="regOrg" placeholder="Your organization">
+                        <span class="err" id="orgError"></span>
                     </div>
                     
-                    <div class="form-row">
-                        <div class="form-group">
+                    <div class="row">
+                        <div class="field">
                             <label>First Name</label>
-                            <input type="text" id="regFirstName" class="form-control" placeholder="First name" required>
-                            <div class="error" id="firstNameError"></div>
+                            <input type="text" id="regFirst" placeholder="First name">
+                            <span class="err" id="firstError"></span>
                         </div>
-                        <div class="form-group">
+                        <div class="field">
                             <label>Last Name</label>
-                            <input type="text" id="regLastName" class="form-control" placeholder="Last name" required>
-                            <div class="error" id="lastNameError"></div>
+                            <input type="text" id="regLast" placeholder="Last name">
+                            <span class="err" id="lastError"></span>
                         </div>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="field">
                         <label>Phone Number</label>
-                        <input type="tel" id="regPhone" class="form-control" placeholder="0712345678" required>
-                        <div class="error" id="phoneError"></div>
+                        <input type="tel" id="regPhone" placeholder="0712345678">
+                        <span class="err" id="phoneError"></span>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="field">
                         <label>Email</label>
-                        <input type="email" id="regEmail" class="form-control" placeholder="you@example.com" required>
-                        <div class="error" id="emailError"></div>
+                        <input type="email" id="regEmail" placeholder="you@example.com">
+                        <span class="err" id="emailError"></span>
                     </div>
                     
-                    <div class="form-group">
+                    <div class="field">
                         <label>Password</label>
-                        <input type="password" id="regPassword" class="form-control" placeholder="Min 8 characters" required minlength="8">
-                        <div class="error" id="passwordError"></div>
+                        <input type="password" id="regPassword" placeholder="Min 8 characters">
+                        <span class="err" id="passwordError"></span>
                     </div>
                     
-                    <button type="submit" class="btn-primary" id="registerBtn">Create Account</button>
+                    <button type="submit" class="btn" id="registerBtn">Create Account</button>
                 </form>
                 
-                <div class="login-footer">
+                <div class="auth-footer">
                     <a id="loginLink">Already have an account? Sign In</a>
                 </div>
             </div>
         </div>
     `;
-    
-    // Add row styles
-    const style = document.createElement('style');
-    style.textContent = `.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; } @media (max-width: 480px) { .form-row { grid-template-columns: 1fr; } }`;
-    document.head.appendChild(style);
     
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
     document.getElementById('loginLink').addEventListener('click', function(e) {
@@ -83,9 +78,9 @@ async function handleRegister(e) {
     if (isLoading) return;
     
     const data = {
-        organization_name: document.getElementById('regOrgName').value.trim(),
-        first_name: document.getElementById('regFirstName').value.trim(),
-        last_name: document.getElementById('regLastName').value.trim(),
+        organization_name: document.getElementById('regOrg').value.trim(),
+        first_name: document.getElementById('regFirst').value.trim(),
+        last_name: document.getElementById('regLast').value.trim(),
         phone: document.getElementById('regPhone').value.trim(),
         email: document.getElementById('regEmail').value.trim(),
         password: document.getElementById('regPassword').value
@@ -95,15 +90,15 @@ async function handleRegister(e) {
     let hasError = false;
     
     if (!data.organization_name || data.organization_name.length < 2) {
-        document.getElementById('orgNameError').textContent = 'Organization name is required';
+        document.getElementById('orgError').textContent = 'Organization name is required';
         hasError = true;
     }
     if (!data.first_name || data.first_name.length < 2) {
-        document.getElementById('firstNameError').textContent = 'First name is required';
+        document.getElementById('firstError').textContent = 'First name is required';
         hasError = true;
     }
     if (!data.last_name || data.last_name.length < 2) {
-        document.getElementById('lastNameError').textContent = 'Last name is required';
+        document.getElementById('lastError').textContent = 'Last name is required';
         hasError = true;
     }
     if (!data.phone || !/^0[17]\d{8}$/.test(data.phone)) {

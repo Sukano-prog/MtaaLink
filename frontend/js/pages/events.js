@@ -253,6 +253,12 @@ function renderEventsList(filtered = null) {
 }
 
 function viewEventDetail(event) {
+    import("./event_detail.js").then(function(module) {
+        module.renderEventDetail(event.id);
+    }).catch(function(error) {
+        showError("Failed to load event detail");
+    });
+}
     getEvent(event.id)
         .then(function(detail) {
             const attendanceList = (detail.attendance || []).map(function(a) {

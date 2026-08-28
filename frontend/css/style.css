@@ -1226,3 +1226,35 @@ input:focus, textarea:focus, select:focus,
     max-width: 420px;
     padding: 20px;
 }
+
+
+/* ===== LOGIN CARD IMPROVEMENTS ===== */
+.auth-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 16px !important;
+    padding: 40px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.auth-wrapper {
+    background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920') no-repeat center center fixed !important;
+    background-size: cover !important;
+}
+
+.auth-overlay {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.auth-header h1 {
+    color: #1a73e8 !important;
+}
+
+.auth-header p {
+    color: #5f6368 !important;
+}
+
+.auth-container {
+    padding: 20px !important;
+}

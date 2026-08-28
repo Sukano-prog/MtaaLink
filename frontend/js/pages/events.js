@@ -4,7 +4,9 @@
 
 import { getEvents, getEvent, createEvent, updateEvent, deleteEvent, addEventAttendance, addEventContribution, getMembers } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
+import { Skeletons } from '../components/skeleton.js';
 import { showFormModal, showConfirm, showModal } from '../components/modal.js';
+import { Skeletons } from '../components/skeleton.js';
 
 let searchQuery = "";
 let eventsData = [];
@@ -70,10 +72,7 @@ export async function renderEvents() {
             </div>
             
             <div id="eventsContainer">
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Loading events...</p>
-                </div>
+                ${Skeletons.projects()}
             </div>
         `;
         

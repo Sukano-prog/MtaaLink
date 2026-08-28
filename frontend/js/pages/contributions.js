@@ -4,7 +4,9 @@
 
 import { getContributions, createContribution, getContributionTypes, createContributionType, getMembers, updateContribution, deleteContribution } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
+import { Skeletons } from '../components/skeleton.js';
 import { showFormModal, showConfirm, showModal } from '../components/modal.js';
+import { Skeletons } from '../components/skeleton.js';
 import { createSearchableSelect } from '../components/searchable_select.js';
 
 let contributionsData = [];
@@ -83,10 +85,7 @@ export async function renderContributions() {
             </div>
             
             <div id="contributionsContainer">
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Loading contributions...</p>
-                </div>
+                ${Skeletons.table()}
             </div>
             
             <div class="pagination" id="pagination"></div>

@@ -81,10 +81,7 @@ export async function renderDashboard() {
                     </header>
                     
                     <div class="page-content" id="pageContent">
-                        <div class="loading-state">
-                            <div class="spinner"></div>
-                            <p>Loading dashboard...</p>
-                        </div>
+                        ${Skeletons.stats()}
                     </div>
                 </main>
             </div>

@@ -32,10 +32,7 @@ export async function renderContributionTypes() {
         </div>
         
         <div id="typesContainer">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>Loading contribution types...</p>
-            </div>
+            ${Skeletons.types()}
         </div>
         
         <div class="pagination" id="pagination"></div>

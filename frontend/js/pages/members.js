@@ -4,6 +4,7 @@
 
 import { getMembers, createMember, updateMember, deleteMember, getGroups } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
+import { Skeletons } from '../components/skeleton.js';
 import { showModal, showConfirm, showFormModal, closeModal } from '../components/modal.js';
 
 let membersData = [];
@@ -59,10 +60,7 @@ export async function renderMembers() {
         </div>
         
         <div id="membersTableContainer">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>Loading members...</p>
-            </div>
+            ${Skeletons.members()}
         </div>
         
         <div class="pagination" id="pagination"></div>

@@ -4,7 +4,9 @@
 
 import { getMeetings, getMeeting, createMeeting, updateMeeting, deleteMeeting, startMeeting, completeMeeting } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
+import { Skeletons } from '../components/skeleton.js';
 import { showFormModal, showConfirm, showModal } from '../components/modal.js';
+import { Skeletons } from '../components/skeleton.js';
 
 let searchQuery = "";
 let meetingsData = [];
@@ -47,10 +49,7 @@ export async function renderMeetings() {
         </div>
         
         <div id="meetingsContainer">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <p>Loading meetings...</p>
-            </div>
+            ${Skeletons.meetings()}
         </div>
     `;
     

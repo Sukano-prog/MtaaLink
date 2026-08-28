@@ -14,38 +14,40 @@ export function renderLogin() {
         <div class="auth-page">
             <div class="auth-card">
                 <div class="auth-header">
-                    <h1>MtaaLink</h1>
-                    <p>Sign in to your account</p>
+                    <div class="logo">MtaaLink</div>
+                    <h2>Welcome back</h2>
+                    <p>Sign in to your account to continue</p>
                 </div>
                 
-                <form id="loginForm" autocomplete="off">
+                <form id="loginForm">
                     <div class="field">
-                        <label>Email</label>
-                        <input type="email" id="loginEmail" placeholder="you@example.com">
-                        <span class="err" id="emailError"></span>
+                        <label>Email address</label>
+                        <input type="email" id="loginEmail" placeholder="name@example.com" autocomplete="email">
+                        <div class="err" id="emailError"></div>
                     </div>
                     
                     <div class="field">
                         <label>Password</label>
                         <div class="pass-wrap">
-                            <input type="password" id="loginPassword" placeholder="Enter your password">
+                            <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
                             <button type="button" id="togglePass" class="show-btn">Show</button>
                         </div>
-                        <span class="err" id="passwordError"></span>
+                        <div class="err" id="passwordError"></div>
                     </div>
                     
                     <div class="options">
                         <label class="check">
                             <input type="checkbox" id="rememberMe" checked>
-                            Remember me
+                            <span>Remember me</span>
                         </label>
+                        <a href="#" class="forgot">Forgot password?</a>
                     </div>
                     
-                    <button type="submit" class="btn" id="loginBtn">Sign In</button>
+                    <button type="submit" class="btn" id="loginBtn">Sign in</button>
                 </form>
                 
                 <div class="auth-footer">
-                    <a id="registerLink">Don't have an account? Register</a>
+                    <p>Don't have an account? <a id="registerLink">Create one</a></p>
                 </div>
             </div>
         </div>
@@ -70,9 +72,11 @@ export function renderLogin() {
     
     document.getElementById('loginEmail').addEventListener('input', function() {
         document.getElementById('emailError').textContent = '';
+        this.classList.remove('error');
     });
     document.getElementById('loginPassword').addEventListener('input', function() {
         document.getElementById('passwordError').textContent = '';
+        this.classList.remove('error');
     });
 }
 
@@ -80,25 +84,29 @@ async function handleLogin(e) {
     e.preventDefault();
     if (isLoading) return;
     
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
+    const email = document.getElementById('loginEmail');
+    const password = document.getElementById('loginPassword');
     const btn = document.getElementById('loginBtn');
     
     let hasError = false;
     
-    if (!email) {
+    if (!email.value.trim()) {
         document.getElementById('emailError').textContent = 'Email is required';
+        email.classList.add('error');
         hasError = true;
-    } else if (!email.includes('@')) {
-        document.getElementById('emailError').textContent = 'Enter a valid email';
+    } else if (!email.value.includes('@')) {
+        document.getElementById('emailError').textContent = 'Enter a valid email address';
+        email.classList.add('error');
         hasError = true;
     }
     
-    if (!password) {
+    if (!password.value) {
         document.getElementById('passwordError').textContent = 'Password is required';
+        password.classList.add('error');
         hasError = true;
-    } else if (password.length < 8) {
+    } else if (password.value.length < 8) {
         document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+        password.classList.add('error');
         hasError = true;
     }
     
@@ -109,7 +117,7 @@ async function handleLogin(e) {
     btn.disabled = true;
     
     try {
-        const data = await login(email, password);
+        const data = await login(email.value.trim(), password.value);
         
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('organization_id', data.village_id);
@@ -121,10 +129,11 @@ async function handleLogin(e) {
         if (typeof renderDashboard === 'function') renderDashboard();
         
     } catch (error) {
-        showError(error.message || 'Login failed');
+        showError(error.message || 'Invalid email or password');
+        password.classList.add('error');
     } finally {
         isLoading = false;
-        btn.textContent = 'Sign In';
+        btn.textContent = 'Sign in';
         btn.disabled = false;
     }
 }

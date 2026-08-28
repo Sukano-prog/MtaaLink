@@ -12,55 +12,56 @@ export function renderRegister() {
     
     app.innerHTML = `
         <div class="auth-page">
-            <div class="auth-card">
+            <div class="auth-card auth-register">
                 <div class="auth-header">
-                    <h1>MtaaLink</h1>
-                    <p>Create your account</p>
+                    <div class="logo">MtaaLink</div>
+                    <h2>Create account</h2>
+                    <p>Get started with your community</p>
                 </div>
                 
-                <form id="registerForm" autocomplete="off">
+                <form id="registerForm">
                     <div class="field">
-                        <label>Organization Name</label>
+                        <label>Organization name</label>
                         <input type="text" id="regOrg" placeholder="Your organization">
-                        <span class="err" id="orgError"></span>
+                        <div class="err" id="orgError"></div>
                     </div>
                     
                     <div class="row">
                         <div class="field">
-                            <label>First Name</label>
+                            <label>First name</label>
                             <input type="text" id="regFirst" placeholder="First name">
-                            <span class="err" id="firstError"></span>
+                            <div class="err" id="firstError"></div>
                         </div>
                         <div class="field">
-                            <label>Last Name</label>
+                            <label>Last name</label>
                             <input type="text" id="regLast" placeholder="Last name">
-                            <span class="err" id="lastError"></span>
+                            <div class="err" id="lastError"></div>
                         </div>
                     </div>
                     
                     <div class="field">
-                        <label>Phone Number</label>
+                        <label>Phone number</label>
                         <input type="tel" id="regPhone" placeholder="0712345678">
-                        <span class="err" id="phoneError"></span>
+                        <div class="err" id="phoneError"></div>
                     </div>
                     
                     <div class="field">
-                        <label>Email</label>
-                        <input type="email" id="regEmail" placeholder="you@example.com">
-                        <span class="err" id="emailError"></span>
+                        <label>Email address</label>
+                        <input type="email" id="regEmail" placeholder="name@example.com">
+                        <div class="err" id="emailError"></div>
                     </div>
                     
                     <div class="field">
                         <label>Password</label>
-                        <input type="password" id="regPassword" placeholder="Min 8 characters">
-                        <span class="err" id="passwordError"></span>
+                        <input type="password" id="regPassword" placeholder="Minimum 8 characters">
+                        <div class="err" id="passwordError"></div>
                     </div>
                     
-                    <button type="submit" class="btn" id="registerBtn">Create Account</button>
+                    <button type="submit" class="btn" id="registerBtn">Create account</button>
                 </form>
                 
                 <div class="auth-footer">
-                    <a id="loginLink">Already have an account? Sign In</a>
+                    <p>Already have an account? <a id="loginLink">Sign in</a></p>
                 </div>
             </div>
         </div>
@@ -70,6 +71,16 @@ export function renderRegister() {
     document.getElementById('loginLink').addEventListener('click', function(e) {
         e.preventDefault();
         if (typeof renderLogin === 'function') renderLogin();
+    });
+    
+    // Clear errors on input
+    ['regOrg', 'regFirst', 'regLast', 'regPhone', 'regEmail', 'regPassword'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            const errId = this.id.replace('reg', '').toLowerCase() + 'Error';
+            const errEl = document.getElementById(errId);
+            if (errEl) errEl.textContent = '';
+            this.classList.remove('error');
+        });
     });
 }
 
@@ -91,44 +102,50 @@ async function handleRegister(e) {
     
     if (!data.organization_name || data.organization_name.length < 2) {
         document.getElementById('orgError').textContent = 'Organization name is required';
+        document.getElementById('regOrg').classList.add('error');
         hasError = true;
     }
     if (!data.first_name || data.first_name.length < 2) {
         document.getElementById('firstError').textContent = 'First name is required';
+        document.getElementById('regFirst').classList.add('error');
         hasError = true;
     }
     if (!data.last_name || data.last_name.length < 2) {
         document.getElementById('lastError').textContent = 'Last name is required';
+        document.getElementById('regLast').classList.add('error');
         hasError = true;
     }
     if (!data.phone || !/^0[17]\d{8}$/.test(data.phone)) {
         document.getElementById('phoneError').textContent = 'Enter a valid phone (0712345678)';
+        document.getElementById('regPhone').classList.add('error');
         hasError = true;
     }
     if (!data.email || !data.email.includes('@')) {
-        document.getElementById('emailError').textContent = 'Enter a valid email';
+        document.getElementById('emailError').textContent = 'Enter a valid email address';
+        document.getElementById('regEmail').classList.add('error');
         hasError = true;
     }
     if (!data.password || data.password.length < 8) {
         document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+        document.getElementById('regPassword').classList.add('error');
         hasError = true;
     }
     
     if (hasError) return;
     
     isLoading = true;
-    btn.textContent = 'Creating...';
+    btn.textContent = 'Creating account...';
     btn.disabled = true;
     
     try {
         await register(data);
-        showSuccess('Account created! Please sign in.');
+        showSuccess('Account created successfully!');
         if (typeof renderLogin === 'function') renderLogin();
     } catch (error) {
         showError(error.message || 'Registration failed');
     } finally {
         isLoading = false;
-        btn.textContent = 'Create Account';
+        btn.textContent = 'Create account';
         btn.disabled = false;
     }
 }

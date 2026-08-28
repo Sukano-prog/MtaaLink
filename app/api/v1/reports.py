@@ -249,16 +249,17 @@ async def export_projects_pdf(
 
 @router.get("/export/events/pdf")
 async def export_events_pdf(
+    event_id: str,
     current_user: Member = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Export events report as PDF"""
+    """Export single event report as PDF"""
     try:
-        pdf_buffer = ReportService.export_events_pdf(db, current_user.village_id)
+        pdf_buffer = ReportService.export_event_pdf(db, current_user.village_id, event_id)
         return StreamingResponse(
             pdf_buffer,
             media_type="application/pdf",
-            headers={"Content-Disposition": f"attachment; filename=events_report_{datetime.now().strftime('%Y%m%d')}.pdf"}
+            headers={"Content-Disposition": f"attachment; filename=event_report_{datetime.now().strftime('%Y%m%d')}.pdf"}
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -61,20 +61,6 @@ export async function renderSettings() {
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Preferences</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="languageSelect">Language</label>
-                            <select id="languageSelect" class="form-control form-select" onchange="window.changeLanguage(this.value)">
-                                <option value="en" ${localStorage.getItem('language') === 'en' ? 'selected' : ''}>English</option>
-                                <option value="sw" ${localStorage.getItem('language') === 'sw' ? 'selected' : ''}>Swahili</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
             </div>
             
             <div class="card" style="margin-top:20px;">
@@ -303,11 +289,6 @@ window.changePassword = function() {
     });
 };
 
-window.changeLanguage = function(lang) {
-    localStorage.setItem('language', lang);
-    showSuccess('Language changed to ' + (lang === 'en' ? 'English' : 'Swahili'));
-    renderSettings();
-};
 
 window.handleLogout = function() {
     showConfirm({
@@ -326,7 +307,6 @@ window.handleLogout = function() {
             localStorage.removeItem('role');
             localStorage.removeItem('member_id');
             localStorage.removeItem('current_page');
-            localStorage.removeItem('language');
             showSuccess('Signed out successfully');
             done();
             if (typeof renderLogin === 'function') {

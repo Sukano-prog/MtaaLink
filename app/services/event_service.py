@@ -117,7 +117,10 @@ class EventService:
             contrib_data = {
                 "contribution_type": c.contribution_type,
                 "amount": float(c.amount) if c.amount else None,
-                "description": c.description
+                "description": c.description,
+                "payment_date": c.payment_date.strftime('%Y-%m-%d') if hasattr(c, 'payment_date') and c.payment_date else None,
+                "payment_method": c.payment_method if hasattr(c, 'payment_method') else None,
+                "created_at": c.created_at.isoformat() if c.created_at else None
             }
             if member:
                 contrib_data["member_name"] = member.full_name

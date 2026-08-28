@@ -8,6 +8,7 @@ import { showToast, showError, showSuccess } from '../components/toast.js';
 let isLoading = false;
 
 export function renderRegister() {
+    document.body.className = "auth-page";
     const app = document.getElementById('app');
     
     app.innerHTML = `

@@ -34,7 +34,7 @@ export async function renderEventDetail(id) {
         
         content.innerHTML = `
             <div class="page-header">
-                <button class="btn btn-outline" onclick="navigateTo('events')">Back</button>
+                <button class="btn btn-outline" onclick="navigateTo('events')">← Back</button>
                 <h2>${currentEvent.title}</h2>
                 <div>
                     <button class="btn btn-primary" onclick="editEvent()">Edit</button>
@@ -240,7 +240,7 @@ function renderAttendees() {
     return `
         <div style="margin-bottom:12px;">
             <strong>Checked in:</strong> ${checkedIn} / ${eventMembers.length}
-            <button class="btn btn-primary" style="margin-left:12px;padding:4px 16px;font-size:13px;" onclick="recordAttendance()">Record Attendance</button>
+            <button class="btn btn-primary" style="margin-left:12px;padding:4px 16px;font-size:13px;" onclick="recordAttendance()">+ Record Attendance</button>
         </div>
         <div style="overflow-x:auto;">
             <table style="width:100%;border-collapse:collapse;">
@@ -254,7 +254,7 @@ function renderAttendees() {
                     <tr>
                         <td style="padding:8px 12px;">${m.member_name || m.name || 'Unknown'}</td>
                         <td style="padding:8px 12px;">${m.role || 'member'}</td>
-                        <td style="padding:8px 12px;">${m.attended ? 'Checked in' : 'Not checked in'}</td>
+                        <td style="padding:8px 12px;">${m.attended ? '✅ Checked in' : '❌ Not checked in'}</td>
                         <td style="padding:8px 12px;">
                             <button class="check-in-btn ${m.attended ? 'checked' : 'unchecked'}" 
                                     onclick="toggleAttendance('${m.id || m.member_id}')">
@@ -269,12 +269,15 @@ function renderAttendees() {
 }
 
 function renderPayments() {
+    // Apply filters
     let filtered = [...eventContributions];
     
+    // Filter by payment method
     if (filterPaymentMethod !== 'all') {
         filtered = filtered.filter(c => (c.payment_method || '').toLowerCase() === filterPaymentMethod.toLowerCase());
     }
     
+    // Filter by date range
     if (filterDateRange !== 'all') {
         const now = new Date();
         let startDate = new Date();
@@ -293,6 +296,7 @@ function renderPayments() {
         });
     }
     
+    // Filter by member name search
     if (filterMemberSearch.trim()) {
         const search = filterMemberSearch.toLowerCase().trim();
         filtered = filtered.filter(c => {
@@ -405,10 +409,11 @@ function renderReport() {
                 <div style="font-size:24px;font-weight:700;">KES ${total.toFixed(2)}</div>
             </div>
         </div>
-        <button class="btn btn-primary" onclick="exportReport()">Export Report</button>
+        <button class="btn btn-primary" onclick="exportReport()">📊 Export Report</button>
     `;
 }
 
+// Tab switching
 window.switchTab = function(tab) {
     currentTab = tab;
     const tabs = document.querySelectorAll('.tab-btn');
@@ -422,6 +427,7 @@ window.switchTab = function(tab) {
     else if (tab === 'report') content.innerHTML = renderReport();
 };
 
+// Filter functions
 window.applyFilter = function(type, value) {
     if (type === 'method') {
         filterPaymentMethod = value;
@@ -450,6 +456,7 @@ window.clearFilters = function() {
     content.innerHTML = renderPayments();
 };
 
+// Export report
 window.exportReport = function() {
     if (!eventContributions.length) {
         showError('No payments to export');
@@ -472,6 +479,7 @@ window.exportReport = function() {
     showToast('Report exported!', 'success');
 };
 
+// Other functions (keep existing)
 window.editEvent = function() {
     if (!currentEvent) return;
     showFormModal('Edit Event', [
@@ -511,16 +519,20 @@ window.deleteEvent = function() {
 };
 
 window.toggleAttendance = function(memberId) {
+    // Find member
     const member = eventMembers.find(m => (m.id === memberId || m.member_id === memberId));
     if (!member) return;
     
     const newStatus = !member.attended;
+    // Update locally
     member.attended = newStatus;
+    // Refresh the attendees tab
     const content = document.getElementById('tabContent');
     content.innerHTML = renderAttendees();
+    // Also update the count in the tab button
     const tabBtn = document.querySelector('[data-tab="attendees"]');
     if (tabBtn) {
-        tabBtn.textContent = 'Attendees (' + eventMembers.filter(m => m.attended).length + ')';
+        tabBtn.textContent = `Attendees (${eventMembers.filter(m => m.attended).length})`;
     }
     showToast(member.member_name + ' ' + (newStatus ? 'checked in' : 'unchecked'), 'info');
 };
@@ -561,6 +573,7 @@ window.recordAttendance = function() {
         eventMembers.push(newMember);
         const content = document.getElementById('tabContent');
         content.innerHTML = renderAttendees();
+        // Update count
         const tabBtn = document.querySelector('[data-tab="attendees"]');
         if (tabBtn) {
             tabBtn.textContent = 'Attendees (' + eventMembers.length + ')';

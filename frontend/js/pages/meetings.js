@@ -6,7 +6,6 @@ import { getMeetings, getMeeting, createMeeting, updateMeeting, deleteMeeting, s
 import { showToast, showError, showSuccess } from '../components/toast.js';
 import { Skeletons } from '../components/skeleton.js';
 import { showFormModal, showConfirm, showModal } from '../components/modal.js';
-import { Skeletons } from '../components/skeleton.js';
 
 let searchQuery = "";
 let meetingsData = [];
@@ -522,3 +521,4 @@ async function deleteMeetingHandler(meetingId) {
 
 window.renderMeetings = renderMeetings;
 window.openMeetingDetail = window.openMeetingDetail;
+

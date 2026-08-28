@@ -6,6 +6,7 @@ import { getEvent, updateEvent, deleteEvent } from '../core/api.js';
 import { getMembers } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
 import { showConfirm, showModal, showFormModal } from '../components/modal.js';
+import { createSearchableSelect } from '../components/searchable_select.js';
 
 let currentEvent = null;
 let eventMembers = [];
@@ -79,6 +80,18 @@ export async function renderEventDetail(id) {
                 .check-in-btn.unchecked {
                     background: #f8d7da;
                     color: #721c24;
+                }
+                /* Fix for searchable select dropdown overflow */
+                .modal-body {
+                    overflow: visible !important;
+                }
+                .searchable-select-container {
+                    position: relative;
+                    z-index: 9999;
+                }
+                .searchable-select-dropdown {
+                    position: absolute !important;
+                    z-index: 99999 !important;
                 }
             `;
             document.head.appendChild(style);
@@ -325,11 +338,29 @@ window.addAttendee = function() {
                 label: 'Member',
                 type: 'select',
                 options: available.map(function(m) {
-                    return { value: m.id, label: m.full_name || m.first_name + ' ' + m.last_name };
+                    var name = m.full_name || (m.first_name || '') + ' ' + (m.last_name || '');
+                    return { value: m.id, label: name.trim() || 'Unknown Member' };
                 }),
                 required: true
             }
         ],
+        onShow: function() {
+            setTimeout(function() {
+                var select = document.getElementById('member_id');
+                if (select) {
+                    var container = select.parentElement;
+                    var options = available.map(function(m) {
+                        var name = m.full_name || (m.first_name || '') + ' ' + (m.last_name || '');
+                        return { value: m.id, label: name.trim() || 'Unknown Member' };
+                    });
+                    var searchable = createSearchableSelect(options, '', 'Search for a member...');
+                    // Replace the select with searchable
+                    if (container) {
+                        container.replaceChild(searchable, select);
+                    }
+                }
+            }, 100);
+        },
         onSubmit: async function(data, done) {
             try {
                 var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + data.member_id, {
@@ -356,7 +387,8 @@ window.addAttendee = function() {
 // Add contribution
 window.addContribution = function() {
     var memberOptions = eventMembers.map(function(m) {
-        return { value: m.member_id, label: m.member_name || 'Unknown' };
+        var name = m.member_name || m.full_name || 'Unknown';
+        return { value: m.member_id, label: name };
     });
     
     if (memberOptions.length === 0) {
@@ -394,6 +426,22 @@ window.addContribution = function() {
                 ]
             }
         ],
+        onShow: function() {
+            setTimeout(function() {
+                var select = document.getElementById('member_id');
+                if (select) {
+                    var container = select.parentElement;
+                    if (container) {
+                        container.style.overflow = 'visible';
+                    }
+                    var options = memberOptions;
+                    var searchable = createSearchableSelect(options, '', 'Search for a member...');
+                    if (container) {
+                        container.replaceChild(searchable, select);
+                    }
+                }
+            }, 100);
+        },
         onSubmit: async function(data, done) {
             try {
                 var response = await fetch('/api/v1/events/' + currentEvent.id + '/contributions', {

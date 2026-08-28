@@ -585,7 +585,8 @@ function openElectionModal(election = null) {
                 election_type: data.election_type,
                 start_date: data.start_date,
                 end_date: data.end_date,
-                candidates: candidates
+                candidates: candidates,
+                status: data.status || election?.status || 'draft'
             };
             
             // Pass the election ID directly from the outer scope

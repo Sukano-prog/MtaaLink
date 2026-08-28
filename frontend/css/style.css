@@ -1192,6 +1192,5 @@ input:focus, textarea:focus, select:focus,
     justify-content: center;
     min-height: 100vh;
     padding: 20px;
-    background: url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920') no-repeat center center fixed;
-    background-size: cover;
+    background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 100%);
 }

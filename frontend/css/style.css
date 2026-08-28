@@ -54,10 +54,7 @@ body {
     background: #e8ecf1;
 }
 
-.auth-container {
-    width: 100%;
-    max-width: 420px;
-}
+
 
 .auth-card {
     background: white;
@@ -981,15 +978,7 @@ body {
     color: #1a1a2e !important;
 }
 
-.auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: url('/images/auth-bg.jpg') no-repeat center center;
-    background-size: cover;
-    padding: 20px;
-}
+
 
 .auth-card {
     background: white;
@@ -1200,4 +1189,14 @@ input:focus, textarea:focus, select:focus,
 .bg-dark, .bg-dark * {
     background: #ffffff !important;
     color: #1a1a2e !important;
+}
+
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #e8ecf1;
+    padding: 20px;
 }

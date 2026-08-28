@@ -62,148 +62,19 @@ export async function renderElections() {
             <div id="electionsContainer">
                 ${Skeletons.elections()}
             </div>
-        `,
-        size: 'md',
-        buttons: [
-            {
-                label: 'Close',
-                action: 'close',
-                class: 'btn-outline',
-                onClick: function(done) { done(); }
-            }
-        ],
-        onShow: function() {
-            const voterCodeInput = document.getElementById('voterCodeInput');
-            const verifyBtn = document.getElementById('verifyCodeBtn');
-            const candidatesContainer = document.getElementById('voterCandidatesContainer');
-            const candidateOptions = document.getElementById('candidateOptions');
-            const castVoteBtn = document.getElementById('castVoteBtn');
-            const voterStatus = document.getElementById('voterStatus');
-            let selectedCandidate = null;
-            let verifiedCode = '';
-            
-            verifyBtn.addEventListener('click', function() {
-                const code = voterCodeInput.value.trim();
-                if (!code) {
-                    showStatus('Please enter your voter code', 'warning');
-                    return;
-                }
-                
-                verifyVoterCode(election.id, code)
-                    .then(function(result) {
-                        if (result.valid) {
-                            verifiedCode = code;
-                            showStatus('Valid voter code! Select your candidate below.', 'success');
-                            loadCandidates(code);
-                        } else {
-                            // Check if the code was already used
-                            if (result.message && result.message.includes('already been used')) {
-                                showStatus('This voter code has already been used. You cannot vote again.', 'error');
-                                // Permanently disable the voting UI
-                                voterCodeInput.disabled = true;
-                                verifyBtn.disabled = true;
-                                castVoteBtn.style.display = 'none';
-                                candidatesContainer.style.display = 'none';
-                            } else {
-                                showStatus(result.message || 'Invalid voter code', 'error');
-                            }
-                        }
-                    })
-                    .catch(function() {
-                        showStatus('Error verifying voter code', 'error');
-                    });
-            });
-            
-            function loadCandidates(code) {
-                getElection(election.id)
-                    .then(function(detail) {
-                        const candidates = detail.candidates || [];
-                        
-                        if (candidates.length === 0) {
-                            showStatus('No candidates available for this election', 'warning');
-                            return;
-                        }
-                        
-                        candidatesContainer.style.display = 'block';
-                        castVoteBtn.style.display = 'block';
-                        
-                        candidateOptions.innerHTML = candidates.map(function(c) {
-                            return `
-                                <div class="candidate-option" style="display:flex;align-items:center;gap:12px;padding:8px 12px;border:2px solid var(--gray-200);border-radius:var(--radius-md);margin-bottom:8px;cursor:pointer;transition:all 0.2s;">
-                                    <input type="radio" name="candidate" value="${c.id}" id="cand_${c.id}" style="width:18px;height:18px;">
-                                    <label for="cand_${c.id}" style="margin:0;cursor:pointer;flex:1;">
-                                        <strong>${c.name}</strong>
-                                        ${c.description ? `<div style="font-size:var(--font-size-xs);color:var(--gray-500);">${c.description}</div>` : ''}
-                                    </label>
-                                </div>
-                            `;
-                        }).join('');
-                        
-                        candidateOptions.querySelectorAll('.candidate-option').forEach(function(card) {
-                            card.addEventListener('click', function() {
-                                const radio = this.querySelector('input[type="radio"]');
-                                radio.checked = true;
-                                selectedCandidate = radio.value;
-                                document.querySelectorAll('.candidate-option').forEach(function(el) {
-                                    el.style.borderColor = 'var(--gray-200)';
-                                    el.style.background = '';
-                                });
-                                this.style.borderColor = 'var(--primary)';
-                                this.style.background = 'var(--primary-light)';
-                            });
-                        });
-                        
-                        castVoteBtn.addEventListener('click', function() {
-                            if (!selectedCandidate) {
-                                showStatus('Please select a candidate', 'warning');
-                                return;
-                            }
-                            
-                            const voteData = {
-                                voter_code: verifiedCode,
-                                candidate_id: selectedCandidate
-                            };
-                            
-                            castVote(voteData)
-                                .then(function(response) {
-                                    showStatus('Your vote has been recorded successfully!', 'success');
-                                    castVoteBtn.style.display = 'none';
-                                    candidateOptions.innerHTML = '<p class="text-muted">You have successfully voted.</p>';
-                                    voterCodeInput.disabled = true;
-                                    verifyBtn.disabled = true;
-                                    // Refresh results after voting
-                                    // Store that this user voted in this election
-                                    localStorage.setItem('voted_' + election.id, 'true');
-                                    setTimeout(function() {
-                                        closeModal();
-                                        loadElections();
-                                    }, 1500);
-                                })
-                                .catch(function(error) {
-                                    showStatus(error.message || 'Failed to cast vote', 'error');
-                                });
-                        });
-                    })
-                    .catch(function() {
-                        showStatus('Error loading candidates', 'error');
-                    });
-            }
-            
-            function showStatus(message, type) {
-                const colors = {
-                    success: 'var(--success)',
-                    error: 'var(--danger)',
-                    warning: 'var(--warning)',
-                    info: 'var(--primary)'
-                };
-                voterStatus.innerHTML = `
-                    <div style="padding:12px;background:${colors[type] || 'var(--gray-50)'}20;border-left:4px solid ${colors[type] || 'var(--gray)'};border-radius:var(--radius-md);">
-                        <span style="color:${colors[type] || 'var(--gray)'};">${message}</span>
-                    </div>
-                `;
-            }
-        }
-    });
+        `;
+        
+        document.getElementById('addElectionBtn').addEventListener('click', function() {
+            openElectionModal();
+        });
+        
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            filterElections();
+        });
+        
+        await loadElections();
+        startAutoRefresh();
+    }
 }
 
 window.renderElections = renderElections;

@@ -96,7 +96,13 @@ async function loadMembers() {
     const pagination = document.getElementById('pagination');
     
     try {
-        groupsData = await getGroups();
+        // Load groups and members in parallel
+        const [groups, membersResponse] = await Promise.all([
+            getGroups().catch(() => []),
+            getMembers({ skip: 0, limit: 50 }).catch(() => [])
+        ]);
+        
+        groupsData = groups || [];
         const groupFilterEl = document.getElementById('groupFilter');
         if (groupFilterEl) {
             const currentValue = groupFilterEl.value;

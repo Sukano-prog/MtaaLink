@@ -147,7 +147,7 @@ class ReportService:
     def export_members_pdf(db: Session, organization_id: str) -> io.BytesIO:
         from app.models.village import Village
         village = db.query(Village).filter(Village.id == organization_id).first()
-        village_name = village.name if village else "Organization"
+        org_name = village.name if village else "Organization"
         data = ReportService.get_member_report(db, organization_id)
         
         buffer = io.BytesIO()
@@ -157,7 +157,7 @@ class ReportService:
         
         # Title
         title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
-        story.append(Paragraph(f"{village_name} - Member Report", title_style))
+        story.append(Paragraph(f"{org_name} - Member Report", title_style))
         story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
         story.append(Spacer(1, 20))
         
@@ -233,7 +233,7 @@ class ReportService:
     def export_meetings_pdf(db: Session, organization_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> io.BytesIO:
         from app.models.village import Village
         village = db.query(Village).filter(Village.id == organization_id).first()
-        village_name = village.name if village else "Organization"
+        org_name = village.name if village else "Organization"
         data = ReportService.get_meeting_report(db, organization_id, start_date, end_date)
         
         buffer = io.BytesIO()
@@ -243,7 +243,7 @@ class ReportService:
         
         # Title
         title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
-        story.append(Paragraph(f"{village_name} - Meeting Report", title_style))
+        story.append(Paragraph(f"{org_name} - Meeting Report", title_style))
         story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
         story.append(Spacer(1, 20))
         
@@ -304,7 +304,7 @@ class ReportService:
     def export_contributions_pdf(db: Session, organization_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None) -> io.BytesIO:
         from app.models.village import Village
         village = db.query(Village).filter(Village.id == organization_id).first()
-        village_name = village.name if village else "Organization"
+        org_name = village.name if village else "Organization"
         data = ReportService.get_contribution_report(db, organization_id, start_date, end_date)
         
         buffer = io.BytesIO()
@@ -380,7 +380,7 @@ class ReportService:
     def export_attendance_pdf(db: Session, organization_id: str, member_id: Optional[str] = None) -> io.BytesIO:
         from app.models.village import Village
         village = db.query(Village).filter(Village.id == organization_id).first()
-        village_name = village.name if village else "Organization"
+        org_name = village.name if village else "Organization"
         data = ReportService.get_attendance_report(db, organization_id, member_id)
         
         buffer = io.BytesIO()
@@ -390,7 +390,7 @@ class ReportService:
         
         # Title
         title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
-        story.append(Paragraph(f"{village_name} - Attendance Report", title_style))
+        story.append(Paragraph(f"{org_name} - Attendance Report", title_style))
         story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
         story.append(Spacer(1, 20))
         
@@ -492,7 +492,7 @@ class ReportService:
         
         # Title
         title_style = ParagraphStyle('CustomTitle', parent=styles['Title'], fontSize=18, alignment=1)
-        elements.append(Paragraph(f"{village_name} - Elections Report", title_style))
+        elements.append(Paragraph(f"{org_name} - Elections Report", title_style))
         elements.append(Spacer(1, 12))
         elements.append(Paragraph(f"Total Elections: {data['total_elections']}", styles['Normal']))
         elements.append(Spacer(1, 12))
@@ -571,6 +571,11 @@ class ReportService:
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib import colors
+        from app.models.village import Village
+        
+        # Get organization name
+        village = db.query(Village).filter(Village.id == organization_id).first()
+        org_name = village.name if village else "Organization"
         
         data = ReportService.get_group_report(db, organization_id)
         buffer = io.BytesIO()
@@ -580,7 +585,7 @@ class ReportService:
         
         # Title
         title_style = ParagraphStyle('CustomTitle', parent=styles['Title'], fontSize=18, alignment=1)
-        elements.append(Paragraph(f"{village_name} - Groups Report", title_style))
+        elements.append(Paragraph(f"{org_name} - Groups Report", title_style))
         elements.append(Spacer(1, 12))
         elements.append(Paragraph(f"Total Groups: {data['total_groups']} | Total Members: {data['total_members']}", styles['Normal']))
         elements.append(Spacer(1, 12))
@@ -613,7 +618,7 @@ class ReportService:
         from app.models.village import Village
         
         village = db.query(Village).filter(Village.id == organization_id).first()
-        village_name = village.name if village else "Organization"
+        org_name = village.name if village else "Organization"
         
         projects = db.query(Project).filter(
             Project.village_id == organization_id,
@@ -626,7 +631,7 @@ class ReportService:
         story = []
         
         title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
-        story.append(Paragraph(f"{village_name} - Projects Report", title_style))
+        story.append(Paragraph(f"{org_name} - Projects Report", title_style))
         story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
         story.append(Spacer(1, 20))
         
@@ -660,7 +665,7 @@ class ReportService:
         from app.models.village import Village
         
         village = db.query(Village).filter(Village.id == organization_id).first()
-        village_name = village.name if village else "Organization"
+        org_name = village.name if village else "Organization"
         
         events = db.query(Event).filter(
             Event.village_id == organization_id,
@@ -673,7 +678,7 @@ class ReportService:
         story = []
         
         title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
-        story.append(Paragraph(f"{village_name} - Events Report", title_style))
+        story.append(Paragraph(f"{org_name} - Events Report", title_style))
         story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
         story.append(Spacer(1, 20))
         
@@ -707,7 +712,7 @@ class ReportService:
         from app.models.village import Village
         
         village = db.query(Village).filter(Village.id == organization_id).first()
-        village_name = village.name if village else "Organization"
+        org_name = village.name if village else "Organization"
         
         announcements = db.query(Announcement).filter(
             Announcement.village_id == organization_id,
@@ -720,7 +725,7 @@ class ReportService:
         story = []
         
         title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
-        story.append(Paragraph(f"{village_name} - Announcements Report", title_style))
+        story.append(Paragraph(f"{org_name} - Announcements Report", title_style))
         story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
         story.append(Spacer(1, 20))
         
@@ -757,7 +762,7 @@ class ReportService:
         from app.models.contribution import Contribution
         
         village = db.query(Village).filter(Village.id == organization_id).first()
-        village_name = village.name if village else "Organization"
+        org_name = village.name if village else "Organization"
         
         total_members = db.query(Member).filter(Member.village_id == organization_id, Member.deleted_at.is_(None)).count()
         total_meetings = db.query(Meeting).filter(Meeting.village_id == organization_id, Meeting.deleted_at.is_(None)).count()
@@ -772,7 +777,7 @@ class ReportService:
         story = []
         
         title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=24, alignment=TA_CENTER, spaceAfter=30)
-        story.append(Paragraph(f"{village_name} - Summary Report", title_style))
+        story.append(Paragraph(f"{org_name} - Summary Report", title_style))
         story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y %I:%M %p')}", styles['Normal']))
         story.append(Spacer(1, 20))
         

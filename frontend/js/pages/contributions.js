@@ -341,7 +341,7 @@ function openContributionModal() {
                 type: 'select',
                 value: '',
                 required: true,
-                options: [{ value: '', label: 'Select member...' }].concat(memberOptions)
+                options: [{ value: '', label: '' }].concat(memberOptions)
             },
             {
                 id: 'contribution_type_id',
@@ -402,7 +402,7 @@ function openContributionModal() {
             const memberSelect = document.getElementById('member_id');
             if (memberSelect) {
                 const container = memberSelect.parentElement;
-                const options = [{ value: '', label: 'Select member...' }];
+                const options = [{ value: '', label: '' }];
                 membersList.forEach(function(m) {
                     options.push({ value: m.id, label: m.full_name || m.first_name + ' ' + m.last_name });
                 });

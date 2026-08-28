@@ -13,34 +13,47 @@ export async function renderSettings() {
     
     try {
         currentUser = await getCurrentUser();
+        
         // Get organization data from API
-        const organizationData = await fetch('/api/v1/organizations/' + localStorage.getItem('organization_id'), {
-            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-        }).then(r => r.json()).catch(() => ({}));
+        const orgId = localStorage.getItem('organization_id') || localStorage.getItem('village_id');
+        let orgData = {};
+        if (orgId && orgId !== 'null' && orgId !== 'undefined') {
+            try {
+                const response = await fetch('/api/v1/organizations/' + orgId, {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                });
+                if (response.ok) {
+                    orgData = await response.json();
+                }
+            } catch (e) {
+                console.warn('Could not fetch organization data:', e);
+            }
+        }
         
         content.innerHTML = `
             <div class="page-header">
                 <h2>Settings</h2>
+                <p style="color:var(--gray-500);margin:4px 0 0 0;">Manage your organization and account settings</p>
             </div>
             
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Organization Profile</h3>
+                        <h3>Organization</h3>
                         <button class="btn btn-sm btn-outline" onclick="window.editOrganizationProfile()">Edit</button>
                     </div>
                     <div class="card-body">
-                        <div><strong>Name:</strong> ${organizationData.name || 'Not set'}</div>
-                        <div><strong>Region:</strong> ${organizationData.county || 'Not set'}</div>
-                        <div><strong>Sub-Location:</strong> ${organizationData.ward || 'Not set'}</div>
-                        <div><strong>Phone:</strong> ${organizationData.phone || 'Not set'}</div>
-                        <div><strong>Email:</strong> ${organizationData.admin_email || 'Not set'}</div>
+                        <div><strong>Name:</strong> ${orgData.name || localStorage.getItem('org_name') || 'Not set'}</div>
+                        <div><strong>Region:</strong> ${orgData.county || localStorage.getItem('org_region') || 'Not set'}</div>
+                        <div><strong>Sub-Location:</strong> ${orgData.ward || localStorage.getItem('org_sublocation') || 'Not set'}</div>
+                        <div><strong>Phone:</strong> ${orgData.phone || localStorage.getItem('org_phone') || 'Not set'}</div>
+                        <div><strong>Email:</strong> ${orgData.admin_email || localStorage.getItem('org_email') || 'Not set'}</div>
                     </div>
                 </div>
                 
                 <div class="card">
                     <div class="card-header">
-                        <h3>Admin Profile</h3>
+                        <h3>Admin</h3>
                         <button class="btn btn-sm btn-outline" onclick="window.editAdminProfile()">Edit</button>
                     </div>
                     <div class="card-body">
@@ -57,22 +70,17 @@ export async function renderSettings() {
                     </div>
                     <div class="card-body">
                         <button class="btn btn-primary" onclick="window.changePassword()">Change Password</button>
-                        <button class="btn btn-danger" style="margin-left:10px;" onclick="window.handleLogout()">Sign Out</button>
+                        <button class="btn btn-danger" onclick="window.handleLogout()">Sign Out</button>
                     </div>
                 </div>
-                
             </div>
             
-            <div class="card" style="margin-top:20px;">
+            <div class="card">
                 <div class="card-header">
-                    <h3>System Information</h3>
+                    <h3>System</h3>
                 </div>
                 <div class="card-body">
-                    <div><strong>App Name:</strong> MtaaLink</div>
-                    <div><strong>Version:</strong> 1.0.0</div>
-                   /* <div><strong>Organization ID:</strong> ${localStorage.getItem('organization_id') || localStorage.getItem('village_id') || 'N/A'}</div>
-                    <div><strong>Member ID:</strong> ${localStorage.getItem('member_id') || 'N/A'}</div>
-                    <div><strong>Role:</strong> ${localStorage.getItem('role') || 'Member'}</div>*/
+                    <div><strong>App:</strong> Management System v1.0.0</div>
                 </div>
             </div>
         `;
@@ -107,7 +115,7 @@ window.editOrganizationProfile = function() {
                 type: 'text',
                 value: localStorage.getItem('org_region') || '',
                 required: false,
-                placeholder: 'Enter county'
+                placeholder: 'Enter region'
             },
             {
                 id: 'org_sublocation',
@@ -115,7 +123,7 @@ window.editOrganizationProfile = function() {
                 type: 'text',
                 value: localStorage.getItem('org_sublocation') || '',
                 required: false,
-                placeholder: 'Enter ward'
+                placeholder: 'Enter sub-location'
             },
             {
                 id: 'org_phone',
@@ -288,7 +296,6 @@ window.changePassword = function() {
         }
     });
 };
-
 
 window.handleLogout = function() {
     showConfirm({

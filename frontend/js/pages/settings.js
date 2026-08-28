@@ -70,9 +70,9 @@ export async function renderSettings() {
                 <div class="card-body">
                     <div><strong>App Name:</strong> MtaaLink</div>
                     <div><strong>Version:</strong> 1.0.0</div>
-                    <div><strong>Organization ID:</strong> ${localStorage.getItem('organization_id') || localStorage.getItem('village_id') || 'N/A'}</div>
+                   /* <div><strong>Organization ID:</strong> ${localStorage.getItem('organization_id') || localStorage.getItem('village_id') || 'N/A'}</div>
                     <div><strong>Member ID:</strong> ${localStorage.getItem('member_id') || 'N/A'}</div>
-                    <div><strong>Role:</strong> ${localStorage.getItem('role') || 'Member'}</div>
+                    <div><strong>Role:</strong> ${localStorage.getItem('role') || 'Member'}</div>*/
                 </div>
             </div>
         `;

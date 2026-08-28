@@ -4,7 +4,6 @@
 
 import { getEvent, updateEvent, deleteEvent } from '../core/api.js';
 import { getMembers } from '../core/api.js';
-import { getContributions } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
 import { showConfirm, showModal, showFormModal } from '../components/modal.js';
 
@@ -12,24 +11,17 @@ let currentEvent = null;
 let eventMembers = [];
 let eventContributions = [];
 let allMembers = [];
+let eventId = null;
 
-export async function renderEventDetail(eventId) {
+export async function renderEventDetail(id) {
+    eventId = id;
     const content = document.getElementById('pageContent');
     
     try {
-        // Load event data
         const eventData = await getEvent(eventId);
         currentEvent = eventData;
-        
-        // Load attendees
-        const attendees = eventData.attendance || [];
-        eventMembers = attendees;
-        
-        // Load contributions
-        const contributions = eventData.contributions || [];
-        eventContributions = contributions;
-        
-        // Load all members for adding
+        eventMembers = eventData.attendance || [];
+        eventContributions = eventData.contributions || [];
         allMembers = await getMembers().catch(() => []);
         
         content.innerHTML = `
@@ -42,8 +34,7 @@ export async function renderEventDetail(eventId) {
                 </div>
             </div>
             
-            <!-- Tabs -->
-            <div class="tabs" style="display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:20px;">
+            <div style="display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:20px;">
                 <button class="tab-btn active" data-tab="overview" onclick="window.switchTab('overview')">Overview</button>
                 <button class="tab-btn" data-tab="attendees" onclick="window.switchTab('attendees')">Attendees (${eventMembers.length})</button>
                 <button class="tab-btn" data-tab="contributions" onclick="window.switchTab('contributions')">Contributions (${eventContributions.length})</button>
@@ -51,46 +42,47 @@ export async function renderEventDetail(eventId) {
             </div>
             
             <div id="tabContent">
-                ${renderOverviewTab()}
+                ${renderOverview()}
             </div>
         `;
         
-        // Attach tab styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .tab-btn {
-                padding: 10px 20px;
-                border: none;
-                background: none;
-                cursor: pointer;
-                font-size: 14px;
-                font-weight: 500;
-                color: var(--gray-500);
-                border-bottom: 3px solid transparent;
-                transition: all 0.2s;
-            }
-            .tab-btn:hover { color: var(--gray-700); }
-            .tab-btn.active {
-                color: var(--primary);
-                border-bottom-color: var(--primary);
-            }
-            .check-in-btn {
-                padding: 4px 12px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 12px;
-            }
-            .check-in-btn.checked {
-                background: #d4edda;
-                color: #155724;
-            }
-            .check-in-btn.unchecked {
-                background: #f8d7da;
-                color: #721c24;
-            }
-        `;
-        document.head.appendChild(style);
+        // Add styles
+        if (!document.getElementById('eventDetailStyles')) {
+            const style = document.createElement('style');
+            style.id = 'eventDetailStyles';
+            style.textContent = `
+                .tab-btn {
+                    padding: 10px 20px;
+                    border: none;
+                    background: none;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: var(--gray-500);
+                    border-bottom: 3px solid transparent;
+                }
+                .tab-btn.active {
+                    color: var(--primary);
+                    border-bottom-color: var(--primary);
+                }
+                .check-in-btn {
+                    padding: 4px 12px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                }
+                .check-in-btn.checked {
+                    background: #d4edda;
+                    color: #155724;
+                }
+                .check-in-btn.unchecked {
+                    background: #f8d7da;
+                    color: #721c24;
+                }
+            `;
+            document.head.appendChild(style);
+        }
         
     } catch (error) {
         content.innerHTML = `
@@ -104,10 +96,10 @@ export async function renderEventDetail(eventId) {
     }
 }
 
-function renderOverviewTab() {
+function renderOverview() {
     const e = currentEvent;
     const checkedIn = eventMembers.filter(function(m) { return m.attended; }).length;
-    const totalCollected = eventContributions.reduce(function(sum, c) { return sum + c.amount; }, 0);
+    const totalCollected = eventContributions.reduce(function(sum, c) { return sum + (c.amount || 0); }, 0);
     
     return `
         <div class="card">
@@ -132,129 +124,141 @@ function renderOverviewTab() {
                     <div><strong>Time:</strong> ${e.time || 'Not set'}</div>
                     <div><strong>Location:</strong> ${e.location || 'Not set'}</div>
                     <div><strong>Status:</strong> <span class="badge badge-${e.status === 'completed' ? 'success' : e.status === 'ongoing' ? 'warning' : 'primary'}">${e.status || 'Upcoming'}</span></div>
-                    <div><strong>Organizer:</strong> ${e.organizer || 'Not set'}</div>
+                    <div><strong>Organizer:</strong> ${e.organizer_name || 'Not set'}</div>
                 </div>
                 ${e.description ? `<div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-200);"><strong>Description</strong><p style="margin-top:4px;color:var(--gray-600);">${e.description}</p></div>` : ''}
-                ${e.notes ? `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-200);"><strong>Notes</strong><p style="margin-top:4px;color:var(--gray-600);">${e.notes}</p></div>` : ''}
             </div>
         </div>
     `;
 }
 
-function renderAttendeesTab() {
+function renderAttendees() {
+    if (eventMembers.length === 0) {
+        return `
+            <div class="card">
+                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                    <h3 style="margin:0;">Attendees</h3>
+                    <button class="btn btn-primary btn-sm" onclick="window.addAttendee()">+ Add Member</button>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">No attendees yet.</p>
+                </div>
+            </div>
+        `;
+    }
+    
     return `
         <div class="card">
-            <div class="card-header">
-                <h3>Attendees</h3>
-                <button class="btn btn-primary" onclick="window.addAttendee()">+ Add Member</button>
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="margin:0;">Attendees</h3>
+                <button class="btn btn-primary btn-sm" onclick="window.addAttendee()">+ Add Member</button>
             </div>
-            <div class="card-body">
-                ${eventMembers.length === 0 ? `
-                    <p class="text-muted">No attendees yet. Add members to this event.</p>
-                ` : `
-                    <div style="overflow-x:auto;">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Member</th>
-                                    <th>Phone</th>
-                                    <th>Status</th>
-                                    <th>Check In</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${eventMembers.map(m => `
-                                    <tr>
-                                        <td>${m.member_name || 'Unknown'}</td>
-                                        <td>${m.phone || '-'}</td>
-                                        <td>${m.attended ? '<span style="color:green;"> Checked In</span>' : '<span style="color:gray;"> Not Checked In</span>'}</td>
-                                        <td>
-                                            <button class="check-in-btn ${m.attended ? 'checked' : 'unchecked'}" 
-                                                    onclick="window.toggleCheckIn('${m.member_id}')">
-                                                ${m.attended ? '✓ Checked In' : 'Check In'}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `}
+            <div class="card-body" style="padding:0;">
+                <div style="overflow-x:auto;">
+                    <table class="table" style="margin:0;">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Status</th>
+                                <th style="text-align:center;">Check In</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${eventMembers.map(function(m) {
+                                var checkedIn = m.attended ? 'Checked In' : 'Not Checked In';
+                                var btnClass = m.attended ? 'checked' : 'unchecked';
+                                var btnText = m.attended ? 'Checked In' : 'Check In';
+                                return '<tr>' +
+                                    '<td><strong>' + (m.member_name || 'Unknown') + '</strong></td>' +
+                                    '<td>' + (m.attended ? '<span style="color:green;">Checked In</span>' : '<span style="color:gray;">Not Checked In</span>') + '</td>' +
+                                    '<td style="text-align:center;"><button class="check-in-btn ' + btnClass + '" onclick="window.toggleCheckIn(\'' + m.member_id + '\')">' + btnText + '</button></td>' +
+                                '</tr>';
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     `;
 }
 
-function renderContributionsTab() {
+function renderContributions() {
+    if (eventContributions.length === 0) {
+        return `
+            <div class="card">
+                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                    <h3 style="margin:0;">Contributions</h3>
+                    <button class="btn btn-primary btn-sm" onclick="window.addContribution()">+ Record Payment</button>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">No contributions yet.</p>
+                </div>
+            </div>
+        `;
+    }
+    
     return `
         <div class="card">
-            <div class="card-header">
-                <h3>Contributions</h3>
-                <button class="btn btn-primary" onclick="window.addContribution()">+ Record Payment</button>
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="margin:0;">Contributions</h3>
+                <button class="btn btn-primary btn-sm" onclick="window.addContribution()">+ Record Payment</button>
             </div>
-            <div class="card-body">
-                ${eventContributions.length === 0 ? `
-                    <p class="text-muted">No contributions linked to this event.</p>
-                ` : `
-                    <div style="overflow-x:auto;">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Member</th>
-                                    <th>Amount</th>
-                                    <th>Payment Method</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${eventContributions.map(c => `
-                                    <tr>
-                                        <td>${c.member_name || 'Unknown'}</td>
-                                        <td>KES ${c.amount}</td>
-                                        <td>${c.payment_method || '-'}</td>
-                                        <td>${new Date(c.created_at).toLocaleDateString()}</td>
-                                        <td><span class="badge badge-${c.status === 'paid' ? 'success' : 'warning'}">${c.status || 'pending'}</span></td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                `}
+            <div class="card-body" style="padding:0;">
+                <div style="overflow-x:auto;">
+                    <table class="table" style="margin:0;">
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${eventContributions.map(function(c) {
+                                return '<tr>' +
+                                    '<td><strong>' + (c.member_name || 'Anonymous') + '</strong></td>' +
+                                    '<td>' + (c.contribution_type || 'Money') + '</td>' +
+                                    '<td>KES ' + (c.amount || 0) + '</td>' +
+                                '</tr>';
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     `;
 }
 
-function renderReportTab() {
+function renderReport() {
+    var totalCollected = eventContributions.reduce(function(sum, c) { return sum + (c.amount || 0); }, 0);
+    var checkedIn = eventMembers.filter(function(m) { return m.attended; }).length;
+    
     return `
         <div class="card">
             <div class="card-header">
                 <h3>Event Report</h3>
-                <div>
-                    <button class="btn btn-success" onclick="window.exportPDF()"> Export PDF</button>
-                </div>
+                <button class="btn btn-success" onclick="window.exportPDF()">Export PDF</button>
             </div>
             <div class="card-body">
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
                     <div><strong>Total Attendees:</strong> ${eventMembers.length}</div>
-                    <div><strong>Checked In:</strong> ${eventMembers.filter(m => m.attended).length}</div>
-                    <div><strong>Total Collected:</strong> KES ${eventContributions.reduce((sum, c) => sum + c.amount, 0)}</div>
+                    <div><strong>Checked In:</strong> ${checkedIn}</div>
+                    <div><strong>Total Collected:</strong> KES ${totalCollected}</div>
                 </div>
                 <div style="border-top:1px solid var(--gray-200);padding-top:16px;">
-                    <h4>Attendees List</h4>
+                    <h4>Attendees</h4>
                     <ul>
-                        ${eventMembers.map(m => `
-                            <li>${m.member_name || 'Unknown'} - ${m.attended ? ' Checked In' : ' Not Checked In'}</li>
-                        `).join('')}
+                        ${eventMembers.map(function(m) {
+                            return '<li>' + (m.member_name || 'Unknown') + ' - ' + (m.attended ? 'Checked In' : 'Not Checked In') + '</li>';
+                        }).join('')}
                     </ul>
                 </div>
                 <div style="border-top:1px solid var(--gray-200);padding-top:16px;margin-top:16px;">
                     <h4>Contributions</h4>
                     <ul>
-                        ${eventContributions.map(c => `
-                            <li>${c.member_name || 'Unknown'} - KES ${c.amount} (${c.status || 'pending'})</li>
-                        `).join('')}
+                        ${eventContributions.map(function(c) {
+                            return '<li>' + (c.member_name || 'Anonymous') + ' - KES ' + (c.amount || 0) + ' (' + (c.contribution_type || 'Money') + ')</li>';
+                        }).join('')}
                     </ul>
                 </div>
             </div>
@@ -264,28 +268,25 @@ function renderReportTab() {
 
 // Tab switching
 window.switchTab = function(tab) {
-    const tabs = document.querySelectorAll('.tab-btn');
-    tabs.forEach(t => t.classList.remove('active'));
-    document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(function(t) {
+        t.classList.remove('active');
+    });
+    document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
     
-    const content = document.getElementById('tabContent');
-    switch(tab) {
-        case 'overview': content.innerHTML = renderOverviewTab(); break;
-        case 'attendees': content.innerHTML = renderAttendeesTab(); break;
-        case 'contributions': content.innerHTML = renderContributionsTab(); break;
-        case 'report': content.innerHTML = renderReportTab(); break;
-    }
+    var content = document.getElementById('tabContent');
+    if (tab === 'overview') content.innerHTML = renderOverview();
+    else if (tab === 'attendees') content.innerHTML = renderAttendees();
+    else if (tab === 'contributions') content.innerHTML = renderContributions();
+    else if (tab === 'report') content.innerHTML = renderReport();
 };
 
 // Toggle check-in
 window.toggleCheckIn = async function(memberId) {
     try {
-        const eventId = currentEvent.id;
-        const attendee = eventMembers.find(m => m.member_id === memberId);
-        const newStatus = !attendee.attended;
+        var attendee = eventMembers.find(function(m) { return m.member_id === memberId; });
+        var newStatus = !attendee.attended;
         
-        // Call API to update attendance
-        const response = await fetch(`/api/v1/events/${eventId}/attendance/${memberId}`, {
+        var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + memberId, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -296,14 +297,9 @@ window.toggleCheckIn = async function(memberId) {
         
         if (!response.ok) throw new Error('Failed to update check-in');
         
-        // Update local data
         attendee.attended = newStatus;
-        if (newStatus) {
-            attendee.check_in_time = new Date().toISOString();
-        }
-        
-        showSuccess(newStatus ? 'Checked in successfully' : 'Check-in removed');
-        window.switchTab('attendees');
+        showSuccess(newStatus ? 'Checked in' : 'Check-in removed');
+        renderEventDetail(currentEvent.id);
         
     } catch (error) {
         showError(error.message || 'Failed to update check-in');
@@ -312,10 +308,12 @@ window.toggleCheckIn = async function(memberId) {
 
 // Add attendee
 window.addAttendee = function() {
-    const available = allMembers.filter(m => !eventMembers.some(em => em.member_id === m.id));
+    var available = allMembers.filter(function(m) {
+        return !eventMembers.some(function(em) { return em.member_id === m.id; });
+    });
     
     if (available.length === 0) {
-        showError('All members are already added to this event');
+        showError('All members are already added');
         return;
     }
     
@@ -326,14 +324,15 @@ window.addAttendee = function() {
                 id: 'member_id',
                 label: 'Member',
                 type: 'select',
-                options: available.map(m => ({ value: m.id, label: m.full_name || m.first_name + ' ' + m.last_name })),
+                options: available.map(function(m) {
+                    return { value: m.id, label: m.full_name || m.first_name + ' ' + m.last_name };
+                }),
                 required: true
             }
         ],
         onSubmit: async function(data, done) {
             try {
-                const eventId = currentEvent.id;
-                const response = await fetch(`/api/v1/events/${eventId}/attendance/${data.member_id}`, {
+                var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + data.member_id, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -345,7 +344,7 @@ window.addAttendee = function() {
                 
                 showSuccess('Member added to event');
                 done();
-                renderEventDetail(eventId);
+                renderEventDetail(currentEvent.id);
                 
             } catch (error) {
                 showError(error.message || 'Failed to add attendee');
@@ -354,8 +353,17 @@ window.addAttendee = function() {
     });
 };
 
-// Add contribution to event
+// Add contribution
 window.addContribution = function() {
+    var memberOptions = eventMembers.map(function(m) {
+        return { value: m.member_id, label: m.member_name || 'Unknown' };
+    });
+    
+    if (memberOptions.length === 0) {
+        showError('No attendees to record payment for');
+        return;
+    }
+    
     showFormModal({
         title: 'Record Event Payment',
         fields: [
@@ -363,7 +371,7 @@ window.addContribution = function() {
                 id: 'member_id',
                 label: 'Member',
                 type: 'select',
-                options: eventMembers.map(m => ({ value: m.member_id, label: m.member_name || 'Unknown' })),
+                options: memberOptions,
                 required: true
             },
             {
@@ -373,12 +381,22 @@ window.addContribution = function() {
                 required: true,
                 placeholder: '0.00'
             },
-
+            {
+                id: 'payment_method',
+                label: 'Payment Method',
+                type: 'select',
+                value: 'cash',
+                required: true,
+                options: [
+                    { value: 'cash', label: 'Cash' },
+                    { value: 'mpesa', label: 'M-PESA' },
+                    { value: 'bank', label: 'Bank Transfer' }
+                ]
+            }
         ],
         onSubmit: async function(data, done) {
             try {
-                const eventId = currentEvent.id;
-                const response = await fetch(`/api/v1/events/${eventId}/contributions`, {
+                var response = await fetch('/api/v1/events/' + currentEvent.id + '/contributions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -387,15 +405,19 @@ window.addContribution = function() {
                     body: JSON.stringify({
                         member_id: data.member_id,
                         contribution_type: 'money',
-                        amount: parseFloat(data.amount)
+                        amount: parseFloat(data.amount),
+                        payment_method: data.payment_method || 'cash'
                     })
                 });
                 
-                if (!response.ok) throw new Error('Failed to record payment');
+                if (!response.ok) {
+                    var errData = await response.json();
+                    throw new Error(errData.detail || 'Failed to record payment');
+                }
                 
                 showSuccess('Payment recorded');
                 done();
-                renderEventDetail(eventId);
+                renderEventDetail(currentEvent.id);
                 
             } catch (error) {
                 showError(error.message || 'Failed to record payment');
@@ -404,26 +426,22 @@ window.addContribution = function() {
     });
 };
 
-// Export functions
 window.editEvent = function() {
-    // Navigate to edit modal (reuse from events.js)
-    const eventId = currentEvent.id;
-    // Import and call openEventModal from events.js
-    import('./events.js').then(module => {
+    import('./events.js').then(function(module) {
         module.openEventModal(currentEvent);
     });
 };
 
-window.deleteEvent = async function() {
+window.deleteEvent = function() {
     showConfirm({
         title: 'Delete Event',
-        message: 'Are you sure you want to delete this event?',
+        message: 'Delete "' + currentEvent.title + '"?',
         confirmLabel: 'Delete',
         confirmClass: 'btn-danger',
         onConfirm: async function(done) {
             try {
                 await deleteEvent(currentEvent.id);
-                showSuccess('Event deleted successfully');
+                showSuccess('Event deleted');
                 done();
                 navigateTo('events');
             } catch (error) {
@@ -434,34 +452,27 @@ window.deleteEvent = async function() {
 };
 
 window.exportPDF = function() {
-    // Use the event report endpoint
-    const eventId = currentEvent.id;
-    const eventTitle = currentEvent.title || 'event';
-    fetch(`/api/v1/reports/export/events/pdf?event_id=${eventId}`, {
+    fetch('/api/v1/reports/export/events/pdf?event_id=' + currentEvent.id, {
         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     })
     .then(function(response) {
-        if (!response.ok) {
-            throw new Error('PDF generation failed');
-        }
+        if (!response.ok) throw new Error('PDF generation failed');
         return response.blob();
     })
     .then(function(blob) {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
         a.href = url;
-        a.download = `event_${eventTitle}_report.pdf`;
+        a.download = 'event_' + currentEvent.title + '_report.pdf';
         document.body.appendChild(a);
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
-        showSuccess('PDF downloaded successfully');
+        showSuccess('PDF downloaded');
     })
     .catch(function(error) {
         showError('Failed to download PDF: ' + error.message);
     });
 };
-
-
 
 window.renderEventDetail = renderEventDetail;

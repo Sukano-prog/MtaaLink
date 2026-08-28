@@ -257,7 +257,7 @@ function navigateTo(page) {
     
     // Show loading
     $('pageContent').innerHTML = `
-            <p>Loading...</p>
+            
         </div>
     `;
     

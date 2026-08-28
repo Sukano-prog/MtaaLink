@@ -1,7 +1,3 @@
-/* ============================================================
-   MtaaLink - Login Page
-   ============================================================ */
-
 import { login } from '../core/api.js';
 import { showToast, showError } from '../components/toast.js';
 
@@ -14,31 +10,31 @@ export function renderLogin() {
         <div class="auth-page">
             <div class="auth-card">
                 <div class="auth-header">
-                    <div class="logo">MtaaLink</div>
+                    <span class="logo">MtaaLink</span>
                     <h2>Welcome back</h2>
-                    <p>Sign in to your account to continue</p>
+                    <p>Sign in to your account</p>
                 </div>
                 
                 <form id="loginForm">
                     <div class="field">
                         <label>Email address</label>
-                        <input type="email" id="loginEmail" placeholder="name@example.com" autocomplete="email">
-                        <div class="err" id="emailError"></div>
+                        <input type="email" id="loginEmail" placeholder="you@example.com">
+                        <span class="err" id="emailError"></span>
                     </div>
                     
                     <div class="field">
                         <label>Password</label>
                         <div class="pass-wrap">
-                            <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+                            <input type="password" id="loginPassword" placeholder="Enter your password">
                             <button type="button" id="togglePass" class="show-btn">Show</button>
                         </div>
-                        <div class="err" id="passwordError"></div>
+                        <span class="err" id="passwordError"></span>
                     </div>
                     
                     <div class="options">
                         <label class="check">
                             <input type="checkbox" id="rememberMe" checked>
-                            <span>Remember me</span>
+                            Remember me
                         </label>
                         <a href="#" class="forgot">Forgot password?</a>
                     </div>
@@ -95,7 +91,7 @@ async function handleLogin(e) {
         email.classList.add('error');
         hasError = true;
     } else if (!email.value.includes('@')) {
-        document.getElementById('emailError').textContent = 'Enter a valid email address';
+        document.getElementById('emailError').textContent = 'Enter a valid email';
         email.classList.add('error');
         hasError = true;
     }
@@ -105,7 +101,7 @@ async function handleLogin(e) {
         password.classList.add('error');
         hasError = true;
     } else if (password.value.length < 8) {
-        document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+        document.getElementById('passwordError').textContent = 'Minimum 8 characters';
         password.classList.add('error');
         hasError = true;
     }
@@ -118,18 +114,15 @@ async function handleLogin(e) {
     
     try {
         const data = await login(email.value.trim(), password.value);
-        
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('organization_id', data.village_id);
         localStorage.setItem('organization_name', data.village_name);
         localStorage.setItem('role', data.role);
         localStorage.setItem('member_id', data.member_id);
-        
         showToast('Welcome back!', 'success');
         if (typeof renderDashboard === 'function') renderDashboard();
-        
     } catch (error) {
-        showError(error.message || 'Invalid email or password');
+        showError(error.message || 'Login failed');
         password.classList.add('error');
     } finally {
         isLoading = false;

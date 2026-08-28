@@ -1,7 +1,3 @@
-/* ============================================================
-   MtaaLink - Register Page
-   ============================================================ */
-
 import { register } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
 
@@ -14,7 +10,7 @@ export function renderRegister() {
         <div class="auth-page">
             <div class="auth-card auth-register">
                 <div class="auth-header">
-                    <div class="logo">MtaaLink</div>
+                    <span class="logo">MtaaLink</span>
                     <h2>Create account</h2>
                     <p>Get started with your community</p>
                 </div>
@@ -23,38 +19,38 @@ export function renderRegister() {
                     <div class="field">
                         <label>Organization name</label>
                         <input type="text" id="regOrg" placeholder="Your organization">
-                        <div class="err" id="orgError"></div>
+                        <span class="err" id="orgError"></span>
                     </div>
                     
                     <div class="row">
                         <div class="field">
                             <label>First name</label>
                             <input type="text" id="regFirst" placeholder="First name">
-                            <div class="err" id="firstError"></div>
+                            <span class="err" id="firstError"></span>
                         </div>
                         <div class="field">
                             <label>Last name</label>
                             <input type="text" id="regLast" placeholder="Last name">
-                            <div class="err" id="lastError"></div>
+                            <span class="err" id="lastError"></span>
                         </div>
                     </div>
                     
                     <div class="field">
                         <label>Phone number</label>
                         <input type="tel" id="regPhone" placeholder="0712345678">
-                        <div class="err" id="phoneError"></div>
+                        <span class="err" id="phoneError"></span>
                     </div>
                     
                     <div class="field">
                         <label>Email address</label>
-                        <input type="email" id="regEmail" placeholder="name@example.com">
-                        <div class="err" id="emailError"></div>
+                        <input type="email" id="regEmail" placeholder="you@example.com">
+                        <span class="err" id="emailError"></span>
                     </div>
                     
                     <div class="field">
                         <label>Password</label>
                         <input type="password" id="regPassword" placeholder="Minimum 8 characters">
-                        <div class="err" id="passwordError"></div>
+                        <span class="err" id="passwordError"></span>
                     </div>
                     
                     <button type="submit" class="btn" id="registerBtn">Create account</button>
@@ -73,7 +69,6 @@ export function renderRegister() {
         if (typeof renderLogin === 'function') renderLogin();
     });
     
-    // Clear errors on input
     ['regOrg', 'regFirst', 'regLast', 'regPhone', 'regEmail', 'regPassword'].forEach(id => {
         document.getElementById(id).addEventListener('input', function() {
             const errId = this.id.replace('reg', '').toLowerCase() + 'Error';
@@ -121,12 +116,12 @@ async function handleRegister(e) {
         hasError = true;
     }
     if (!data.email || !data.email.includes('@')) {
-        document.getElementById('emailError').textContent = 'Enter a valid email address';
+        document.getElementById('emailError').textContent = 'Enter a valid email';
         document.getElementById('regEmail').classList.add('error');
         hasError = true;
     }
     if (!data.password || data.password.length < 8) {
-        document.getElementById('passwordError').textContent = 'Password must be at least 8 characters';
+        document.getElementById('passwordError').textContent = 'Minimum 8 characters';
         document.getElementById('regPassword').classList.add('error');
         hasError = true;
     }
@@ -139,7 +134,7 @@ async function handleRegister(e) {
     
     try {
         await register(data);
-        showSuccess('Account created successfully!');
+        showSuccess('Account created!');
         if (typeof renderLogin === 'function') renderLogin();
     } catch (error) {
         showError(error.message || 'Registration failed');

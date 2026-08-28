@@ -2,7 +2,7 @@
    MtaaLink - Contributions Page
    ============================================================ */
 
-import { getContributions, createContribution, getContributionTypes, createContributionType, getMembers, updateContribution, deleteContribution } from '../core/api.js';
+import { getContributions, createContribution, getContributionTypes, createContributionType, getMembers, updateContribution, deleteContribution, getEvents } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
 import { Skeletons } from "../components/skeleton.js";
 import { showFormModal, showConfirm, showModal } from '../components/modal.js';
@@ -17,6 +17,7 @@ let totalContributions = 0;
 let filterStatus = '';
 let searchQuery = "";
 let filterMember = '';
+let eventOptions = [];
 
 export async function renderContributions() {
     const content = document.getElementById('pageContent');
@@ -24,7 +25,8 @@ export async function renderContributions() {
     try {
         await Promise.all([
             loadMembers(),
-            loadTypes()
+            loadTypes(),
+            loadEventsForDropdown()
         ]);
         
         content.innerHTML = `
@@ -137,6 +139,23 @@ async function loadMembers() {
         membersList = await getMembers();
     } catch (e) {
         membersList = [];
+    }
+}
+
+// Load events for dropdown
+async function loadEventsForDropdown() {
+    try {
+        const events = await getEvents();
+        if (events && events.length > 0) {
+            eventOptions = events.filter(function(e) { return e.status !== 'completed'; }).map(function(e) {
+                return { value: e.id, label: e.title + ' (' + e.date + ')' };
+            });
+            eventOptions.unshift({ value: '', label: 'None (standalone)' });
+        } else {
+            eventOptions = [{ value: '', label: 'No events available' }];
+        }
+    } catch (e) {
+        eventOptions = [{ value: '', label: 'No events available' }];
     }
 }
 
@@ -367,7 +386,7 @@ function openContributionModal() {
                 type: 'select',
                 value: '',
                 required: false,
-                options: window.eventOptions || [{ value: '', label: 'Loading events...' }]
+                options: eventOptions
             },
             {
                 id: 'notes',

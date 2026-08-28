@@ -257,8 +257,6 @@ function navigateTo(page) {
     
     // Show loading
     $('pageContent').innerHTML = `
-        <div class="loading-state">
-            <div class="spinner"></div>
             <p>Loading...</p>
         </div>
     `;
@@ -277,10 +275,6 @@ function navigateTo(page) {
         renderFn().catch(function(err) {
             console.error('Render error:', err);
             $('pageContent').innerHTML = `
-                <div class="loading-state">
-                    <p style="color:var(--danger);">❌ ${err.message}</p>
-                    <button class="btn btn-primary" onclick="navigateTo('${page}')">Retry</button>
-                </div>
             `;
         });
     } else {

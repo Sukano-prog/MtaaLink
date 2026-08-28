@@ -60,10 +60,7 @@ export async function renderElections() {
             </div>
             
             <div id="electionsContainer">
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <p>Loading elections...</p>
-                </div>
+                ${Skeletons.elections()}
             </div>
         `;
         

@@ -172,7 +172,7 @@ async function navigateTo(page) {
     });
     
     var content = document.getElementById('pageContent');
-    content.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>Loading ' + (titles[page] || page) + '...</p></div>';
+    content.innerHTML = '${Skeletons.dashboard()}';
     
     try {
         switch(page) {

@@ -79,8 +79,6 @@ export async function navigateTo(page) {
     const content = document.getElementById('pageContent');
     if (content) {
         content.innerHTML = `
-            <div class="loading-state">
-                <div class="spinner"></div>
                 <p>Loading ${titles[page] || page}...</p>
             </div>
         `;

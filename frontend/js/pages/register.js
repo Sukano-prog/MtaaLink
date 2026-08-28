@@ -1,63 +1,75 @@
+/* ============================================================
+   MtaaLink - Register Page
+   ============================================================ */
+
 import { register } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
 
 let isLoading = false;
 
 export function renderRegister() {
+    document.body.className = "auth-page";
     const app = document.getElementById('app');
     
     app.innerHTML = `
-        <div class="auth-page">
-            <div class="auth-card auth-register">
-                <div class="auth-header">
-                    <span class="logo">MtaaLink</span>
-                    <h2>Create account</h2>
-                    <p>Get started with your community</p>
-                </div>
-                
-                <form id="registerForm">
-                    <div class="field">
-                        <label>Organization name</label>
-                        <input type="text" id="regOrg" placeholder="Your organization">
-                        <span class="err" id="orgError"></span>
+        <div class="auth-wrapper" style="position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920') no-repeat center center fixed;background-size:cover;">
+            <div class="auth-overlay" style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.3);"></div>
+            <div class="auth-container" style="position:relative;z-index:1;width:100%;max-width:420px;padding:20px;">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <h1>MtaaLink</h1>
+                        <p>Create your organization account</p>
                     </div>
                     
-                    <div class="row">
-                        <div class="field">
-                            <label>First name</label>
-                            <input type="text" id="regFirst" placeholder="First name">
-                            <span class="err" id="firstError"></span>
+                    <form id="registerForm" novalidate>
+                        <div class="form-group">
+                            <label for="regOrganizationName">Organization Name</label>
+                            <input type="text" id="regOrganizationName" class="form-control" placeholder="Enter your organization name" required>
+                            <div class="form-error" id="organizationNameError"></div>
                         </div>
-                        <div class="field">
-                            <label>Last name</label>
-                            <input type="text" id="regLast" placeholder="Last name">
-                            <span class="err" id="lastError"></span>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="regFirstName">First Name</label>
+                                <input type="text" id="regFirstName" class="form-control" placeholder="First name" required>
+                                <div class="form-error" id="firstNameError"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="regLastName">Last Name</label>
+                                <input type="text" id="regLastName" class="form-control" placeholder="Last name" required>
+                                <div class="form-error" id="lastNameError"></div>
+                            </div>
                         </div>
-                    </div>
+                        
+                        <div class="form-group">
+                            <label for="regPhone">Phone Number</label>
+                            <input type="tel" id="regPhone" class="form-control" placeholder="0712345678" required>
+                            <div class="form-helper">Format: 0712345678 (10 digits)</div>
+                            <div class="form-error" id="phoneError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regEmail">Email Address</label>
+                            <input type="email" id="regEmail" class="form-control" placeholder="admin@organization.com" required>
+                            <div class="form-error" id="emailError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="regPassword">Password</label>
+                            <input type="password" id="regPassword" class="form-control" placeholder="Min 8 characters" required minlength="8">
+                            <div class="form-helper">Password must be at least 8 characters</div>
+                            <div class="form-error" id="passwordError"></div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block" id="registerBtn">
+                            Register Organization
+                        </button>
+                    </form>
                     
-                    <div class="field">
-                        <label>Phone number</label>
-                        <input type="tel" id="regPhone" placeholder="0712345678">
-                        <span class="err" id="phoneError"></span>
+                    <div class="auth-footer">
+                        <a id="loginLink">Already have an account? Sign In</a>
+                        <span class="credit">Built for Kenya</span>
                     </div>
-                    
-                    <div class="field">
-                        <label>Email address</label>
-                        <input type="email" id="regEmail" placeholder="you@example.com">
-                        <span class="err" id="emailError"></span>
-                    </div>
-                    
-                    <div class="field">
-                        <label>Password</label>
-                        <input type="password" id="regPassword" placeholder="Minimum 8 characters">
-                        <span class="err" id="passwordError"></span>
-                    </div>
-                    
-                    <button type="submit" class="btn" id="registerBtn">Create account</button>
-                </form>
-                
-                <div class="auth-footer">
-                    <p>Already have an account? <a id="loginLink">Sign in</a></p>
                 </div>
             </div>
         </div>
@@ -66,82 +78,125 @@ export function renderRegister() {
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
     document.getElementById('loginLink').addEventListener('click', function(e) {
         e.preventDefault();
-        if (typeof renderLogin === 'function') renderLogin();
+        if (typeof renderLogin === 'function') {
+            renderLogin();
+        }
     });
     
-    ['regOrg', 'regFirst', 'regLast', 'regPhone', 'regEmail', 'regPassword'].forEach(id => {
-        document.getElementById(id).addEventListener('input', function() {
-            const errId = this.id.replace('reg', '').toLowerCase() + 'Error';
-            const errEl = document.getElementById(errId);
-            if (errEl) errEl.textContent = '';
-            this.classList.remove('error');
-        });
+    document.getElementById('regOrganizationName').addEventListener('input', function() {
+        clearError('organizationNameError');
+    });
+    document.getElementById('regFirstName').addEventListener('input', function() {
+        clearError('firstNameError');
+    });
+    document.getElementById('regLastName').addEventListener('input', function() {
+        clearError('lastNameError');
+    });
+    document.getElementById('regPhone').addEventListener('input', function() {
+        clearError('phoneError');
+    });
+    document.getElementById('regEmail').addEventListener('input', function() {
+        clearError('emailError');
+    });
+    document.getElementById('regPassword').addEventListener('input', function() {
+        clearError('passwordError');
     });
 }
 
 async function handleRegister(e) {
     e.preventDefault();
+    
     if (isLoading) return;
     
-    const data = {
-        organization_name: document.getElementById('regOrg').value.trim(),
-        first_name: document.getElementById('regFirst').value.trim(),
-        last_name: document.getElementById('regLast').value.trim(),
-        phone: document.getElementById('regPhone').value.trim(),
-        email: document.getElementById('regEmail').value.trim(),
-        password: document.getElementById('regPassword').value
-    };
+    const organizationName = document.getElementById('regOrganizationName').value.trim();
+    const firstName = document.getElementById('regFirstName').value.trim();
+    const lastName = document.getElementById('regLastName').value.trim();
+    const phone = document.getElementById('regPhone').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
     
-    const btn = document.getElementById('registerBtn');
     let hasError = false;
     
-    if (!data.organization_name || data.organization_name.length < 2) {
-        document.getElementById('orgError').textContent = 'Organization name is required';
-        document.getElementById('regOrg').classList.add('error');
+    if (!organizationName || organizationName.length < 2) {
+        showFieldError('organizationNameError', 'Please enter a valid organization name');
         hasError = true;
     }
-    if (!data.first_name || data.first_name.length < 2) {
-        document.getElementById('firstError').textContent = 'First name is required';
-        document.getElementById('regFirst').classList.add('error');
+    
+    if (!firstName || firstName.length < 2) {
+        showFieldError('firstNameError', 'Please enter your first name');
         hasError = true;
     }
-    if (!data.last_name || data.last_name.length < 2) {
-        document.getElementById('lastError').textContent = 'Last name is required';
-        document.getElementById('regLast').classList.add('error');
+    
+    if (!lastName || lastName.length < 2) {
+        showFieldError('lastNameError', 'Please enter your last name');
         hasError = true;
     }
-    if (!data.phone || !/^0[17]\d{8}$/.test(data.phone)) {
-        document.getElementById('phoneError').textContent = 'Enter a valid phone (0712345678)';
-        document.getElementById('regPhone').classList.add('error');
+    
+    if (!phone || !phone.match(/^0[17]\d{8}$/)) {
+        showFieldError('phoneError', 'Phone must be 10 digits starting with 0 (e.g., 0712345678)');
         hasError = true;
     }
-    if (!data.email || !data.email.includes('@')) {
-        document.getElementById('emailError').textContent = 'Enter a valid email';
-        document.getElementById('regEmail').classList.add('error');
+    
+    if (!email || !email.includes('@') || !email.includes('.')) {
+        showFieldError('emailError', 'Please enter a valid email address');
         hasError = true;
     }
-    if (!data.password || data.password.length < 8) {
-        document.getElementById('passwordError').textContent = 'Minimum 8 characters';
-        document.getElementById('regPassword').classList.add('error');
+    
+    if (!password || password.length < 8) {
+        showFieldError('passwordError', 'Password must be at least 8 characters');
         hasError = true;
     }
     
     if (hasError) return;
     
     isLoading = true;
-    btn.textContent = 'Creating account...';
+    const btn = document.getElementById('registerBtn');
+    btn.textContent = 'Registering...';
     btn.disabled = true;
+    btn.classList.add('btn-loading');
     
     try {
+        const data = {
+            organization_name: organizationName,
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone,
+            email: email,
+            password: password
+        };
+        
         await register(data);
-        showSuccess('Account created!');
-        if (typeof renderLogin === 'function') renderLogin();
+        showSuccess('Registration successful! Please sign in.');
+        
+        if (typeof renderLogin === 'function') {
+            renderLogin();
+        }
+        
     } catch (error) {
-        showError(error.message || 'Registration failed');
+        showError(error.message || 'Registration failed. Please try again.');
     } finally {
         isLoading = false;
-        btn.textContent = 'Create account';
+        btn.textContent = 'Register Organization';
         btn.disabled = false;
+        btn.classList.remove('btn-loading');
+    }
+}
+
+function showFieldError(id, message) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.textContent = message;
+        const input = el.closest('.form-group').querySelector('.form-control');
+        if (input) input.classList.add('error');
+    }
+}
+
+function clearError(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.textContent = '';
+        const input = el.closest('.form-group').querySelector('.form-control');
+        if (input) input.classList.remove('error');
     }
 }
 

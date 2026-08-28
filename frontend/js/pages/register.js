@@ -15,7 +15,7 @@ export function renderRegister() {
             <div class="auth-card">
                 <div class="auth-header">
                     <h1>MtaaLink</h1>
-                    <p>Register Your Organization</p>
+                    <p>Create your organization account</p>
                 </div>
                 
                 <form id="registerForm" novalidate>

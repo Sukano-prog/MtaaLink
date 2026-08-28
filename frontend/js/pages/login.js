@@ -15,7 +15,7 @@ export function renderLogin() {
             <div class="auth-card">
                 <div class="auth-header">
                     <h1 id="loginOrganizationName">MtaaLink</h1>
-                    <p>Complete MtaaLink</p>
+                    <p>Sign in to your account</p>
                 </div>
                 
                 <form id="loginForm" novalidate>

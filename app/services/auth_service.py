@@ -14,12 +14,12 @@ class AuthService:
         # Check if email exists
         existing = db.query(Village).filter(Village.admin_email == data['email']).first()
         if existing:
-            raise AlreadyExistsException("Email")
+            raise AlreadyExistsException("Email or phone")
         
         # Check if phone exists
         existing_phone = db.query(Member).filter(Member.phone == data['phone']).first()
         if existing_phone:
-            raise AlreadyExistsException("Phone number")
+            raise AlreadyExistsException("Email or phone")
         
         # Create organization
         village = Village(

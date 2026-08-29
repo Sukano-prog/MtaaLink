@@ -5,7 +5,7 @@ from datetime import date, datetime
 class MemberBase(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=100)
     last_name: str = Field(..., min_length=2, max_length=100)
-    phone: str = Field(..., pattern=r'^0[17]\d{8}$')
+    phone: str = Field(..., pattern=r'^(01|07)\d{8}$')
     email: Optional[EmailStr] = None
     member_number: str = Field(..., min_length=2, max_length=50)  # Required, unique
     id_number: Optional[str] = Field(None, max_length=50)
@@ -20,7 +20,7 @@ class MemberCreate(MemberBase):
 class MemberUpdate(BaseModel):
     first_name: Optional[str] = Field(None, min_length=2, max_length=100)
     last_name: Optional[str] = Field(None, min_length=2, max_length=100)
-    phone: Optional[str] = Field(None, pattern=r'^0[17]\d{8}$')
+    phone: Optional[str] = Field(None, pattern=r'^(01|07)\d{8}$')
     email: Optional[EmailStr] = None
     member_number: Optional[str] = Field(None, min_length=2, max_length=50)
     id_number: Optional[str] = Field(None, max_length=50)
@@ -50,7 +50,7 @@ class MemberUpdateWithGroup(MemberUpdate):
 class MemberUpdate(BaseModel):
     first_name: Optional[str] = Field(None, min_length=2, max_length=100)
     last_name: Optional[str] = Field(None, min_length=2, max_length=100)
-    phone: Optional[str] = Field(None, pattern=r'^0[17]\d{8}$')
+    phone: Optional[str] = Field(None, pattern=r'^(01|07)\d{8}$')
     email: Optional[EmailStr] = None
     member_number: Optional[str] = Field(None, min_length=2, max_length=50)
     id_number: Optional[str] = Field(None, max_length=50)

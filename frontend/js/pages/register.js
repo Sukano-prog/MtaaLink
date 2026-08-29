@@ -85,6 +85,10 @@ export function renderRegister() {
     
     document.getElementById('regOrganizationName').addEventListener('input', function() {
         clearError('organizationNameError');
+        const name = this.value.trim();
+        if (name && name.length < 2) {
+            showFieldError('organizationNameError', 'Organization name must be at least 2 characters');
+        }
     });
     document.getElementById('regFirstName').addEventListener('input', function() {
         clearError('firstNameError');
@@ -94,12 +98,24 @@ export function renderRegister() {
     });
     document.getElementById('regPhone').addEventListener('input', function() {
         clearError('phoneError');
+        const phone = this.value.trim();
+        if (phone && !/^0[17]\d{8}$/.test(phone)) {
+            showFieldError('phoneError', 'Phone must be 10 digits starting with 01 or 07 (e.g., 0712345678 or 0112345678)');
+        }
     });
     document.getElementById('regEmail').addEventListener('input', function() {
         clearError('emailError');
+        const email = this.value.trim();
+        if (email && !email.includes('@') || !email.includes('.')) {
+            showFieldError('emailError', 'Please enter a valid email address (e.g., name@example.com)');
+        }
     });
     document.getElementById('regPassword').addEventListener('input', function() {
         clearError('passwordError');
+        const pass = this.value;
+        if (pass && pass.length > 0 && pass.length < 8) {
+            showFieldError('passwordError', 'Password must be at least 8 characters');
+        }
     });
 }
 
@@ -133,7 +149,7 @@ async function handleRegister(e) {
     }
     
     if (!phone || !phone.match(/^0[17]\d{8}$/)) {
-        showFieldError('phoneError', 'Phone must be 10 digits starting with 0 (e.g., 0712345678)');
+        showFieldError('phoneError', 'Phone must be 10 digits starting with 01 or 07 (e.g., 0712345678 or 0112345678)');
         hasError = true;
     }
     
@@ -173,25 +189,8 @@ async function handleRegister(e) {
         }
         
     } catch (error) {
-        let errorMsg = 'Registration failed. Please try again.';
-        
-        if (error && error.message) {
-            const msg = error.message.toLowerCase();
-            if (msg.includes('phone') || msg.includes('already exists')) {
-                errorMsg = 'This phone number is already registered. Please use a different phone number or login.';
-            } else if (msg.includes('email')) {
-                errorMsg = 'This email is already registered. Please use a different email or login.';
-            } else if (msg.includes('organization_name') || msg.includes('village_name')) {
-                errorMsg = 'Organization name is required. Please enter your organization name.';
-            } else if (msg.includes('password')) {
-                errorMsg = 'Password must be at least 8 characters.';
-            } else if (msg.includes('phone') && msg.includes('format')) {
-                errorMsg = 'Phone number must be 10 digits starting with 0 (e.g., 0712345678)';
-            } else {
-                errorMsg = error.message || 'Registration failed. Please try again.';
-            }
-        }
-        
+        // Show the actual error from the backend
+        let errorMsg = error?.message || 'Registration failed. Please try again.';
         showError(errorMsg);
     } finally {
         isLoading = false;
@@ -220,3 +219,5 @@ function clearError(id) {
 }
 
 window.renderRegister = renderRegister;
+
+

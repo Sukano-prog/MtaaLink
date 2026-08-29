@@ -11,7 +11,7 @@ class RegisterRequest(BaseModel):
     organization_name: str = Field(..., min_length=2)
     first_name: str = Field(..., min_length=2)
     last_name: str = Field(..., min_length=2)
-    phone: str = Field(..., pattern=r'^0[17]\d{8}$')
+    phone: str = Field(..., pattern=r'^(01|07)\d{8}$')
 
 class LoginResponse(BaseModel):
     access_token: str

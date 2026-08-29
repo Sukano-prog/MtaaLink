@@ -239,6 +239,19 @@ export function showFormModal(options) {
                         data[key] = value;
                     });
                     
+                    // Handle select_with_other fields
+                    // If a field has _custom, and the select value is 'other', use the custom value
+                    const allInputs = form.querySelectorAll('input, select');
+                    allInputs.forEach(function(input) {
+                        if (input.id && input.id.endsWith('_custom')) {
+                            const selectId = input.id.replace('_custom', '');
+                            const select = document.getElementById(selectId);
+                            if (select && select.value === 'other' && input.value.trim()) {
+                                data[selectId] = input.value.trim();
+                            }
+                        }
+                    });
+                    
                     const required = form.querySelectorAll('[required]');
                     let hasError = false;
                     required.forEach(function(f) {

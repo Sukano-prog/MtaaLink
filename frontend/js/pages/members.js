@@ -412,6 +412,8 @@ function openMemberModal(member = null) {
                 }
                 formattedData.custom_role = data.mfRole_custom || null;
                 formattedData.is_active = data.mfStatus === 'true';
+                formattedData.gender = data.mfGender || null;
+                formattedData.age_category = data.mfAgeCategory || null;
                 
                 if (!isEdit && data.mfMemberNumber && data.mfMemberNumber.trim() !== '') {
                     formattedData.member_number = data.mfMemberNumber.trim();

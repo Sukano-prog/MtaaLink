@@ -164,7 +164,7 @@ class MemberService:
         # Update fields - allow setting to None
         updatable_fields = [
             'first_name', 'last_name', 'phone', 'email', 'role', 
-            'gender', 'group_id', 'member_number', 'is_active'
+            'gender', 'age_category', 'group_id', 'member_number', 'is_active'
         ]
         
         for field in updatable_fields:

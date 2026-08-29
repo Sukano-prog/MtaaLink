@@ -2,7 +2,7 @@
    MtaaLink - Reports Page
    ============================================================ */
 
-import { getMembers, getMeetings, getContributions, getGroups, getProjects, getEvents, getAnnouncements } from '../core/api.js';
+import { getMembers, getMeetings, getContributions, getGroups, getProjects, getEvents /*, getAnnouncements */ } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
 import { showModal, showConfirm, showFormModal } from '../components/modal.js';
 
@@ -13,7 +13,7 @@ let reportData = {
     groups: null,
     projects: null,
     events: null,
-    announcements: null
+    // announcements: null
 };
 
 export async function renderReports() {
@@ -105,7 +105,7 @@ export async function renderReports() {
                     </div>
                 </div>
                 
-                <div class="card">
+                <!-- <div class="card">
                     <div class="card-header">
                         <h3>Announcements</h3>
                     </div>
@@ -116,7 +116,7 @@ export async function renderReports() {
                             <button class="btn btn-sm btn-success" onclick="window.exportAnnouncementPDF()">PDF</button>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 
                 <div class="card" style="grid-column:span 1;">
                     <div class="card-header">
@@ -150,7 +150,7 @@ export async function renderReports() {
         window.viewProjectReport = viewProjectReport;
         window.viewEventReport = viewEventReport;
         window.viewContributionReport = viewContributionReport;
-        window.viewAnnouncementReport = viewAnnouncementReport;
+        // window.viewAnnouncementReport = viewAnnouncementReport;
         window.viewSummaryReport = viewSummaryReport;
         
         window.exportMemberPDF = exportMemberPDF;
@@ -159,7 +159,7 @@ export async function renderReports() {
         window.exportProjectPDF = exportProjectPDF;
         window.exportEventPDF = exportEventPDF;
         window.exportContributionPDF = exportContributionPDF;
-        window.exportAnnouncementPDF = exportAnnouncementPDF;
+        // // window.exportAnnouncementPDF = exportAnnouncementPDF;
         window.exportSummaryPDF = exportSummaryPDF;
         
         window.closeReportPreview = closeReportPreview;
@@ -441,7 +441,7 @@ async function viewAnnouncementReport() {
 
 async function viewSummaryReport() {
     try {
-        const [members, groups, meetings, projects, events, contributions, announcements] = await Promise.all([
+        const [members, groups, meetings, projects, events, contributions] = await Promise.all([
             getMembers().catch(() => []),
             getGroups().catch(() => []),
             getMeetings().catch(() => []),
@@ -462,7 +462,7 @@ async function viewSummaryReport() {
                     <div class="stat-card"><div class="stat-label">Meetings</div><div class="stat-value">${meetings.length}</div></div>
                     <div class="stat-card"><div class="stat-label">Projects</div><div class="stat-value">${projects.length}</div></div>
                     <div class="stat-card"><div class="stat-label">Events</div><div class="stat-value">${events.length}</div></div>
-                    <div class="stat-card"><div class="stat-label">Announcements</div><div class="stat-value">${announcements.length}</div></div>
+                    <!-- <div class="stat-card"><div class="stat-label">Announcements</div><div class="stat-value">${announcements.length}</div></div> -->
                     <div class="stat-card"><div class="stat-label">Total Contributions</div><div class="stat-value">KES ${totalContrib.toLocaleString()}</div></div>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -490,7 +490,7 @@ function exportMeetingPDF() { downloadPDF('/reports/export/meetings/pdf', 'meeti
 function exportProjectPDF() { downloadPDF('/reports/export/projects/pdf', 'projects_report'); }
 function exportEventPDF() { downloadPDF('/reports/export/events/pdf', 'events_report'); }
 function exportContributionPDF() { downloadPDF('/reports/export/contributions/pdf', 'contributions_report'); }
-function exportAnnouncementPDF() { downloadPDF('/reports/export/announcements/pdf', 'announcements_report'); }
+// // function exportAnnouncementPDF() { downloadPDF('/reports/export/announcements/pdf', 'announcements_report'); }
 function exportSummaryPDF() { downloadPDF('/reports/export/summary/pdf', 'organization_summary'); }
 
 function downloadPDF(endpoint, filename) {

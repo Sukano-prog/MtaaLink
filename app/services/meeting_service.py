@@ -365,24 +365,44 @@ Please attend."""
     def get_motions(db: Session, meeting_id: str) -> List[Dict]:
         """Get all motions for a meeting"""
         from app.models.meeting import MeetingMotion
+        from app.models.member import Member
         
         motions = db.query(MeetingMotion).filter(
             MeetingMotion.meeting_id == meeting_id,
             MeetingMotion.deleted_at.is_(None)
         ).all()
         
-        return [{
-            "id": m.id,
-            "title": m.title,
-            "description": m.description,
-            "status": m.status,
-            "proposed_by": m.proposed_by,
-            "seconded_by": m.seconded_by,
-            "votes_for": m.votes_for or 0,
-            "votes_against": m.votes_against or 0,
-            "votes_abstain": m.votes_abstain or 0,
-            "created_at": m.created_at.isoformat() if m.created_at else None
-        } for m in motions]
+        result = []
+        for m in motions:
+            # Get proposer name
+            proposer_name = None
+            if m.proposed_by:
+                proposer = db.query(Member).filter(Member.id == m.proposed_by).first()
+                if proposer:
+                    proposer_name = proposer.full_name
+            
+            # Get seconder name
+            seconder_name = None
+            if m.seconded_by:
+                seconder = db.query(Member).filter(Member.id == m.seconded_by).first()
+                if seconder:
+                    seconder_name = seconder.full_name
+            
+            result.append({
+                "id": m.id,
+                "title": m.title,
+                "description": m.description,
+                "status": m.status,
+                "proposed_by": m.proposed_by,
+                "proposer_name": proposer_name,
+                "seconded_by": m.seconded_by,
+                "seconder_name": seconder_name,
+                "votes_for": m.votes_for or 0,
+                "votes_against": m.votes_against or 0,
+                "votes_abstain": m.votes_abstain or 0,
+                "created_at": m.created_at.isoformat() if m.created_at else None
+            })
+        return result
 
     @staticmethod
     def vote_motion(db: Session, meeting_id: str, motion_id: str, data: dict, user_id: str) -> Dict:
@@ -455,21 +475,33 @@ Please attend."""
     def get_action_items(db: Session, meeting_id: str) -> List[Dict]:
         """Get all action items for a meeting"""
         from app.models.meeting import MeetingActionItem
+        from app.models.member import Member
         
         items = db.query(MeetingActionItem).filter(
             MeetingActionItem.meeting_id == meeting_id,
             MeetingActionItem.deleted_at.is_(None)
         ).all()
         
-        return [{
-            "id": i.id,
-            "description": i.description,
-            "assigned_to": i.assigned_to,
-            "due_date": i.due_date.isoformat() if i.due_date else None,
-            "priority": i.priority,
-            "status": i.status,
-            "created_at": i.created_at.isoformat() if i.created_at else None
-        } for i in items]
+        result = []
+        for i in items:
+            # Get assignee name
+            assignee_name = None
+            if i.assigned_to:
+                assignee = db.query(Member).filter(Member.id == i.assigned_to).first()
+                if assignee:
+                    assignee_name = assignee.full_name
+            
+            result.append({
+                "id": i.id,
+                "description": i.description,
+                "assigned_to": i.assigned_to,
+                "assignee_name": assignee_name,
+                "due_date": i.due_date.isoformat() if i.due_date else None,
+                "priority": i.priority,
+                "status": i.status,
+                "created_at": i.created_at.isoformat() if i.created_at else None
+            })
+        return result
 
     @staticmethod
     def update_action_item(db: Session, meeting_id: str, item_id: str, data: dict) -> Dict:

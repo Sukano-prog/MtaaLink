@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from datetime import datetime
@@ -71,10 +71,12 @@ async def start_meeting(
 @router.post("/{meeting_id}/complete")
 async def complete_meeting(
     meeting_id: str,
-    minutes: str = Query(...),
+    request: Request,
     current_user: Member = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
+    data = await request.json()
+    minutes = data.get('minutes', '')
     try:
         return MeetingService.complete_meeting(db, current_user.village_id, meeting_id, minutes)
     except AppException as e:

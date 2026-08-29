@@ -102,6 +102,8 @@ class EventService:
                         "attended": a.attended,
                         "role": a.role,
                         "is_visitor": False,
+                        "member_gender": member.gender,
+                        "member_age_category": member.age_category,
                         "phone": member.phone or '-'
                     })
         
@@ -203,6 +205,15 @@ class EventService:
     
     @staticmethod
     def add_attendance(db: Session, event_id: str, member_id: str, role: Optional[str] = None) -> Dict:
+        from app.models.member import Member
+        
+        # Get member details
+        member = db.query(Member).filter(Member.id == member_id).first()
+        member_name = member.full_name if member else None
+        member_gender = member.gender if member else None
+        member_age_category = member.age_category if member else None
+        member_phone = member.phone if member else None
+        
         existing = db.query(EventAttendance).filter(
             EventAttendance.event_id == event_id,
             EventAttendance.member_id == member_id,
@@ -214,13 +225,26 @@ class EventService:
             existing.check_in_time = datetime.utcnow()
             if role:
                 existing.role = role
+            # Update member fields
+            if member_name:
+                existing.member_name = member_name
+            if member_gender:
+                existing.member_gender = member_gender
+            if member_age_category:
+                existing.member_age_category = member_age_category
+            if member_phone:
+                existing.member_phone = member_phone
         else:
             attendance = EventAttendance(
                 event_id=event_id,
                 member_id=member_id,
                 attended=True,
                 check_in_time=datetime.utcnow(),
-                role=role
+                role=role,
+                member_name=member_name,
+                member_gender=member_gender,
+                member_age_category=member_age_category,
+                member_phone=member_phone
             )
             db.add(attendance)
         

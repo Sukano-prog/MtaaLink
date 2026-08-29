@@ -520,5 +520,6 @@ async function deleteMeetingHandler(meetingId) {
 }
 
 window.renderMeetings = renderMeetings;
+window.completeMeetingAction = completeMeetingAction;
 window.openMeetingDetail = window.openMeetingDetail;
 

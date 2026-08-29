@@ -173,7 +173,26 @@ async function handleRegister(e) {
         }
         
     } catch (error) {
-        showError(error.message || 'Registration failed. Please try again.');
+        let errorMsg = 'Registration failed. Please try again.';
+        
+        if (error && error.message) {
+            const msg = error.message.toLowerCase();
+            if (msg.includes('phone') || msg.includes('already exists')) {
+                errorMsg = 'This phone number is already registered. Please use a different phone number or login.';
+            } else if (msg.includes('email')) {
+                errorMsg = 'This email is already registered. Please use a different email or login.';
+            } else if (msg.includes('organization_name') || msg.includes('village_name')) {
+                errorMsg = 'Organization name is required. Please enter your organization name.';
+            } else if (msg.includes('password')) {
+                errorMsg = 'Password must be at least 8 characters.';
+            } else if (msg.includes('phone') && msg.includes('format')) {
+                errorMsg = 'Phone number must be 10 digits starting with 0 (e.g., 0712345678)';
+            } else {
+                errorMsg = error.message || 'Registration failed. Please try again.';
+            }
+        }
+        
+        showError(errorMsg);
     } finally {
         isLoading = false;
         btn.textContent = 'Register Organization';

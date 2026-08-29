@@ -162,6 +162,14 @@ class MemberService:
                 raise NotFoundException("Group")
         
         # Update fields - allow setting to None
+        # Prevent changing admin role - with better error handling
+        if member.role == 'admin' and data.get('role') and data.get('role') != 'admin':
+            from fastapi import HTTPException
+            raise HTTPException(status_code=403, detail="Cannot change admin role")
+        # If role is not provided, keep the current role
+        if 'role' not in data:
+            data['role'] = member.role
+        
         updatable_fields = [
             'first_name', 'last_name', 'phone', 'email', 'role', 
             'gender', 'age_category', 'group_id', 'member_number', 'is_active'

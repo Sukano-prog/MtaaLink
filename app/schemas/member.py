@@ -26,6 +26,7 @@ class MemberUpdate(BaseModel):
     id_number: Optional[str] = Field(None, max_length=50)
     role: Optional[str] = None
     gender: Optional[str] = None
+    age_category: Optional[str] = None
     date_of_birth: Optional[date] = None
     is_active: Optional[bool] = None
     group_id: Optional[str] = None
@@ -55,6 +56,7 @@ class MemberUpdate(BaseModel):
     id_number: Optional[str] = Field(None, max_length=50)
     role: Optional[str] = None
     gender: Optional[str] = None
+    age_category: Optional[str] = None
     date_of_birth: Optional[date] = None
     is_active: Optional[bool] = None
     group_id: Optional[str] = None  # Add this line

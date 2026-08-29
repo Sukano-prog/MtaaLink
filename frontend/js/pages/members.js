@@ -340,7 +340,9 @@ function openMemberModal(member = null) {
         type: 'select_with_other',
         value: member?.role || 'member',
         required: false,
+        disabled: member?.role === 'admin',
         options: [
+            { value: 'admin', label: 'admin' },
             { value: 'member', label: 'Member' },
             { value: 'elder', label: 'Elder' },
             { value: 'secretary', label: 'Secretary' },
@@ -362,7 +364,7 @@ function openMemberModal(member = null) {
             { value: 'women_leader', label: 'Women Leader' },
             { value: 'other', label: 'Other (type custom role)' }
         ],
-        helper: 'Select a role or choose "Other" to type a custom one'
+        helper: member?.role === 'admin' ? 'Admin role cannot be changed' : 'Select a role or choose "Other" to type a custom one'
     });
     
     fields.push({
@@ -406,9 +408,14 @@ function openMemberModal(member = null) {
                 const formattedData = {};
                 formattedData.first_name = data.mfFirstName;
                 formattedData.last_name = data.mfLastName;
-                formattedData.role = data.mfRole || 'member';
-                if (data.mfRole === 'other' && data.mfRole_custom && data.mfRole_custom.trim() !== '') {
-                    formattedData.role = data.mfRole_custom.trim();
+                // Preserve the role - if editing an admin, keep the admin role
+                if (isEdit && member?.role === 'admin') {
+                    formattedData.role = 'admin';
+                } else {
+                    formattedData.role = data.mfRole || 'member';
+                    if (data.mfRole === 'other' && data.mfRole_custom && data.mfRole_custom.trim() !== '') {
+                        formattedData.role = data.mfRole_custom.trim();
+                    }
                 }
                 formattedData.custom_role = data.mfRole_custom || null;
                 formattedData.is_active = data.mfStatus === 'true';

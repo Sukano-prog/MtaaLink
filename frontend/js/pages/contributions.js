@@ -34,7 +34,7 @@ export async function renderContributions() {
                 <h2>Contributions</h2>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <button class="btn btn-primary" id="addContributionBtn">Record Contribution</button>
-                    <button class="btn btn-outline" id="addTypeBtn">Manage Types</button>
+                    <!-- <button class="btn btn-outline" id="addTypeBtn">Manage Types</button> -->
                 </div>
             </div>
             

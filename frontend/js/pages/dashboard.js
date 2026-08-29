@@ -229,7 +229,7 @@ function renderDashboardContent() {
                     <button class="btn btn-teal" onclick="navigateTo('projects')">Projects</button>
                     <button class="btn btn-pink" onclick="navigateTo('events')">Events</button>
                     <button class="btn btn-red" onclick="navigateTo('expenses')">Expenses</button>
-                    <button class="btn btn-indigo" onclick="navigateTo('announcements')">Announcements</button>
+                    <!-- <button class="btn btn-indigo" onclick="navigateTo('announcements')">Announcements</button> -->
                     <button class="btn btn-cyan" onclick="navigateTo('reports')">Reports</button>
                 </div>
             </div>
@@ -289,29 +289,31 @@ function renderDashboardContent() {
             </div>
         </div>
         
-        <div class="card">
-            <div class="card-header">
-                <h3>Recent Announcements</h3>
-                <a href="#" onclick="navigateTo('announcements')" class="view-all">View all</a>
-            </div>
-            <div class="card-body">
-                ${recentAnnouncements.length === 0 ? `
-                    <p class="text-muted">No announcements yet</p>
-                ` : `
-                    <div class="activity-list">
-                        ${recentAnnouncements.map(function(a) {
-                            return `
-                                <div class="activity-item">
-                                    <div class="activity-icon">A</div>
-                                    <div class="activity-content">
-                                        <span class="activity-text"><strong>${a.title}</strong></span>
-                                        <span class="activity-time">${a.status} · ${new Date(a.created_at).toLocaleDateString()}</span>
+        <div style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recent Announcements</h3>
+                    <!-- <a href="#" onclick="navigateTo('announcements')" class="view-all">View all</a> -->
+                </div>
+                <div class="card-body">
+                    ${recentAnnouncements.length === 0 ? `
+                        <p class="text-muted">No announcements yet</p>
+                    ` : `
+                        <div class="activity-list">
+                            ${recentAnnouncements.map(function(a) {
+                                return `
+                                    <div class="activity-item">
+                                        <div class="activity-icon">A</div>
+                                        <div class="activity-content">
+                                            <span class="activity-text"><strong>${a.title}</strong></span>
+                                            <span class="activity-time">${a.status} · ${new Date(a.created_at).toLocaleDateString()}</span>
+                                        </div>
                                     </div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `}
+                                `;
+                            }).join('')}
+                        </div>
+                    `}
+                </div>
             </div>
         </div>
     `;

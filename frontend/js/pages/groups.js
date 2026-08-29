@@ -15,7 +15,6 @@ let currentGroupId = null;
 export async function renderGroups() {
     const content = document.getElementById('pageContent');
     if (!content) {
-        console.error('Page content not found');
         return;
     }
     
@@ -155,7 +154,6 @@ async function getGroupDetails(groupId) {
         }
         return null;
     } catch (e) {
-        console.error('Error fetching group details:', e);
         return null;
     }
 }

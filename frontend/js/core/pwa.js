@@ -17,13 +17,11 @@ export function showInstallPrompt() {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(function(choiceResult) {
             if (choiceResult.outcome === 'accepted') {
-                console.log('[PWA] User accepted the install prompt');
                 localStorage.setItem('pwa_installed', 'true');
                 if (installButton) {
                     installButton.style.display = 'none';
                 }
             } else {
-                console.log('[PWA] User dismissed the install prompt');
             }
             deferredPrompt = null;
         });
@@ -39,7 +37,6 @@ export function canInstall() {
 export function initPWA() {
     // Check if already installed
     if (isInstalled()) {
-        console.log('[PWA] App is running in standalone mode');
         return;
     }
     
@@ -47,7 +44,6 @@ export function initPWA() {
     window.addEventListener('beforeinstallprompt', function(e) {
         e.preventDefault();
         deferredPrompt = e;
-        console.log('[PWA] App can be installed');
         
         // Show install button in UI
         showInstallButton();
@@ -55,7 +51,6 @@ export function initPWA() {
     
     // Listen for app installed event
     window.addEventListener('appinstalled', function() {
-        console.log('[PWA] App was installed successfully');
         localStorage.setItem('pwa_installed', 'true');
         if (installButton) {
             installButton.style.display = 'none';

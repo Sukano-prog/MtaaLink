@@ -616,7 +616,6 @@ window.toggleCheckIn = async function(id) {
         showSuccess(data.attended ? 'Checked in' : 'Check-in removed');
         renderEventDetail(currentEvent.id, currentTab);
     } catch (error) {
-        console.error('❌ Toggle error:', error);
         showError(error.message || 'Failed to update check-in');
     }
 };

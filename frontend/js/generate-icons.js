@@ -45,4 +45,3 @@ function generateIcon(size) {
 }
 
 // Note: This is a helper script. Icons will be generated at build time.
-console.log('Icon generator loaded. Use generateIcon(size) to create icons.');

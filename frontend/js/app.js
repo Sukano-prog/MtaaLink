@@ -26,7 +26,6 @@ function toggleSidebar() {
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 MtaaLink starting...');
     
     if (localStorage.getItem('token')) {
         showApp();
@@ -37,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== AUTH UI =====
 function showLogin() {
-    console.log('📱 Showing login screen');
     $('loginScreen').style.display = 'flex';
     $('registerScreen').style.display = 'none';
     $('appContainer').style.display = 'none';
@@ -45,7 +43,6 @@ function showLogin() {
 }
 
 function showRegister() {
-    console.log('📱 Showing register screen');
     $('loginScreen').style.display = 'none';
     $('registerScreen').style.display = 'flex';
     $('appContainer').style.display = 'none';
@@ -53,7 +50,6 @@ function showRegister() {
 }
 
 function showApp() {
-    console.log('📱 Showing app');
     $('loginScreen').style.display = 'none';
     $('registerScreen').style.display = 'none';
     $('appContainer').style.display = 'block';
@@ -72,7 +68,6 @@ function logout() {
 // ===== LOGIN =====
 function handleLogin(e) {
     if (e) e.preventDefault();
-    console.log('🔐 Login button clicked');
     
     var email = $('loginEmail').value.trim();
     var password = $('loginPassword').value;
@@ -82,11 +77,9 @@ function handleLogin(e) {
         return;
     }
     
-    console.log('📤 Logging in with:', email);
     
     api.login(email, password)
         .then(function(data) {
-            console.log('✅ Login success:', data);
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('village_id', data.village_id);
             localStorage.setItem('village_name', data.village_name);
@@ -96,7 +89,6 @@ function handleLogin(e) {
             showApp();
         })
         .catch(function(err) {
-            console.error('❌ Login error:', err);
             showToast(err.message || 'Login failed', 'error');
         });
 }
@@ -104,7 +96,6 @@ function handleLogin(e) {
 // ===== REGISTER =====
 function handleRegister(e) {
     e.preventDefault();
-    console.log('📝 Register button clicked');
     
     var data = {
         email: $('regEmail').value.trim(),
@@ -127,7 +118,6 @@ function handleRegister(e) {
 
 // ===== INIT APP =====
 function initApp() {
-    console.log('🚀 Initializing app...');
     
     // Set user info
     api.getCurrentUser()
@@ -137,7 +127,6 @@ function initApp() {
             $('userRole').textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Member';
         })
         .catch(function(err) {
-            console.log('User info not available:', err);
         });
     
     // Load groups
@@ -145,10 +134,8 @@ function initApp() {
         .then(function(groups) {
             groupsList = groups;
             window.groupsList = groups;
-            console.log('✅ Groups loaded:', groups.length);
         })
         .catch(function(err) {
-            console.log('Groups not loaded:', err);
             groupsList = [];
         });
     
@@ -163,7 +150,6 @@ function initApp() {
 
 // ===== SIDEBAR EVENTS =====
 function setupSidebarEvents() {
-    console.log('🔧 Setting up sidebar events...');
     
     // Close sidebar when clicking outside
     document.addEventListener('click', function(e) {
@@ -191,10 +177,8 @@ function setupSidebarEvents() {
 
 // ===== NAVIGATION EVENTS =====
 function setupNavEvents() {
-    console.log('🔧 Setting up navigation...');
     
     var navLinks = document.querySelectorAll('.nav-link');
-    console.log('Found ' + navLinks.length + ' nav links');
     
     navLinks.forEach(function(link) {
         link.removeEventListener('click', handleNavClick);
@@ -205,7 +189,6 @@ function setupNavEvents() {
 function handleNavClick(e) {
     e.preventDefault();
     var page = this.dataset.page;
-    console.log('🔗 Nav clicked:', page);
     if (page) {
         // Close sidebar first
         closeSidebar();
@@ -236,7 +219,6 @@ function updateBadges() {
 
 // ===== NAVIGATION =====
 function navigateTo(page) {
-    console.log('📄 Navigating to:', page);
     
     var titles = {
         dashboard: 'Dashboard',
@@ -273,7 +255,6 @@ function navigateTo(page) {
     var renderFn = renderMap[page];
     if (renderFn) {
         renderFn().catch(function(err) {
-            console.error('Render error:', err);
             $('pageContent').innerHTML = `
             `;
         });
@@ -804,13 +785,11 @@ function showToast(message, type) {
 
 // ===== EVENTS =====
 function setupEvents() {
-    console.log('🔧 Setting up events...');
     
     // Login button
     var loginBtn = document.querySelector('#loginForm button[type="submit"]');
     if (loginBtn) {
         loginBtn.addEventListener('click', handleLogin);
-        console.log('✅ Login button attached');
     }
     
     // Login form
@@ -904,9 +883,7 @@ window.openSidebar = openSidebar;
 window.toggleSidebar = toggleSidebar;
 
 // ===== START APP =====
-console.log('✅ App script loaded');
 setupEvents();
-console.log('✅ MtaaLink ready!');
 
 // Initialize PWA
 document.addEventListener('DOMContentLoaded', function() {
@@ -915,7 +892,6 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         // Store the event for later use
         window.deferredPrompt = e;
-        console.log('PWA install prompt ready');
     });
 });
 
@@ -943,10 +919,8 @@ function addInstallButton() {
             window.deferredPrompt.prompt();
             window.deferredPrompt.userChoice.then(function(choiceResult) {
                 if (choiceResult.outcome === 'accepted') {
-                    console.log('App installed');
                     document.getElementById('pwaInstallBtn').style.display = 'none';
                 } else {
-                    console.log('Install dismissed');
                 }
                 window.deferredPrompt = null;
             });
@@ -965,10 +939,8 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('/sw.js')
             .then(function(registration) {
-                console.log('ServiceWorker registered successfully');
             })
             .catch(function(err) {
-                console.log('ServiceWorker registration failed: ', err);
             });
     });
 }

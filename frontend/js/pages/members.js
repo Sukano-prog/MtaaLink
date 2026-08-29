@@ -438,7 +438,6 @@ function openMemberModal(member = null) {
                 
                 saveMember(formattedData, isEdit, done);
             } catch (error) {
-                console.error('Form submit error:', error);
                 showError(error.message || 'Failed to process form');
             }
         }
@@ -458,7 +457,6 @@ async function saveMember(data, isEdit, done) {
         done();
         await loadMembers();
     } catch (error) {
-        console.error('Save error:', error);
         showError(error.message || 'Failed to save member');
     }
 }

@@ -79,7 +79,6 @@ async function apiCall(endpoint, method = 'GET', data = null) {
         
         return await response.json();
     } catch (error) {
-        console.error('API Error:', error);
         throw error;
     }
 }

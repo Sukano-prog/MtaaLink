@@ -19,7 +19,6 @@ async function renderDashboard() {
             });
             if (response.ok) data = await response.json();
         } catch (e) {
-            console.warn('Using fallback data');
             data = {
                 village: { name: 'Nairobi Village', county: 'Nairobi' },
                 members: { total: 0, new_this_month: 0 },

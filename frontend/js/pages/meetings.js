@@ -235,7 +235,6 @@ window.openMeetingDetail = function(meetingId) {
     import('./meeting_detail.js').then(function(module) {
         module.renderMeetingDetail(meetingId);
     }).catch(function(error) {
-        console.error('Failed to load meeting detail:', error);
         showError('Failed to load meeting detail');
     });
 };

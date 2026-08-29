@@ -26,7 +26,6 @@ export async function renderSettings() {
                     orgData = await response.json();
                 }
             } catch (e) {
-                console.warn('Could not fetch organization data:', e);
             }
         }
         

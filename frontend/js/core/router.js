@@ -86,7 +86,6 @@ export async function navigateTo(page) {
         try {
             await pageFn();
         } catch (error) {
-            console.error('Page error:', error);
             if (content) {
                 content.innerHTML = `
                     <div class="card"><div class="card-body">

@@ -99,7 +99,6 @@ export async function renderDashboard() {
         }
         
     } catch (error) {
-        console.error('Dashboard error:', error);
         const content = document.getElementById('pageContent');
         if (content) {
             content.innerHTML = `
@@ -133,7 +132,6 @@ async function loadUserData() {
             userRole.textContent = user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Member';
         }
     } catch (error) {
-        console.error('Error loading user data:', error);
         const role = localStorage.getItem('role');
         const organizationName = localStorage.getItem('org_name') || localStorage.getItem('organization_name') || "MtaaLink";
         const userNameEl = document.getElementById('userName');
@@ -165,7 +163,6 @@ async function loadDashboardData() {
         dashboardData.announcements = announcements || [];
         
     } catch (error) {
-        console.error('Error loading dashboard data:', error);
         throw error;
     }
 }

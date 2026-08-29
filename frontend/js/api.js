@@ -199,4 +199,3 @@ window.api = {
     createExpense: createExpense
 };
 
-console.log('✅ API loaded successfully!');

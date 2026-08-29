@@ -248,7 +248,6 @@ function renderElectionsList(filtered = null) {
         btn.addEventListener('click', function() {
             const election = electionsData.find(function(e) { return e.id === this.dataset.id; }.bind(this));
             if (election) {
-                console.log('Showing results for:', election.title);
                 viewElectionResults(election);
             }
         });
@@ -588,7 +587,6 @@ function openElectionModal(election = null) {
             
             // Pass the election ID directly from the outer scope
             const electionId = currentElectionId;
-            console.log('Saving election - isEdit:', isEdit, 'id:', electionId);
             if (isEdit && electionId) {
                 updateElection(electionId, formattedData)
                     .then(function() {

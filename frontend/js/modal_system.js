@@ -96,7 +96,6 @@ var ModalManager = {
         var form = document.getElementById('modalForm');
         if (!form) { showToast('Form not found', 'error'); return; }
         var data = Object.fromEntries(new FormData(form));
-        console.log('Submitting:', data);
         showToast('✅ Saved!', 'success');
         this.close();
         var currentPage = document.querySelector('.nav-link.active')?.dataset.page || 'dashboard';

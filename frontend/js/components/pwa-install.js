@@ -151,9 +151,7 @@ function installApp() {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(function(choiceResult) {
             if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
             } else {
-                console.log('User dismissed the install prompt');
             }
             deferredPrompt = null;
             hideInstallBanner();

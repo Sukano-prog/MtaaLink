@@ -2,7 +2,7 @@
    MtaaLink - API Core
    ============================================================ */
 
-const API_BASE = '';
+const API_BASE = '/api/v1';
 
 function getToken() {
     return localStorage.getItem('token');

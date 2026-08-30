@@ -25,13 +25,17 @@
     import { renderLogin } from './js/pages/login.js';
     import { renderRegister } from './js/pages/register.js';
     import { renderDashboard } from './js/pages/dashboard.js';
+    import { renderVerification } from './js/pages/verify.js';
     import { navigateTo, restorePage } from './js/core/router.js';
     import { registerServiceWorker, listenToNetworkStatus } from './js/core/sw.js';
+    import { showToast } from './js/components/toast.js';
 
     window.renderLogin = renderLogin;
     window.renderRegister = renderRegister;
     window.renderDashboard = renderDashboard;
+    window.renderVerification = renderVerification;
     window.navigateTo = navigateTo;
+    window.showToast = showToast;
 
     registerServiceWorker();
 
@@ -43,17 +47,28 @@
       }
     });
 
-    const token = localStorage.getItem('token');
-    if (token) {
-      renderDashboard();
-      setTimeout(function() {
-        requestAnimationFrame(function() {
-          restorePage();
-        });
-      }, 100);
-    } else {
-      renderLogin();
-    }
+    (function initApp() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      const email = params.get('email');
+
+      if (token && email) {
+        renderVerification();
+        return;
+      }
+
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        renderDashboard();
+        setTimeout(function() {
+          requestAnimationFrame(function() {
+            restorePage();
+          });
+        }, 100);
+      } else {
+        renderLogin();
+      }
+    })();
   </script>
 </body>
 </html>

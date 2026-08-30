@@ -21,6 +21,18 @@ export function renderRegister() {
                         <p>Create your organization account</p>
                     </div>
                     
+                    <!-- Success message shown after registration -->
+                    <div id="successMessage" style="display:none;background:#d4edda;color:#155724;padding:15px;border-radius:8px;margin-bottom:20px;border:1px solid #c3e6cb;">
+                        <div style="font-size:24px;text-align:center;">📧</div>
+                        <p style="margin:10px 0 0 0;font-weight:bold;text-align:center;">Registration Successful!</p>
+                        <p style="margin:5px 0 0 0;font-size:14px;text-align:center;">We've sent a verification email to <strong id="regEmailDisplay"></strong>.</p>
+                        <p style="margin:5px 0 0 0;font-size:13px;text-align:center;color:#155724;">Please check your inbox and click the verification link to activate your account.</p>
+                        <p style="margin:10px 0 0 0;font-size:12px;text-align:center;color:#856404;">Didn't receive the email? Check your spam folder.</p>
+                        <div style="text-align:center;margin-top:15px;">
+                            <a href="/login" class="btn btn-primary" style="display:inline-block;padding:8px 20px;background:#155724;color:white;text-decoration:none;border-radius:5px;font-size:14px;">Go to Login</a>
+                        </div>
+                    </div>
+                    
                     <form id="registerForm" novalidate>
                         <div class="form-group">
                             <label for="regOrganizationName">Organization Name</label>
@@ -83,12 +95,9 @@ export function renderRegister() {
         }
     });
     
+    // Input validation
     document.getElementById('regOrganizationName').addEventListener('input', function() {
         clearError('organizationNameError');
-        const name = this.value.trim();
-        if (name && name.length < 2) {
-            showFieldError('organizationNameError', 'Organization name must be at least 2 characters');
-        }
     });
     document.getElementById('regFirstName').addEventListener('input', function() {
         clearError('firstNameError');
@@ -100,14 +109,14 @@ export function renderRegister() {
         clearError('phoneError');
         const phone = this.value.trim();
         if (phone && !/^0[17]\d{8}$/.test(phone)) {
-            showFieldError('phoneError', 'Phone must be 10 digits starting with 01 or 07 (e.g., 0712345678 or 0112345678)');
+            showFieldError('phoneError', 'Phone must be 10 digits starting with 01 or 07');
         }
     });
     document.getElementById('regEmail').addEventListener('input', function() {
         clearError('emailError');
         const email = this.value.trim();
-        if (email && !email.includes('@') || !email.includes('.')) {
-            showFieldError('emailError', 'Please enter a valid email address (e.g., name@example.com)');
+        if (email && (!email.includes('@') || !email.includes('.'))) {
+            showFieldError('emailError', 'Please enter a valid email address');
         }
     });
     document.getElementById('regPassword').addEventListener('input', function() {
@@ -149,7 +158,7 @@ async function handleRegister(e) {
     }
     
     if (!phone || !phone.match(/^0[17]\d{8}$/)) {
-        showFieldError('phoneError', 'Phone must be 10 digits starting with 01 or 07 (e.g., 0712345678 or 0112345678)');
+        showFieldError('phoneError', 'Phone must be 10 digits starting with 01 or 07');
         hasError = true;
     }
     
@@ -182,16 +191,22 @@ async function handleRegister(e) {
         };
         
         await register(data);
-        showSuccess('Registration successful! Please sign in.');
         
-        if (typeof renderLogin === 'function') {
-            renderLogin();
+        // Hide the form and show success message
+        document.getElementById('registerForm').style.display = 'none';
+        const successMsg = document.getElementById('successMessage');
+        const emailDisplay = document.getElementById('regEmailDisplay');
+        if (emailDisplay) {
+            emailDisplay.textContent = email;
+        }
+        if (successMsg) {
+            successMsg.style.display = 'block';
         }
         
+        showSuccess('Registration successful! Please check your email to verify your account.');
+        
     } catch (error) {
-        // Show the actual error from the backend
-        let errorMsg = error?.message || 'Registration failed. Please try again.';
-        showError(errorMsg);
+        showError(error?.message || 'Registration failed. Please try again.');
     } finally {
         isLoading = false;
         btn.textContent = 'Register Organization';
@@ -219,5 +234,3 @@ function clearError(id) {
 }
 
 window.renderRegister = renderRegister;
-
-

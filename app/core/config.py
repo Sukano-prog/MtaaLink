@@ -2,6 +2,7 @@ from pydantic_settings import BaseSettings
 from typing import List, Optional
 
 class Settings(BaseSettings):
+    APP_URL: str = "http://localhost:3000"
     # App
     APP_NAME: str = "MtaaLink"
     APP_VERSION: str = "1.0.0"

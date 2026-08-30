@@ -97,6 +97,18 @@ async def startup():
 # Serve frontend via catch-all route (must be last - after all API routes)
 frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
 
+
+
+@app.get("/login")
+async def login_page():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/index.html")
+
+@app.get("/verify")
+async def verify_page():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/verify.html")
+
 @app.get("/{path:path}")
 async def serve_frontend(path: str):
     """Serve frontend files or index.html for SPA routing"""
@@ -117,3 +129,4 @@ if os.path.exists(frontend_dir):
     logger.info(f"Serving frontend from: {frontend_dir}")
 else:
     logger.warning(f"Frontend directory not found: {frontend_dir}")
+

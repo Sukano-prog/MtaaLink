@@ -5,53 +5,166 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Email - MtaaLink</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f4f8;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
+            margin: 0;
             padding: 20px;
         }
         .container {
             background: white;
-            border-radius: 20px;
-            padding: 50px;
-            max-width: 500px;
+            border-radius: 16px;
+            padding: 48px 40px 40px;
+            max-width: 440px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e9edf2;
         }
-        h1 { font-size: 28px; margin-bottom: 10px; }
-        p { color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 10px; }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a73e8;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        .logo span {
+            color: #1a73e8;
+        }
+        .subtitle {
+            color: #6b7a8f;
+            font-size: 15px;
+            margin-bottom: 28px;
+        }
+        .icon-wrapper {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            font-weight: 600;
+        }
+        .icon-wrapper.loading {
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+        .icon-wrapper.success {
+            background: #e6f7e6;
+            color: #1e7e34;
+        }
+        .icon-wrapper.error {
+            background: #fde8e8;
+            color: #c62828;
+        }
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1a2332;
+            margin-bottom: 8px;
+        }
+        h1.success {
+            color: #1e7e34;
+        }
+        h1.error {
+            color: #c62828;
+        }
+        h1.loading {
+            color: #1a2332;
+        }
+        p {
+            color: #5a6a7e;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 6px;
+        }
+        .email-display {
+            background: #f5f7fa;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #1a2332;
+            word-break: break-all;
+            margin: 12px 0 20px;
+            border: 1px solid #e9edf2;
+            font-weight: 500;
+        }
         .btn {
             display: inline-block;
-            padding: 14px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px 32px;
+            background: #1a73e8;
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
             text-decoration: none;
-            transition: transform 0.2s;
-            margin-top: 20px;
+            transition: background 0.2s, transform 0.1s;
             cursor: pointer;
+            margin-top: 8px;
         }
-        .btn:hover { transform: translateY(-2px); }
-        .error { color: #e74c3c; }
-        .success { color: #27ae60; }
-        .loading { color: #666; }
-        .icon-text { font-size: 60px; margin-bottom: 15px; }
+        .btn:hover {
+            background: #1557b0;
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn-secondary {
+            background: #e9edf2;
+            color: #1a2332;
+        }
+        .btn-secondary:hover {
+            background: #d5dbe3;
+        }
+        .footer-text {
+            color: #8a9aa8;
+            font-size: 13px;
+            margin-top: 24px;
+            border-top: 1px solid #e9edf2;
+            padding-top: 20px;
+        }
+        .footer-text a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+        .spinner {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border: 3px solid #e9edf2;
+            border-top-color: #1a73e8;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 12px auto 16px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <div class="container" id="content">
-        <div class="icon-text">...</div>
-        <h1 class="loading">Verifying your email...</h1>
-        <p>Please wait while we verify your email address.</p>
+        <div class="logo">MtaaLink</div>
+        <div class="subtitle">Email Verification</div>
+        <div id="statusContent">
+            <div class="spinner"></div>
+            <h1 class="loading">Verifying your email</h1>
+            <p>Please wait while we verify your email address.</p>
+        </div>
     </div>
 
     <script>
@@ -60,12 +173,13 @@
             const token = params.get('token');
             const email = params.get('email');
             const content = document.getElementById('content');
+            const statusContent = document.getElementById('statusContent');
 
             if (!token || !email) {
-                content.innerHTML = `
-                    <div class="icon-text">X</div>
+                statusContent.innerHTML = `
+                    <div class="icon-wrapper error">✕</div>
                     <h1 class="error">Invalid Link</h1>
-                    <p>Missing verification parameters.</p>
+                    <p>The verification link is missing required parameters.</p>
                     <a href="/login" class="btn">Go to Login</a>
                 `;
                 return;
@@ -77,15 +191,16 @@
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
                     if (data.message && data.message.indexOf('successfully') !== -1) {
-                        content.innerHTML = `
-                            <div class="icon-text">OK</div>
-                            <h1 class="success">Email Verified!</h1>
+                        statusContent.innerHTML = `
+                            <div class="icon-wrapper success">✓</div>
+                            <h1 class="success">Email Verified</h1>
                             <p>${data.message}</p>
+                            <div class="email-display">${decodeURIComponent(email)}</div>
                             <a href="/login" class="btn">Go to Login</a>
                         `;
                     } else {
-                        content.innerHTML = `
-                            <div class="icon-text">X</div>
+                        statusContent.innerHTML = `
+                            <div class="icon-wrapper error">✕</div>
                             <h1 class="error">Verification Failed</h1>
                             <p>${data.detail || 'Invalid or expired link.'}</p>
                             <a href="/login" class="btn">Go to Login</a>
@@ -93,10 +208,10 @@
                     }
                 })
                 .catch(function() {
-                    content.innerHTML = `
-                        <div class="icon-text">X</div>
-                        <h1 class="error">Error</h1>
-                        <p>Could not verify email. Please try again.</p>
+                    statusContent.innerHTML = `
+                        <div class="icon-wrapper error">✕</div>
+                        <h1 class="error">Something went wrong</h1>
+                        <p>We couldn't verify your email. Please try again.</p>
                         <a href="/login" class="btn">Go to Login</a>
                     `;
                 });

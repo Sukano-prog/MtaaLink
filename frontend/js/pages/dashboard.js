@@ -46,7 +46,7 @@ export async function renderDashboard() {
                             <a href="#" class="nav-link" data-page="contribution_types">Contribution Types</a>
                             <a href="#" class="nav-link" data-page="projects">Projects</a>
                             <a href="#" class="nav-link" data-page="events">Events</a>
-                            <a href="#" class="nav-link" data-page="elections">Elections</a>
+                            <!-- <a href="#" class="nav-link" data-page="elections">Elections</a> -->
                             <a href="#" class="nav-link" data-page="expenses">Expenses</a>
                             <!-- <a href="#" class="nav-link" data-page="announcements">Announcements</a> -->
                             <a href="#" class="nav-link" data-page="reports">Reports</a>

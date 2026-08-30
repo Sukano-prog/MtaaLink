@@ -682,10 +682,34 @@ window.addPayment = function() {
                         container.replaceChild(searchable, select);
                     }
                 }
+                if (select) {
+                    var container = select.parentElement;
+                    var options = memberOptions;
+                    var searchable = createSearchableSelect(options, '', 'Search for a member...');
+                    if (container) {
+                        container.style.overflow = 'visible';
+                        container.replaceChild(searchable, select);
+                    }
+                }
             }, 100);
         },
         onSubmit: async function(data, done) {
             try {
+                // Get the actual member_id from the searchable select
+                let memberId = data.member_id;
+                const memberContainer = document.querySelector('.searchable-select-container');
+                if (memberContainer) {
+                    const hiddenSelect = memberContainer.querySelector('.searchable-select-hidden');
+                    if (hiddenSelect) {
+                        memberId = hiddenSelect.value;
+                    }
+                }
+                
+                if (!memberId) {
+                    showError('Please select a member');
+                    return;
+                }
+                
                 const response = await fetch('/api/v1/events/' + currentEvent.id + '/contributions', {
                     method: 'POST',
                     headers: {
@@ -693,7 +717,7 @@ window.addPayment = function() {
                         'Authorization': 'Bearer ' + localStorage.getItem('token')
                     },
                     body: JSON.stringify({
-                        member_id: data.member_id,
+                        member_id: memberId,
                         contribution_type: 'money',
                         amount: parseFloat(data.amount),
                         payment_method: data.payment_method || 'cash',

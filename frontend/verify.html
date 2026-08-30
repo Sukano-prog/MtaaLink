@@ -172,6 +172,7 @@
             const params = new URLSearchParams(window.location.search);
             const token = params.get('token');
             const email = params.get('email');
+    console.log('Raw email from URL:', email);
             const content = document.getElementById('content');
             const statusContent = document.getElementById('statusContent');
 

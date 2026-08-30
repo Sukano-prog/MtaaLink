@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "MtaaLink"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
+    APP_URL: str = "http://localhost:3000"  # Added this
     
     # Database
     DATABASE_URL: str = "sqlite:///./mtaalink.db"

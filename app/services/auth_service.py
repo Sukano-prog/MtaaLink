@@ -1,35 +1,60 @@
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
+import secrets
+import bcrypt
+import jwt
+import os
 import logging
-from typing import Optional, Dict, Any
 
-from app.core.security import hash_password, verify_password, create_token
-from app.core.exceptions import UnauthorizedException, AlreadyExistsException
 from app.models.village import Village
 from app.models.member import Member
 from app.models.audit_log import AuditLog
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 class AuthService:
+    
+    @staticmethod
+    def hash_password(password: str) -> str:
+        salt = bcrypt.gensalt()
+        return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    
+    @staticmethod
+    def verify_password(password: str, hashed: str) -> bool:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+    
+    @staticmethod
+    def create_access_token(data: dict) -> str:
+        to_encode = data.copy()
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    
+    @staticmethod
+    def decode_token(token: str) -> Optional[dict]:
+        try:
+            return jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        except jwt.PyJWTError:
+            return None
+    
     @staticmethod
     def register(db: Session, data: dict) -> Dict[str, Any]:
         # Check if email exists
         existing = db.query(Village).filter(Village.admin_email == data['email']).first()
         if existing:
-            raise AlreadyExistsException("Email or phone")
+            return {"success": False, "error": "Email already registered"}
         
         # Check if phone exists
         existing_phone = db.query(Member).filter(Member.phone == data['phone']).first()
         if existing_phone:
-            raise AlreadyExistsException("Email or phone")
+            return {"success": False, "error": "Phone already registered"}
         
-        # Create organization
-        import secrets
-        
-        # Generate verification token (store raw token)
+        # Generate verification token
         raw_token = secrets.token_urlsafe(32)
         
+        # Create village (has verification_token)
         village = Village(
             name=data['organization_name'],
             admin_email=data['email'],
@@ -43,7 +68,7 @@ class AuthService:
         db.add(village)
         db.flush()
         
-        # Create admin member
+        # Create admin member (NO verification_token field!)
         admin = Member(
             village_id=village.id,
             first_name=data['first_name'],
@@ -52,66 +77,117 @@ class AuthService:
             email=data['email'],
             role="admin",
             is_active=True,
-            password_hash=hash_password(data['password']),
+            is_verified=False,  # This field exists
+            password_hash=AuthService.hash_password(data['password']),
             member_number=f"ADMIN-{village.id[:8]}"
         )
         db.add(admin)
-        db.commit()
+        db.flush()
         
-        # Audit log
-        audit = AuditLog(
-            village_id=village.id,
-            member_id=admin.id,
-            action="REGISTER",
-            table_name="villages",
-            record_id=village.id,
-            new_data={"email": data['email'], "village": data['organization_name']}
-        )
-        db.add(audit)
+        # Create audit log
+        try:
+            audit = AuditLog(
+                village_id=village.id,
+                member_id=admin.id,
+                action="REGISTER",
+                table_name="villages",
+                record_id=village.id,
+                new_data={
+                    "email": data['email'],
+                    "organization": data['organization_name'],
+                    "first_name": data['first_name'],
+                    "last_name": data['last_name'],
+                    "phone": data['phone']
+                }
+            )
+            db.add(audit)
+        except Exception as e:
+            logger.warning(f"Could not create audit log: {e}")
+        
         db.commit()
+        db.refresh(admin)
         
         return {
+            "success": True,
             "village_id": str(village.id),
             "admin_id": str(admin.id),
-            "verification_token": raw_token,
-            "verification_link": f"/api/v1/auth/verify-email?token={raw_token}&email={data['email']}",
-            "message": "Registration successful. Please verify your email."
+            "verification_token": raw_token
         }
     
     @staticmethod
-    def login(db: Session, email: str, password: str) -> Dict[str, Any]:
-        # Find village
-        village = db.query(Village).filter(Village.admin_email == email).first()
-        if not village:
-            raise UnauthorizedException()
-        
-        # Find admin
-        admin = db.query(Member).filter(
-            Member.village_id == village.id,
-            Member.email == email
+    def verify_email(db: Session, email: str, token: str) -> Dict[str, Any]:
+        """Verify email - checks ONLY Village table (which has verification_token)"""
+        # Find village with this token
+        village = db.query(Village).filter(
+            Village.admin_email == email,
+            Village.verification_token == token,
+            Village.is_verified == False
         ).first()
         
-        if not admin or not verify_password(password, admin.password_hash):
-            raise UnauthorizedException()
+        if not village:
+            # Check if already verified
+            village = db.query(Village).filter(
+                Village.admin_email == email,
+                Village.is_verified == True
+            ).first()
+            if village:
+                return {"success": True, "message": "Email already verified"}
+            return {"success": False, "error": "Invalid or expired verification link"}
         
-        if not admin.is_active:
-            raise UnauthorizedException("Account is deactivated")
+        # Mark village as verified
+        village.is_verified = True
+        village.email_verified = True
+        village.verification_token = None
         
-        # Create token
+        # Also update the admin member's is_verified flag
+        admin = db.query(Member).filter(
+            Member.email == email,
+            Member.role == 'admin'
+        ).first()
+        if admin:
+            admin.is_verified = True
+        
+        db.commit()
+        
+        return {"success": True, "message": "Email verified successfully"}
+    
+    @staticmethod
+    def login(db: Session, email: str, password: str) -> Dict[str, Any]:
+        # Find member
+        member = db.query(Member).filter(Member.email == email).first()
+        
+        if not member:
+            return {"success": False, "error": "Invalid email or password"}
+        
+        # Check if village is verified
+        village = db.query(Village).filter(Village.id == member.village_id).first()
+        if not village or not village.is_verified:
+            return {"success": False, "error": "Please verify your email before logging in"}
+        
+        # Verify password
+        if not AuthService.verify_password(password, member.password_hash):
+            return {"success": False, "error": "Invalid email or password"}
+        
+        # Generate token
         token_data = {
-            "sub": str(admin.id),
-            "village_id": str(village.id),
-            "role": admin.role
+            "sub": str(member.id),
+            "village_id": str(village.id) if village else None,
+            "role": member.role
         }
-        token = create_token(token_data)
+        access_token = AuthService.create_access_token(token_data)
+        
+        # Update last login
+        member.last_login = datetime.utcnow()
+        db.commit()
         
         return {
-            "access_token": token,
+            "success": True,
+            "access_token": access_token,
             "token_type": "bearer",
-            "village_id": str(village.id),
-            "organization_id": str(village.id),
-            "village_name": village.name,
-            "organization_name": village.name,
-            "role": admin.role,
-            "member_id": str(admin.id)
+            "village_id": str(village.id) if village else None,
+            "organization_id": str(village.id) if village else None,
+            "organization_name": village.name if village else None,
+            "village_name": village.name if village else None,
+            "role": member.role,
+            "member_id": str(member.id)
         }

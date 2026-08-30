@@ -46,3 +46,41 @@ clean_*.py
 # Render deployment
 render_deploy/
 deploy_*.sh
+
+# Database files
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+compare_*.py
+temp_*.py
+test_*.py
+main
+myscanner/

@@ -6,31 +6,185 @@
     <title>System Accounts - MtaaLink</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; padding: 20px; color: #1a1a2e; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #f5f7fa; 
+            padding: 16px; 
+            color: #1a1a2e; 
+            min-height: 100vh;
+        }
         .container { max-width: 1200px; margin: 0 auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-        .header h1 { font-size: 24px; font-weight: 700; color: #1a1a2e; }
-        .header .sub { color: #6b7280; font-size: 14px; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: white; padding: 16px 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-        .stat-card .number { font-size: 28px; font-weight: 700; color: #1A73E8; }
-        .stat-card .label { font-size: 13px; color: #6b7280; }
-        .search-box { margin-bottom: 20px; }
-        .search-box input { width: 100%; max-width: 400px; padding: 10px 16px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; outline: none; }
-        .search-box input:focus { border-color: #1A73E8; box-shadow: 0 0 0 3px rgba(26,115,232,0.1); }
-        .table-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        
+        /* Header */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 20px; 
+            flex-wrap: wrap; 
+            gap: 12px; 
+        }
+        .header h1 { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+        .header .sub { color: #6b7280; font-size: 13px; }
+        .header .count { 
+            background: white; 
+            padding: 6px 16px; 
+            border-radius: 20px; 
+            font-size: 13px; 
+            color: #6b7280; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        
+        /* Stats */
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 12px; 
+            margin-bottom: 20px; 
+        }
+        .stat-card { 
+            background: white; 
+            padding: 14px 16px; 
+            border-radius: 10px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06); 
+            text-align: center;
+        }
+        .stat-card .number { font-size: 24px; font-weight: 700; color: #1A73E8; }
+        .stat-card .label { font-size: 12px; color: #6b7280; margin-top: 2px; }
+        
+        /* Search */
+        .search-box { margin-bottom: 16px; }
+        .search-box input { 
+            width: 100%; 
+            max-width: 100%; 
+            padding: 10px 16px; 
+            border: 1px solid #d1d5db; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            outline: none; 
+            background: white;
+            transition: all 0.2s;
+        }
+        .search-box input:focus { 
+            border-color: #1A73E8; 
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.1); 
+        }
+        
+        /* Table */
+        .table-wrap { 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06); 
+        }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th { background: #f8f9fa; text-align: left; padding: 12px 16px; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; }
-        td { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; }
+        th { 
+            background: #f8f9fa; 
+            text-align: left; 
+            padding: 10px 14px; 
+            font-weight: 600; 
+            color: #374151; 
+            border-bottom: 1px solid #e5e7eb; 
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        td { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
         tr:hover td { background: #f8f9fa; }
-        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        
+        .badge { 
+            display: inline-block; 
+            padding: 2px 10px; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            font-weight: 500; 
+        }
         .badge-verified { background: #d4edda; color: #155724; }
         .badge-pending { background: #fff3cd; color: #856404; }
         .badge-inactive { background: #f8d7da; color: #721c24; }
-        .loading { text-align: center; padding: 40px; color: #6b7280; }
+        
+        .loading { text-align: center; padding: 40px 20px; color: #6b7280; }
         .error { color: #dc3545; padding: 20px; text-align: center; }
-        .footer { margin-top: 20px; text-align: center; color: #9ca3af; font-size: 13px; }
-        @media (max-width: 768px) { .stats { grid-template-columns: 1fr 1fr; } th, td { padding: 8px 10px; font-size: 12px; } }
+        .no-results { padding: 40px 20px; text-align: center; color: #6b7280; }
+        
+        .footer { margin-top: 20px; text-align: center; color: #9ca3af; font-size: 12px; }
+        
+        /* Mobile */
+        .mobile-card { display: none; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .header h1 { font-size: 18px; }
+            .stats { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 8px; 
+            }
+            .stat-card { padding: 10px 12px; }
+            .stat-card .number { font-size: 18px; }
+            .stat-card .label { font-size: 11px; }
+            
+            /* Hide table on mobile, show cards */
+            .desktop-table { display: none; }
+            .mobile-card { display: block; }
+            
+            .mobile-card-item {
+                background: white;
+                border-radius: 10px;
+                padding: 14px 16px;
+                margin-bottom: 10px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+                border-left: 4px solid #1A73E8;
+            }
+            .mobile-card-item .org-name { 
+                font-size: 16px; 
+                font-weight: 600; 
+                margin-bottom: 4px; 
+            }
+            .mobile-card-item .org-detail {
+                font-size: 13px;
+                color: #6b7280;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                margin-top: 4px;
+            }
+            .mobile-card-item .org-detail span {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .mobile-card-item .org-meta {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 8px;
+                padding-top: 8px;
+                border-top: 1px solid #f3f4f6;
+                font-size: 12px;
+                color: #6b7280;
+            }
+            th, td { padding: 8px 10px; font-size: 12px; }
+        }
+        
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .header h1 { font-size: 16px; }
+            .header .sub { font-size: 12px; }
+            .stats { gap: 6px; }
+            .stat-card { padding: 8px 10px; }
+            .stat-card .number { font-size: 16px; }
+            .stat-card .label { font-size: 10px; }
+            .search-box input { padding: 8px 12px; font-size: 13px; }
+            .mobile-card-item { padding: 12px 14px; }
+            .mobile-card-item .org-name { font-size: 14px; }
+            .mobile-card-item .org-detail { font-size: 12px; gap: 8px; }
+        }
+        
+        @media (min-width: 769px) {
+            .desktop-table { display: block; }
+            .mobile-card { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -38,26 +192,22 @@
     <div class="header">
         <div>
             <h1>📊 System Accounts</h1>
-            <span class="sub">All registered organizations in the system</span>
+            <span class="sub">All registered organizations</span>
         </div>
-        <div>
-            <span id="totalCount" style="font-size:14px;color:#6b7280;">Loading...</span>
-        </div>
+        <span class="count" id="totalCount">Loading...</span>
     </div>
     
     <div class="stats" id="stats"></div>
     
     <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search by organization name, email, or phone..." oninput="filterTable()">
+        <input type="text" id="searchInput" placeholder="🔍 Search by name, email, or phone..." oninput="filterTable()">
     </div>
     
-    <div class="table-wrap">
-        <div id="tableContent">
-            <div class="loading">Loading accounts...</div>
-        </div>
+    <div class="table-wrap" id="tableContent">
+        <div class="loading">Loading accounts...</div>
     </div>
     
-    <div class="footer">MtaaLink System · All organizations</div>
+    <div class="footer">MtaaLink · All organizations · <span id="footerCount">0</span> total</div>
 </div>
 
 <script>
@@ -71,7 +221,8 @@
             allAccounts = data.accounts || [];
             renderTable(allAccounts);
             renderStats(allAccounts);
-            document.getElementById('totalCount').textContent = allAccounts.length + ' total accounts';
+            document.getElementById('totalCount').textContent = allAccounts.length + ' total';
+            document.getElementById('footerCount').textContent = allAccounts.length;
         } catch (error) {
             document.getElementById('tableContent').innerHTML = `<div class="error">❌ ${error.message}</div>`;
         }
@@ -84,7 +235,7 @@
         const totalMembers = accounts.reduce((sum, a) => sum + (a.member_count || 0), 0);
         
         document.getElementById('stats').innerHTML = `
-            <div class="stat-card"><div class="number">${total}</div><div class="label">Total Organizations</div></div>
+            <div class="stat-card"><div class="number">${total}</div><div class="label">Organizations</div></div>
             <div class="stat-card"><div class="number">${verified}</div><div class="label">Verified</div></div>
             <div class="stat-card"><div class="number">${pending}</div><div class="label">Pending</div></div>
             <div class="stat-card"><div class="number">${totalMembers}</div><div class="label">Total Members</div></div>
@@ -93,33 +244,21 @@
     
     function renderTable(accounts) {
         if (!accounts || accounts.length === 0) {
-            document.getElementById('tableContent').innerHTML = `
-                <div style="padding:40px;text-align:center;color:#6b7280;">No accounts found</div>
-            `;
+            document.getElementById('tableContent').innerHTML = `<div class="no-results">No accounts found</div>`;
             return;
         }
         
-        let html = `
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Organization</th>
-                        <th>Admin Email</th>
-                        <th>Phone</th>
-                        <th>Members</th>
-                        <th>Created</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+        // Desktop Table
+        let html = `<div class="desktop-table"><table>
+            <thead><tr>
+                <th>#</th><th>Organization</th><th>Admin Email</th><th>Phone</th>
+                <th>Members</th><th>Created</th><th>Status</th>
+            </tr></thead><tbody>`;
         
         accounts.forEach((a, i) => {
             const created = a.created_at ? new Date(a.created_at).toLocaleDateString() : '-';
             const statusClass = a.is_verified ? 'badge-verified' : 'badge-pending';
-            const statusText = a.is_verified ? '✅ Verified' : '⏳ Pending';
-            
+            const statusText = a.is_verified ? 'Verified' : 'Pending';
             html += `
                 <tr>
                     <td>${i + 1}</td>
@@ -132,8 +271,32 @@
                 </tr>
             `;
         });
+        html += `</tbody></table></div>`;
         
-        html += `</tbody></table>`;
+        // Mobile Cards
+        html += `<div class="mobile-card">`;
+        accounts.forEach((a, i) => {
+            const created = a.created_at ? new Date(a.created_at).toLocaleDateString() : '-';
+            const statusClass = a.is_verified ? 'badge-verified' : 'badge-pending';
+            const statusText = a.is_verified ? '✅ Verified' : '⏳ Pending';
+            const memberText = a.member_count === 1 ? '1 member' : (a.member_count || 0) + ' members';
+            html += `
+                <div class="mobile-card-item">
+                    <div class="org-name">${i+1}. ${a.name || 'Unnamed'}</div>
+                    <div class="org-detail">
+                        <span>📧 ${a.admin_email || '-'}</span>
+                        <span>📱 ${a.admin_phone || '-'}</span>
+                    </div>
+                    <div class="org-meta">
+                        <span>👥 ${memberText}</span>
+                        <span>📅 ${created}</span>
+                        <span class="badge ${statusClass}">${statusText}</span>
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`;
+        
         document.getElementById('tableContent').innerHTML = html;
     }
     

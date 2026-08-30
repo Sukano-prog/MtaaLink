@@ -15,6 +15,92 @@ import urllib.parse
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 
 
+
+
+@router.post("/forgot-password")
+async def forgot_password(email: str, db: Session = Depends(get_db)):
+    """Send password reset link to user's email"""
+    try:
+        import secrets
+        from datetime import datetime, timedelta
+        from app.services.email_service import send_password_reset_email
+        
+        member = db.query(Member).filter(Member.email == email).first()
+        if not member:
+            return {"message": "If your email is registered, you will receive a reset link"}
+        
+        # Generate reset token
+        reset_token = secrets.token_urlsafe(32)
+        member.reset_token = reset_token
+        member.reset_token_expires = datetime.utcnow() + timedelta(hours=1)
+        db.commit()
+        
+        # Send email
+        reset_link = f"{settings.APP_URL}/reset-password?token={reset_token}&email={urllib.parse.quote(email)}"
+        send_password_reset_email(email, reset_link)
+        
+        return {"message": "Password reset link sent to your email"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/reset-password")
+async def verify_reset_token(token: str, email: str, db: Session = Depends(get_db)):
+    """Verify reset token and show reset form"""
+    try:
+        from datetime import datetime
+        
+        member = db.query(Member).filter(
+            Member.email == email,
+            Member.reset_token == token
+        ).first()
+        
+        if not member:
+            raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+        
+        if member.reset_token_expires and member.reset_token_expires < datetime.utcnow():
+            raise HTTPException(status_code=400, detail="Reset link has expired")
+        
+        # Return success - frontend will show password reset form
+        return {"message": "Token valid", "email": email}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/reset-password")
+async def reset_password(email: str, token: str, new_password: str, db: Session = Depends(get_db)):
+    """Reset password with new password"""
+    try:
+        from datetime import datetime
+        from app.core.security import hash_password
+        
+        member = db.query(Member).filter(
+            Member.email == email,
+            Member.reset_token == token
+        ).first()
+        
+        if not member:
+            raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+        
+        if member.reset_token_expires and member.reset_token_expires < datetime.utcnow():
+            raise HTTPException(status_code=400, detail="Reset link has expired")
+        
+        # Update password
+        member.password_hash = hash_password(new_password)
+        member.reset_token = None
+        member.reset_token_expires = None
+        db.commit()
+        
+        return {"message": "Password reset successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/register")
 async def register(request: Request, data: RegisterRequest, db: Session = Depends(get_db)):
     try:

@@ -104,6 +104,12 @@ async def login_page():
     from fastapi.responses import FileResponse
     return FileResponse("frontend/index.html")
 
+
+@app.get("/reset-password")
+async def reset_password_page():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/reset-password.html")
+
 @app.get("/verify")
 async def verify_page():
     from fastapi.responses import FileResponse

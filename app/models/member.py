@@ -25,6 +25,8 @@ class Member(BaseModel):
     
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+    reset_token = Column(String(255), nullable=True)
+    reset_token_expires = Column(DateTime, nullable=True)
     
     password_hash = Column(String(255), nullable=False)
     

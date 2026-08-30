@@ -67,6 +67,8 @@ export function renderLogin() {
                     
                     <div class="auth-footer">
                         <a id="registerLink">Don't have an account? Register</a>
+                        <br>
+                        <a href="/reset-password" style="color: #666; font-size: 13px; text-decoration: none; margin-top: 5px; display: inline-block;">Forgot Password?</a>
                         <span class="credit">Built for Kenya</span>
                     </div>
                 </div>

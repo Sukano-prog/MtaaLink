@@ -10,6 +10,7 @@ from app.services.email_service import send_verification_email
 from app.models.member import Member
 from app.models.village import Village
 from app.core.config import settings
+import urllib.parse
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 

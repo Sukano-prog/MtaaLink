@@ -83,6 +83,10 @@ self.addEventListener('fetch', function(event) {
   }
 
   if (url.pathname === '/' || url.pathname.endsWith('.html')) {
+    // Skip caching API requests
+    if (event.request.url.includes("/api/")) {
+      return fetch(event.request);
+    }
     event.respondWith(
       fetch(request).then(function(response) {
         return caches.open(CACHE_NAME).then(function(cache) {
@@ -98,7 +102,11 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  event.respondWith(
+  // Skip caching API requests
+    if (event.request.url.includes("/api/")) {
+      return fetch(event.request);
+    }
+    event.respondWith(
     caches.match(request).then(function(response) {
       if (response) {
         return response;
@@ -128,6 +136,10 @@ self.addEventListener('fetch', function(event) {
 
   // Cache API responses
   if (url.pathname.startsWith('/api/v1/') && request.method === 'GET') {
+    // Skip caching API requests
+    if (event.request.url.includes("/api/")) {
+      return fetch(event.request);
+    }
     event.respondWith(
       caches.match(request).then(function(cachedResponse) {
         if (cachedResponse) {
@@ -163,4 +175,32 @@ self.addEventListener('fetch', function(event) {
     );
     return;
   }
+});
+
+
+self.addEventListener("fetch", function(event) {
+  // Skip non-GET requests
+  if (event.request.method !== "GET") {
+    return;
+  }
+  
+  // Skip API requests
+  if (event.request.url.includes("/api/")) {
+    return;
+  }
+  
+  // Skip verification page - let it handle itself
+  if (event.request.url.includes("/verify")) {
+    return;
+  }
+  
+  event.respondWith(
+    caches.match(event.request)
+      .then(function(response) {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request);
+      })
+  );
 });

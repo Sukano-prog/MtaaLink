@@ -69,12 +69,21 @@ async def verify_reset_token(token: str, email: str, db: Session = Depends(get_d
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/reset-password")
-async def reset_password(email: str, token: str, new_password: str, db: Session = Depends(get_db)):
+async def reset_password(request: Request, db: Session = Depends(get_db)):
     """Reset password with new password"""
     try:
         from datetime import datetime
         from app.core.security import hash_password
+        
+        data = await request.json()
+        email = data.get('email')
+        token = data.get('token')
+        new_password = data.get('new_password')
+        
+        if not email or not token or not new_password:
+            raise HTTPException(status_code=400, detail="Missing required fields")
         
         member = db.query(Member).filter(
             Member.email == email,
@@ -99,8 +108,6 @@ async def reset_password(email: str, token: str, new_password: str, db: Session 
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
 @router.post("/register")
 async def register(request: Request, data: RegisterRequest, db: Session = Depends(get_db)):
     try:

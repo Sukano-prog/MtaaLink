@@ -1,7 +1,6 @@
 /* ============================================================
-   MtaaLink - Event Detail Page (Tabs)
-   ============================================================ */
-
+MtaaLink - Event Detail Page
+============================================================ */
 import { getEvent, updateEvent, deleteEvent } from '../core/api.js';
 import { getMembers } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
@@ -15,21 +14,12 @@ let allMembers = [];
 let eventId = null;
 let currentTab = 'overview';
 
-
-export async function renderEventDetail(id, tab = null) {
+export async function renderEventDetail(id) {
     eventId = id;
     const content = document.getElementById('pageContent');
-    // Clear cached data to force reload
-    currentEvent = null;
-    eventMembers = [];
-    eventContributions = [];
-    
-    // Set the tab to switch to after load
-    if (tab) {
-        currentTab = tab;
-    }
     
     try {
+        // Force fresh data with cache-busting
         const eventData = await getEvent(eventId);
         currentEvent = eventData;
         eventMembers = eventData.attendance || [];
@@ -43,25 +33,19 @@ export async function renderEventDetail(id, tab = null) {
                 <div>
                     <button class="btn btn-primary" onclick="editEvent()">Edit</button>
                     <button class="btn btn-danger" onclick="deleteEvent()">Delete</button>
+                    <button class="btn btn-success" onclick="exportPDF()">Export PDF</button>
                 </div>
             </div>
-            
             <div style="display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:20px;overflow-x:auto;">
-                <button class="tab-btn" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+                <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
                 <button class="tab-btn" data-tab="attendees" onclick="switchTab('attendees')">Attendees (${eventMembers.length})</button>
                 <button class="tab-btn" data-tab="payments" onclick="switchTab('payments')">Payments (${eventContributions.length})</button>
                 <button class="tab-btn" data-tab="report" onclick="switchTab('report')">Report</button>
             </div>
-            
             <div id="tabContent">
                 ${renderOverview()}
             </div>
         `;
-        
-        // Switch to the stored tab after rendering
-        setTimeout(function() {
-            switchTab(currentTab);
-        }, 50);
         
         // Add styles
         if (!document.getElementById('eventDetailStyles')) {
@@ -106,9 +90,25 @@ export async function renderEventDetail(id, tab = null) {
                     color: #6b7280;
                     margin-left: 6px;
                 }
+                .modal-body {
+                    overflow: visible !important;
+                }
+                .searchable-select-container {
+                    position: relative;
+                    z-index: 9999;
+                }
+                .searchable-select-dropdown {
+                    position: absolute !important;
+                    z-index: 99999 !important;
+                }
             `;
             document.head.appendChild(style);
         }
+        
+        // Switch to stored tab after render
+        setTimeout(function() {
+            switchTab(currentTab);
+        }, 50);
         
     } catch (error) {
         content.innerHTML = `
@@ -122,12 +122,11 @@ export async function renderEventDetail(id, tab = null) {
     }
 }
 
-// ===== TAB 1: OVERVIEW =====
-
+// ===== OVERVIEW TAB =====
 function renderOverview() {
     const e = currentEvent;
-    const checkedIn = eventMembers.filter(m => m.attended).length;
-    const totalCollected = eventContributions.reduce((sum, c) => sum + (c.amount || 0), 0);
+    const checkedIn = eventMembers.filter(function(m) { return m.attended; }).length;
+    const totalCollected = eventContributions.reduce(function(sum, c) { return sum + (c.amount || 0); }, 0);
     
     return `
         <div class="card">
@@ -160,8 +159,7 @@ function renderOverview() {
     `;
 }
 
-// ===== TAB 2: ATTENDEES =====
-
+// ===== ATTENDEES TAB =====
 function renderAttendees() {
     if (eventMembers.length === 0) {
         return `
@@ -179,13 +177,16 @@ function renderAttendees() {
     
     let html = `
         <div class="card">
-            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
                 <h3 style="margin:0;">Attendees (${eventMembers.length})</h3>
-                <button class="btn btn-primary btn-sm" onclick="addAttendee()">+ Add</button>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <input type="text" id="attendeeSearch" class="form-control" placeholder="Search attendees..." style="width:200px;padding:4px 10px;font-size:13px;">
+                    <button class="btn btn-primary btn-sm" onclick="addAttendee()">+ Add</button>
+                </div>
             </div>
             <div class="card-body" style="padding:0;">
                 <div style="overflow-x:auto;">
-                    <table class="table" style="margin:0;">
+                    <table class="table" style="margin:0;" id="attendeeTable">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -200,19 +201,20 @@ function renderAttendees() {
                         <tbody>
     `;
     
-    eventMembers.forEach(function(m) {
-        const isVisitor = m.is_visitor || false;
-        const nameDisplay = m.member_name || 'Unknown';
-        const badge = isVisitor ? ' <span class="visitor-badge">Visitor</span>' : '';
-        const genderDisplay = m.member_gender || '-';
-        const ageDisplay = m.member_age_category || '-';
-        const phoneDisplay = m.phone || m.member_phone || '-';
-        const statusText = m.attended ? 'Checked In' : 'Not Checked In';
-        const statusColor = m.attended ? 'var(--success)' : 'var(--gray-400)';
-        const btnClass = m.attended ? 'checked' : 'unchecked';
-        const btnText = m.attended ? 'Checked In' : 'Check In';
-        const typeDisplay = isVisitor ? 'Visitor' : 'Member';
-        const memberId = m.member_id || m.id || 'unknown';
+    for (var i = 0; i < eventMembers.length; i++) {
+        var m = eventMembers[i];
+        var isVisitor = m.is_visitor || false;
+        var nameDisplay = m.member_name || 'Unknown';
+        var badge = isVisitor ? ' <span class="visitor-badge">Visitor</span>' : '';
+        var genderDisplay = m.member_gender || '-';
+        var ageDisplay = m.member_age_category || '-';
+        var phoneDisplay = m.phone || m.member_phone || '-';
+        var statusText = m.attended ? 'Checked In' : 'Not Checked In';
+        var statusColor = m.attended ? 'var(--success)' : 'var(--gray-400)';
+        var btnClass = m.attended ? 'checked' : 'unchecked';
+        var btnText = m.attended ? 'Checked In' : 'Check In';
+        var typeDisplay = isVisitor ? 'Visitor' : 'Member';
+        var memberId = m.record_id || m.member_id || m.id || 'unknown';
         
         html += `
             <tr>
@@ -223,11 +225,11 @@ function renderAttendees() {
                 <td>${phoneDisplay}</td>
                 <td><span style="color:${statusColor};">${statusText}</span></td>
                 <td style="text-align:center;">
-                    <button class="check-in-btn ${btnClass}" onclick="toggleCheckIn('${m.record_id || m.id || m.member_id || 'unknown'}')">${btnText}</button>
+                    <button class="check-in-btn ${btnClass}" onclick="toggleCheckIn('${memberId}')">${btnText}</button>
                 </td>
             </tr>
         `;
-    });
+    }
     
     html += `
                         </tbody>
@@ -240,15 +242,14 @@ function renderAttendees() {
     return html;
 }
 
-// ===== TAB 3: PAYMENTS =====
-
+// ===== PAYMENTS TAB =====
 function renderPayments() {
     if (eventContributions.length === 0) {
         return `
             <div class="card">
                 <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
                     <h3 style="margin:0;">Payments</h3>
-                    <button class="btn btn-primary btn-sm" onclick="addPayment()">+ Record</button>
+                    <button class="btn btn-primary btn-sm" onclick="recordPayment()">+ Record</button>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">No payments recorded.</p>
@@ -259,16 +260,20 @@ function renderPayments() {
     
     let html = `
         <div class="card">
-            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
                 <h3 style="margin:0;">Payments (${eventContributions.length})</h3>
-                <button class="btn btn-primary btn-sm" onclick="addPayment()">+ Record</button>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <input type="text" id="paymentSearch" class="form-control" placeholder="Search payments..." style="width:200px;padding:4px 10px;font-size:13px;">
+                    <button class="btn btn-primary btn-sm" onclick="recordPayment()">+ Record</button>
+                </div>
             </div>
             <div class="card-body" style="padding:0;">
                 <div style="overflow-x:auto;">
-                    <table class="table" style="margin:0;">
+                    <table class="table" style="margin:0;" id="paymentTable">
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Phone</th>
                                 <th>Type</th>
                                 <th>Amount</th>
                                 <th>Method</th>
@@ -278,18 +283,20 @@ function renderPayments() {
                         <tbody>
     `;
     
-    eventContributions.forEach(function(c) {
-        const dateStr = c.payment_date ? new Date(c.payment_date).toLocaleDateString() : (c.created_at ? new Date(c.created_at).toLocaleDateString() : "-");
+    for (var i = 0; i < eventContributions.length; i++) {
+        var c = eventContributions[i];
+        var dateStr = c.created_at ? new Date(c.created_at).toLocaleDateString() : '-';
         html += `
             <tr>
                 <td><strong>${c.member_name || 'Anonymous'}</strong></td>
+                <td>${c.member_phone || c.phone || '-'}</td>
                 <td>${c.contribution_type || 'Money'}</td>
                 <td>KES ${c.amount || 0}</td>
                 <td>${c.payment_method || 'Cash'}</td>
                 <td>${dateStr}</td>
             </tr>
         `;
-    });
+    }
     
     html += `
                         </tbody>
@@ -302,22 +309,23 @@ function renderPayments() {
     return html;
 }
 
-// ===== TAB 4: REPORT =====
-
+// ===== REPORT TAB =====
 function renderReport() {
-    const totalCollected = eventContributions.reduce((sum, c) => sum + (c.amount || 0), 0);
-    const checkedIn = eventMembers.filter(m => m.attended).length;
+    var totalCollected = eventContributions.reduce(function(sum, c) { return sum + (c.amount || 0); }, 0);
+    var checkedIn = eventMembers.filter(function(m) { return m.attended; }).length;
     
-    let attendeesList = '';
-    eventMembers.forEach(function(m) {
-        const visitorTag = m.is_visitor ? ' (Visitor)' : '';
+    var attendeesList = '';
+    for (var i = 0; i < eventMembers.length; i++) {
+        var m = eventMembers[i];
+        var visitorTag = m.is_visitor ? ' (Visitor)' : '';
         attendeesList += `<li>${m.member_name || 'Unknown'} - ${m.attended ? 'Checked In' : 'Not Checked In'}${visitorTag}</li>`;
-    });
+    }
     
-    let contributionsList = '';
-    eventContributions.forEach(function(c) {
+    var contributionsList = '';
+    for (var i = 0; i < eventContributions.length; i++) {
+        var c = eventContributions[i];
         contributionsList += `<li>${c.member_name || 'Anonymous'} - KES ${c.amount || 0}</li>`;
-    });
+    }
     
     return `
         <div class="card">
@@ -345,7 +353,6 @@ function renderReport() {
 }
 
 // ===== TAB SWITCHING =====
-
 window.switchTab = function(tab) {
     currentTab = tab;
     document.querySelectorAll('.tab-btn').forEach(function(t) {
@@ -353,24 +360,40 @@ window.switchTab = function(tab) {
     });
     document.querySelector('.tab-btn[data-tab="' + tab + '"]').classList.add('active');
     
-    const content = document.getElementById('tabContent');
+    var content = document.getElementById('tabContent');
     if (tab === 'overview') content.innerHTML = renderOverview();
-    else if (tab === 'attendees') content.innerHTML = renderAttendees();
-    else if (tab === 'payments') content.innerHTML = renderPayments();
-    else if (tab === 'report') content.innerHTML = renderReport();
+    else if (tab === 'attendees') {
+        content.innerHTML = renderAttendees();
+        // Add search listener for attendees
+        var searchInput = document.getElementById('attendeeSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                filterAttendeeTable(this.value);
+            });
+        }
+    } else if (tab === 'payments') {
+        content.innerHTML = renderPayments();
+        // Add search listener for payments
+        var searchInput = document.getElementById('paymentSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                filterPaymentTable(this.value);
+            });
+        }
+    } else if (tab === 'report') content.innerHTML = renderReport();
 };
 
 // ===== ADD ATTENDEE =====
-
 window.addAttendee = function() {
-    const available = allMembers.filter(function(m) {
+    var available = allMembers.filter(function(m) {
         return !eventMembers.some(function(em) { return em.member_id === m.id; });
     });
     
-    const memberOptions = available.map(function(m) {
-        const name = m.full_name || (m.first_name || '') + ' ' + (m.last_name || '');
+    var memberOptions = available.map(function(m) {
+        var name = m.full_name || (m.first_name || '') + ' ' + (m.last_name || '');
         return { value: m.id, label: name.trim() || 'Unknown Member' };
     });
+    
     memberOptions.unshift({ value: '', label: '' });
     
     showFormModal({
@@ -392,8 +415,7 @@ window.addAttendee = function() {
                 label: 'Member',
                 type: 'select',
                 options: memberOptions,
-                required: false,
-                placeholder: 'Search for a member...'
+                required: false
             },
             {
                 id: 'visitor_name',
@@ -440,23 +462,18 @@ window.addAttendee = function() {
             }
         ],
         onShow: function() {
-            // Add CSS to fix dropdown overflow
-            var style = document.createElement('style');
-            style.textContent = '.modal-body { overflow: visible !important; } .searchable-select-dropdown { z-index: 99999 !important; }';
-            document.head.appendChild(style);
-            
             setTimeout(function() {
-                const typeSelect = document.getElementById('attendee_type');
-                const memberSelect = document.getElementById('member_id');
-                const visitorName = document.getElementById('visitor_name');
-                const visitorGender = document.getElementById('visitor_gender');
-                const visitorAge = document.getElementById('visitor_age');
-                const visitorPhone = document.getElementById('visitor_phone');
+                var typeSelect = document.getElementById('attendee_type');
+                var memberSelect = document.getElementById('member_id');
+                var visitorName = document.getElementById('visitor_name');
+                var visitorGender = document.getElementById('visitor_gender');
+                var visitorAge = document.getElementById('visitor_age');
+                var visitorPhone = document.getElementById('visitor_phone');
                 
                 function toggleFields() {
                     if (typeSelect && typeSelect.value === 'visitor') {
                         if (memberSelect) {
-                            const container = memberSelect.parentElement;
+                            var container = memberSelect.parentElement;
                             if (container) container.style.display = 'none';
                         }
                         if (visitorName) visitorName.parentElement.style.display = 'block';
@@ -465,23 +482,22 @@ window.addAttendee = function() {
                         if (visitorPhone) visitorPhone.parentElement.style.display = 'block';
                     } else {
                         if (memberSelect) {
-                            const container = memberSelect.parentElement;
+                            var container = memberSelect.parentElement;
                             if (container) {
                                 container.style.display = 'block';
                                 container.style.overflow = 'visible';
                             }
-                            const select = document.getElementById('member_id');
+                            var select = document.getElementById('member_id');
                             if (select) {
-                                const container2 = select.parentElement;
-                                const options = available.map(function(m) {
-                                    const name = m.full_name || (m.first_name || '') + ' ' + (m.last_name || '');
+                                var container2 = select.parentElement;
+                                var options = available.map(function(m) {
+                                    var name = m.full_name || (m.first_name || '') + ' ' + (m.last_name || '');
                                     return { value: m.id, label: name.trim() || 'Unknown Member' };
                                 });
                                 options.unshift({ value: '', label: '' });
-                                const searchable = createSearchableSelect(options, '', 'Search for a member...');
+                                var searchable = createSearchableSelect(options, '', 'Search for a member...');
                                 if (container2) {
                                     container2.style.overflow = 'visible';
-                                    // Set position relative for dropdown
                                     container2.style.position = 'relative';
                                     container2.style.zIndex = '99999';
                                     container2.replaceChild(searchable, select);
@@ -499,17 +515,15 @@ window.addAttendee = function() {
                     typeSelect.addEventListener('change', toggleFields);
                 }
                 toggleFields();
-            }, 150);
+            }, 100);
         },
         onSubmit: async function(data, done) {
             try {
-                const token = localStorage.getItem('token');
-                
-                // Get the actual member_id from the searchable select
-                let memberId = data.member_id;
-                const memberContainer = document.querySelector('.searchable-select-container');
+                var token = localStorage.getItem('token');
+                var memberId = data.member_id;
+                var memberContainer = document.querySelector('.searchable-select-container');
                 if (memberContainer) {
-                    const hiddenSelect = memberContainer.querySelector('.searchable-select-hidden');
+                    var hiddenSelect = memberContainer.querySelector('.searchable-select-hidden');
                     if (hiddenSelect) {
                         memberId = hiddenSelect.value;
                     }
@@ -520,7 +534,7 @@ window.addAttendee = function() {
                         showError('Please enter visitor name');
                         return;
                     }
-                    const body = {
+                    var body = {
                         is_visitor: true,
                         visitor_name: data.visitor_name.trim(),
                         visitor_gender: data.visitor_gender || null,
@@ -528,8 +542,7 @@ window.addAttendee = function() {
                         visitor_phone: data.visitor_phone || null,
                         attended: true
                     };
-                    
-                    const response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance', {
+                    var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -537,33 +550,30 @@ window.addAttendee = function() {
                         },
                         body: JSON.stringify(body)
                     });
-                    
                     if (!response.ok) throw new Error('Failed to add visitor');
                     showSuccess('Visitor added');
                     done();
-                    // Force reload from API
                     setTimeout(function() {
                         renderEventDetail(currentEvent.id, currentTab);
-                    }, 500);
+                    }, 300);
                 } else {
                     if (!memberId) {
                         showError('Please select a member');
                         return;
                     }
-                    const response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + memberId, {
+                    var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + memberId, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': 'Bearer ' + token
                         }
                     });
-                    
                     if (!response.ok) throw new Error('Failed to add attendee');
                     showSuccess('Member added');
                     done();
                     setTimeout(function() {
                         renderEventDetail(currentEvent.id, currentTab);
-                    }, 500);
+                    }, 300);
                 }
             } catch (error) {
                 showError(error.message || 'Failed to add attendee');
@@ -572,59 +582,12 @@ window.addAttendee = function() {
     });
 };
 
-// ===== TOGGLE CHECK-IN =====
-
-window.toggleCheckIn = async function(id) {
-    try {
-        
-        // Find the attendee by record_id, member_id, or id
-        let attendee = null;
-        for (var i = 0; i < eventMembers.length; i++) {
-            var m = eventMembers[i];
-            if (m.record_id === id || m.member_id === id || m.id === id || 
-                String(m.record_id) === String(id) || String(m.member_id) === String(id) || String(m.id) === String(id)) {
-                attendee = m;
-                break;
-            }
-        }
-        
-        if (!attendee) {
-            showError('Attendee not found');
-            return;
-        }
-        
-        const token = localStorage.getItem('token');
-        
-        // Use the record_id or id for the toggle endpoint
-        const toggleId = attendee.record_id || attendee.id || attendee.member_id || id;
-        
-        const response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + toggleId + '/toggle', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            }
-        });
-        
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.detail || 'Failed to update check-in');
-        }
-        const data = await response.json();
-        
-        attendee.attended = data.attended;
-        showSuccess(data.attended ? 'Checked in' : 'Check-in removed');
-        renderEventDetail(currentEvent.id, currentTab);
-    } catch (error) {
-        showError(error.message || 'Failed to update check-in');
-    }
-};
-
-// ===== ADD PAYMENT =====
-
-window.addPayment = function() {
-    const memberOptions = eventMembers.map(function(m) {
-        return { value: m.member_id || m.id, label: m.member_name || 'Unknown' };
+// ===== RECORD PAYMENT =====
+window.recordPayment = function() {
+    var memberOptions = eventMembers.map(function(m) {
+        var label = m.member_name || 'Unknown';
+        var value = m.member_id || m.id || m.record_id || 'unknown';
+        return { value: value, label: label };
     });
     
     if (memberOptions.length === 0) {
@@ -661,13 +624,6 @@ window.addPayment = function() {
                     { value: 'mpesa', label: 'M-PESA' },
                     { value: 'bank', label: 'Bank Transfer' }
                 ]
-            },
-            {
-                id: 'payment_date',
-                label: 'Payment Date',
-                type: 'date',
-                value: new Date().toISOString().split('T')[0],
-                required: true
             }
         ],
         onShow: function() {
@@ -682,57 +638,137 @@ window.addPayment = function() {
                         container.replaceChild(searchable, select);
                     }
                 }
-                if (select) {
-                    var container = select.parentElement;
-                    var options = memberOptions;
-                    var searchable = createSearchableSelect(options, '', 'Search for a member...');
-                    if (container) {
-                        container.style.overflow = 'visible';
-                        container.replaceChild(searchable, select);
-                    }
-                }
             }, 100);
         },
         onSubmit: async function(data, done) {
             try {
-                // Get the actual member_id from the searchable select
-                let memberId = data.member_id;
-                const memberContainer = document.querySelector('.searchable-select-container');
+                var memberId = data.member_id;
+                var visitorName = null;
+                var selectedLabel = null;
+                var memberContainer = document.querySelector('.searchable-select-container');
+                
                 if (memberContainer) {
-                    const hiddenSelect = memberContainer.querySelector('.searchable-select-hidden');
+                    var hiddenSelect = memberContainer.querySelector('.searchable-select-hidden');
                     if (hiddenSelect) {
                         memberId = hiddenSelect.value;
                     }
+                    // Get the selected label from the input (this has the visitor name)
+                    var searchInput = memberContainer.querySelector('.searchable-select-input');
+                    if (searchInput && searchInput.value) {
+                        selectedLabel = searchInput.value.trim();
+                        visitorName = selectedLabel;
+                    }
+                    // If no input value, try display
+                    if (!visitorName) {
+                        var display = memberContainer.querySelector('.searchable-select-display');
+                        if (display) {
+                            selectedLabel = display.textContent.trim();
+                            visitorName = selectedLabel;
+                        }
+                    }
+                    // If still no name, try the selected option
+                    if (!visitorName) {
+                        var selectedOption = memberContainer.querySelector('.searchable-select-option.selected');
+                        if (selectedOption) {
+                            selectedLabel = selectedOption.textContent.trim();
+                            visitorName = selectedLabel;
+                        }
+                    }
                 }
                 
-                if (!memberId) {
-                    showError('Please select a member');
+                // Log what we found
+                console.log('🔍 Payment - memberId:', memberId, 'visitorName:', visitorName, 'selectedLabel:', selectedLabel);
+                
+                // Determine if this is a visitor
+                var isVisitor = false;
+                
+                // First, try to find the member in eventMembers by ID
+                var foundMember = null;
+                for (var i = 0; i < eventMembers.length; i++) {
+                    var m = eventMembers[i];
+                    if (m.member_id === memberId || m.id === memberId || m.record_id === memberId) {
+                        foundMember = m;
+                        break;
+                    }
+                }
+                
+                // If found and it's a visitor
+                if (foundMember && foundMember.is_visitor) {
+                    isVisitor = true;
+                    visitorName = visitorName || foundMember.member_name || 'Visitor';
+                }
+                // If memberId is 'unknown' or null, it's a visitor
+                else if (memberId === 'unknown' || memberId === null || memberId === undefined) {
+                    isVisitor = true;
+                }
+                // If we have a visitor name AND the member is not found in the list, treat as visitor
+                else if (!foundMember && visitorName && visitorName !== '' && visitorName !== 'Unknown') {
+                    // Check if this name belongs to a visitor in the list
+                    for (var i = 0; i < eventMembers.length; i++) {
+                        var m = eventMembers[i];
+                        if (m.member_name === visitorName && m.is_visitor) {
+                            isVisitor = true;
+                            break;
+                        }
+                    }
+                    // If still not found, treat as visitor with the name
+                    if (!isVisitor) {
+                        isVisitor = true;
+                    }
+                }
+                // If we have a valid memberId and it's not a visitor, it's a regular member
+                else if (memberId && memberId !== 'unknown' && !foundMember) {
+                    // Check if the memberId exists in eventMembers as a regular member
+                    for (var i = 0; i < eventMembers.length; i++) {
+                        var m = eventMembers[i];
+                        if (m.member_id === memberId) {
+                            isVisitor = false;
+                            break;
+                        }
+                    }
+                }
+                
+                var requestBody = {
+                    contribution_type: 'money',
+                    amount: parseFloat(data.amount),
+                    payment_method: data.payment_method || 'cash'
+                };
+                
+                if (isVisitor && visitorName && visitorName !== '' && visitorName !== 'Unknown') {
+                    // Visitor: send member_name, member_id = null
+                    requestBody.member_id = null;
+                    requestBody.member_name = visitorName;
+                    console.log('✅ Sending visitor payment - Name:', visitorName);
+                    console.log('📦 Full requestBody:', JSON.stringify(requestBody));
+                } else if (memberId && memberId !== 'unknown' && memberId !== '') {
+                    // Regular member: send member_id
+                    requestBody.member_id = memberId;
+                    console.log('✅ Sending member payment - ID:', memberId);
+                } else {
+                    showError('Please select a valid member or enter a visitor name');
                     return;
                 }
                 
-                const response = await fetch('/api/v1/events/' + currentEvent.id + '/contributions', {
+                var response = await fetch('/api/v1/events/' + currentEvent.id + '/contributions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + localStorage.getItem('token')
                     },
-                    body: JSON.stringify({
-                        member_id: memberId,
-                        contribution_type: 'money',
-                        amount: parseFloat(data.amount),
-                        payment_method: data.payment_method || 'cash',
-                        payment_date: data.payment_date || new Date().toISOString().split('T')[0]
-                    })
+                    body: JSON.stringify(requestBody)
                 });
                 
                 if (!response.ok) {
-                    const errData = await response.json();
+                    var errData = await response.json();
                     throw new Error(errData.detail || 'Failed to record payment');
                 }
                 
-                showSuccess('Payment recorded');
+                showSuccess('Payment recorded!');
                 done();
-                renderEventDetail(currentEvent.id, currentTab);
+                setTimeout(function() {
+                    // Force reload with fresh data
+                    renderEventDetail(currentEvent.id, currentTab);
+                }, 500);
             } catch (error) {
                 showError(error.message || 'Failed to record payment');
             }
@@ -740,42 +776,47 @@ window.addPayment = function() {
     });
 };
 
-// ===== EXPORT PDF =====
-
-window.exportPDF = function() {
-    fetch('/api/v1/reports/export/events/pdf?event_id=' + currentEvent.id, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    })
-    .then(function(response) {
-        if (!response.ok) throw new Error('PDF generation failed');
-        return response.blob();
-    })
-    .then(function(blob) {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'event_' + currentEvent.title + '_report.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        showSuccess('PDF downloaded');
-    })
-    .catch(function(error) {
-        showError('Failed to download PDF: ' + error.message);
-    });
+// ===== TOGGLE CHECK-IN =====
+window.toggleCheckIn = async function(memberId) {
+    try {
+        var attendee = null;
+        for (var i = 0; i < eventMembers.length; i++) {
+            var m = eventMembers[i];
+            if (m.record_id === memberId || m.member_id === memberId || m.id === memberId) {
+                attendee = m;
+                break;
+            }
+        }
+        if (!attendee) {
+            showError('Attendee not found');
+            return;
+        }
+        
+        var token = localStorage.getItem('token');
+        var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + memberId + '/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        });
+        if (!response.ok) throw new Error('Failed to update check-in');
+        var data = await response.json();
+        attendee.attended = data.attended;
+        showSuccess(data.attended ? 'Checked in' : 'Check-in removed');
+        setTimeout(function() {
+            renderEventDetail(currentEvent.id, currentTab);
+        }, 300);
+    } catch (error) {
+        showError(error.message || 'Failed to update check-in');
+    }
 };
 
 // ===== EDIT & DELETE =====
-
 window.editEvent = function() {
     import('./events.js').then(function(module) {
-        if (typeof module.openEventModal === 'function') {
-            module.openEventModal(currentEvent);
-        } else {
-            showError('Edit function not available');
-        }
-    }).catch(function(error) {
+        module.openEventModal(currentEvent);
+    }).catch(function() {
         showError('Failed to load edit function');
     });
 };
@@ -798,5 +839,52 @@ window.deleteEvent = function() {
         }
     });
 };
+
+// ===== EXPORT PDF =====
+window.exportPDF = function() {
+    fetch('/api/v1/reports/export/events/pdf?event_id=' + currentEvent.id, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    })
+    .then(function(response) {
+        if (!response.ok) throw new Error('PDF generation failed');
+        return response.blob();
+    })
+    .then(function(blob) {
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'event_' + currentEvent.title + '_report.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        showSuccess('PDF downloaded');
+    })
+    .catch(function(error) {
+        showError('Failed to download PDF: ' + error.message);
+    });
+};
+
+
+
+// ===== FILTER FUNCTIONS =====
+window.filterAttendeeTable = function(searchTerm) {
+    var rows = document.querySelectorAll('#attendeeTable tbody tr');
+    var term = searchTerm.toLowerCase().trim();
+    rows.forEach(function(row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.includes(term) ? '' : 'none';
+    });
+};
+
+window.filterPaymentTable = function(searchTerm) {
+    var rows = document.querySelectorAll('#paymentTable tbody tr');
+    var term = searchTerm.toLowerCase().trim();
+    rows.forEach(function(row) {
+        var text = row.textContent.toLowerCase();
+        row.style.display = text.includes(term) ? '' : 'none';
+    });
+};
+
 
 window.renderEventDetail = renderEventDetail;

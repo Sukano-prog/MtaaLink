@@ -23,6 +23,7 @@ class ContributionTypeUpdate(BaseModel):
 class ContributionBase(BaseModel):
     member_id: str
     contribution_type_id: Optional[str] = None
+    event_id: Optional[str] = None
     amount: Decimal = Field(..., gt=0)
     due_date: Optional[date] = None
     payment_method: Optional[str] = None

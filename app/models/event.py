@@ -53,7 +53,9 @@ class EventContribution(BaseModel):
     __tablename__ = "event_contributions"
     
     event_id = Column(String(36), ForeignKey("events.id"), nullable=False)
+    contribution_id = Column(String(36), nullable=True)
     member_id = Column(String(36), ForeignKey("members.id"), nullable=True)
+    member_name = Column(String(100), nullable=True)
     contribution_type = Column(String(50), nullable=False)
     # contribution_type: money, food, materials, transport, other
     

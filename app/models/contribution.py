@@ -27,6 +27,7 @@ class Contribution(BaseModel):
     village_id = Column(String(36), ForeignKey("villages.id"), nullable=False, index=True)
     member_id = Column(String(36), ForeignKey("members.id"), nullable=False)
     contribution_type_id = Column(String(36), ForeignKey("contribution_types.id"), nullable=True)
+    event_id = Column(String(36), nullable=True)
     
     amount = Column(DECIMAL(12, 2), nullable=False)
     paid_amount = Column(DECIMAL(12, 2), default=0)

@@ -81,12 +81,32 @@ class ContributionService:
             due_date=data.get('due_date'),
             payment_method=data.get('payment_method'),
             notes=data.get('notes'),
-            recorded_by=current_user_id
+            recorded_by=current_user_id,
+            event_id=data.get('event_id')
         )
         
         db.add(contribution)
         db.commit()
         db.refresh(contribution)
+        
+        # If event_id is provided, also create a record in event_contributions
+        if data.get('event_id'):
+            from app.models.event import EventContribution
+            import uuid
+            from datetime import datetime
+            
+            event_contrib = EventContribution(
+                id=str(uuid.uuid4()),
+                event_id=data['event_id'],
+                member_id=data['member_id'],
+                contribution_type='money',
+                amount=data['amount'],
+                recorded_by=current_user_id,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+            db.add(event_contrib)
+            db.commit()
         
         return {"id": str(contribution.id), "message": "Contribution recorded"}
     

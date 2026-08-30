@@ -201,6 +201,9 @@ async def add_contribution(
     db: Session = Depends(get_db)
 ):
     try:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"📥 Contribution data received: {data.dict()}")
         # Add recorded_by
         data_dict = data.dict()
         data_dict['recorded_by'] = current_user.id

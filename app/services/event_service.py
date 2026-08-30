@@ -122,10 +122,13 @@ class EventService:
                 "description": c.description,
                 "payment_date": c.payment_date.strftime('%Y-%m-%d') if hasattr(c, 'payment_date') and c.payment_date else None,
                 "payment_method": c.payment_method if hasattr(c, 'payment_method') else None,
-                "created_at": c.created_at.isoformat() if c.created_at else None
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+                "member_phone": member.phone if member else None
             }
             if member:
                 contrib_data["member_name"] = member.full_name
+            elif c.member_name:
+                contrib_data["member_name"] = c.member_name
             else:
                 contrib_data["member_name"] = "Anonymous"
             contribution_list.append(contrib_data)
@@ -254,9 +257,24 @@ class EventService:
     
     @staticmethod
     def add_contribution(db: Session, event_id: str, data: dict) -> Dict:
+        from app.models.member import Member
+        
+        # Get member name if member_id is provided
+        member_name = None
+        if data.get('member_id'):
+            member = db.query(Member).filter(Member.id == data['member_id']).first()
+            if member:
+                member_name = member.full_name
+        # If no member_id, check if member_name was passed (for visitors)
+        elif data.get('member_name'):
+            member_name = data.get('member_name')
+        else:
+            member_name = 'Visitor'
+        
         contribution = EventContribution(
             event_id=event_id,
             member_id=data.get('member_id'),
+            member_name=member_name,
             contribution_type=data['contribution_type'],
             amount=data.get('amount'),
             description=data.get('description'),
@@ -268,7 +286,7 @@ class EventService:
         db.commit()
         db.refresh(contribution)
         
-        return {"message": "Contribution recorded"}
+        return {"message": "Contribution recorded", "member_name": member_name}
     
     @staticmethod
     def delete_event(db: Session, village_id: str, event_id: str) -> Dict:

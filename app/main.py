@@ -10,6 +10,7 @@ import os
 from app.core.config import settings
 from app.core.database import create_tables
 from app.api.v1 import auth, members, groups, meetings, contributions, announcements, reports, projects, events, expenses, sms
+from app.api.v1 import accounts
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -55,6 +56,7 @@ app.include_router(projects.router)
 app.include_router(events.router)
 app.include_router(expenses.router)
 app.include_router(sms.router)
+app.include_router(accounts.router)
 
 from app.api.v1 import elections
 app.include_router(elections.router)

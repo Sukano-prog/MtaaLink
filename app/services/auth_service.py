@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
+import logging
 from typing import Optional, Dict, Any
 
 from app.core.security import hash_password, verify_password, create_token
@@ -7,6 +8,8 @@ from app.core.exceptions import UnauthorizedException, AlreadyExistsException
 from app.models.village import Village
 from app.models.member import Member
 from app.models.audit_log import AuditLog
+
+logger = logging.getLogger(__name__)
 
 class AuthService:
     @staticmethod
@@ -22,11 +25,19 @@ class AuthService:
             raise AlreadyExistsException("Email or phone")
         
         # Create organization
+        import secrets
+        
+        # Generate verification token (store raw token)
+        raw_token = secrets.token_urlsafe(32)
+        
         village = Village(
             name=data['organization_name'],
             admin_email=data['email'],
             admin_phone=data['phone'],
-            is_verified=True,
+            is_verified=False,
+            email_verified=False,
+            verification_token=raw_token,
+            verification_token_expires=datetime.utcnow() + timedelta(days=7),
             trial_ends=datetime.utcnow() + timedelta(days=30)
         )
         db.add(village)
@@ -60,9 +71,11 @@ class AuthService:
         db.commit()
         
         return {
-            "village_id": village.id,
-            "admin_id": admin.id,
-            "message": "Registration successful"
+            "village_id": str(village.id),
+            "admin_id": str(admin.id),
+            "verification_token": raw_token,
+            "verification_link": f"/api/v1/auth/verify-email?token={raw_token}&email={data['email']}",
+            "message": "Registration successful. Please verify your email."
         }
     
     @staticmethod

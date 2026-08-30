@@ -11,6 +11,9 @@ class Village(BaseModel):
     admin_phone = Column(String(20))
     
     is_verified = Column(Boolean, default=False)
+    email_verified = Column(Boolean, default=False)
+    verification_token = Column(String(255), nullable=True)
+    verification_token_expires = Column(DateTime, nullable=True)
     is_active = Column(Boolean, default=True)
     
     subscription_status = Column(String(20), default="trial")

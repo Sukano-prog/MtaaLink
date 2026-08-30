@@ -31,6 +31,7 @@ async def get_all_accounts(
             "admin_email": v.admin_email,
             "admin_phone": v.admin_phone,
             "is_verified": v.is_verified,
+            "email_verified": v.email_verified if hasattr(v, 'email_verified') else False,
             "member_count": member_count,
             "created_at": v.created_at.isoformat() if v.created_at else None
         })

@@ -1,39 +1,37 @@
+import os
 from pydantic_settings import BaseSettings
-from typing import List, Optional
+from typing import Optional
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
 
 class Settings(BaseSettings):
     # App
     APP_NAME: str = "MtaaLink"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = True
-    BASE_URL: str = ""
     
     # Database
     DATABASE_URL: str = "sqlite:///./mtaalink.db"
     
-    # JWT
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    # Security
+    SECRET_KEY: str = "your-secret-key-here-change-in-production"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080
     
-    # CORS
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ]
+    # SMS (Africa's Talking)
+    SMS_USERNAME: str = "sandbox"
+    SMS_API_KEY: str = ""
+    SMS_SENDER_ID: str = "MtaaLink"
     
-    # Rate Limiting
-    RATE_LIMIT_PER_MINUTE: int = 60
-    
-    # Optional Services
-    REDIS_URL: Optional[str] = None
-    AT_USERNAME: Optional[str] = None
-    AT_API_KEY: Optional[str] = None
-    MPESA_CONSUMER_KEY: Optional[str] = None
-    MPESA_CONSUMER_SECRET: Optional[str] = None
+    # Email (SendGrid)
+    SENDGRID_API_KEY: str = os.environ.get("SENDGRID_API_KEY", "")
+    SENDGRID_FROM_EMAIL: str = os.environ.get("SENDGRID_FROM_EMAIL", "noreply@mtaalink.com")
     
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
         extra = "ignore"
 
 settings = Settings()

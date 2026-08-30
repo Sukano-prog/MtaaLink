@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import get_current_user
@@ -6,6 +6,7 @@ from app.core.exceptions import AppException
 from app.schemas.auth import LoginRequest, RegisterRequest, LoginResponse, ChangePasswordRequest, UserResponse
 from app.services.auth_service import AuthService
 from app.models.member import Member
+from app.models.village import Village
 
 router = APIRouter(prefix="/api/v1/auth", tags=["Authentication"])
 
@@ -18,6 +19,50 @@ async def register(request: Request, data: RegisterRequest, db: Session = Depend
         raise e
     except Exception as e:
         raise AppException(str(e))
+
+
+@router.get("/verify-email")
+async def verify_email(
+    token: str,
+    email: str,
+    db: Session = Depends(get_db)
+):
+    """Verify email address using token"""
+    from datetime import datetime
+    
+    print(f"🔍 Verifying email: {email}")
+    print(f"🔍 Token received: {token}")
+    
+    # Find village with this token (raw token, no hashing)
+    village = db.query(Village).filter(
+        Village.admin_email == email,
+        Village.verification_token == token,
+        Village.deleted_at.is_(None)
+    ).first()
+    
+    if not village:
+        print(f"❌ No village found with token: {token}")
+        raise HTTPException(status_code=400, detail="Invalid or expired verification link")
+    
+    print(f"🔍 Village found: {village.name}")
+    print(f"🔍 Stored token: {village.verification_token}")
+    print(f"🔍 Token match: {village.verification_token == token}")
+    
+    # Check if expired
+    if village.verification_token_expires and village.verification_token_expires < datetime.utcnow():
+        print(f"❌ Token expired at: {village.verification_token_expires}")
+        raise HTTPException(status_code=400, detail="Verification link has expired")
+    
+    # Mark as verified
+    village.email_verified = True
+    village.is_verified = True
+    village.verification_token = None
+    village.verification_token_expires = None
+    
+    db.commit()
+    
+    print(f"✅ Email verified for: {email}")
+    return {"message": "Email verified successfully! You can now login."}
 
 @router.post("/login", response_model=LoginResponse)
 async def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):

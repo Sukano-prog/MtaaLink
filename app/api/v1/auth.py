@@ -117,6 +117,8 @@ async def register(request: Request, data: RegisterRequest, db: Session = Depend
         token = result.get('verification_token')
         if token:
             verification_link = f"{settings.APP_URL}/verify?token={token}&email={urllib.parse.quote(data.email)}"
+            print(f"📧 Sending email to: {data.email}")
+            print(f"📧 Verification link: {verification_link}")
             send_verification_email(data.email, verification_link)
         
         return result

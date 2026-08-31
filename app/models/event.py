@@ -41,6 +41,7 @@ class EventAttendance(BaseModel):
     role = Column(String(50), nullable=True)
     is_visitor = Column(Boolean, default=False)
     member_name = Column(String(100), nullable=True)
+    member_phone = Column(String(20), nullable=True)
     member_gender = Column(String(20), nullable=True)
     member_age_category = Column(String(20), nullable=True)
     member_phone = Column(String(20), nullable=True)  # e.g., organizer, volunteer, guest, elder
@@ -56,6 +57,7 @@ class EventContribution(BaseModel):
     contribution_id = Column(String(36), nullable=True)
     member_id = Column(String(36), ForeignKey("members.id"), nullable=True)
     member_name = Column(String(100), nullable=True)
+    member_phone = Column(String(20), nullable=True)
     contribution_type = Column(String(50), nullable=False)
     # contribution_type: money, food, materials, transport, other
     

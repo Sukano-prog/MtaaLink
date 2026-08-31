@@ -46,6 +46,7 @@ class EventAttendanceCreate(BaseModel):
 class EventContributionCreate(BaseModel):
     member_id: Optional[str] = None
     member_name: Optional[str] = None
+    member_phone: Optional[str] = None
     contribution_type: str
     amount: Optional[Decimal] = None
     description: Optional[str] = None

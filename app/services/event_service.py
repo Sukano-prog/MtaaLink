@@ -123,7 +123,7 @@ class EventService:
                 "payment_date": c.payment_date.strftime('%Y-%m-%d') if hasattr(c, 'payment_date') and c.payment_date else None,
                 "payment_method": c.payment_method if hasattr(c, 'payment_method') else None,
                 "created_at": c.created_at.isoformat() if c.created_at else None,
-                "member_phone": member.phone if member else None
+                "member_phone": member.phone if member else c.member_phone if hasattr(c, "member_phone") and c.member_phone else None
             }
             if member:
                 contrib_data["member_name"] = member.full_name
@@ -246,8 +246,7 @@ class EventService:
                 role=role,
                 member_name=member_name,
                 member_gender=member_gender,
-                member_age_category=member_age_category,
-                member_phone=member_phone
+                member_age_category=member_age_category
             )
             db.add(attendance)
         
@@ -275,6 +274,7 @@ class EventService:
             event_id=event_id,
             member_id=data.get('member_id'),
             member_name=member_name,
+            member_phone=data.get('member_phone'),
             contribution_type=data['contribution_type'],
             amount=data.get('amount'),
             description=data.get('description'),

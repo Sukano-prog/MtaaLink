@@ -738,6 +738,19 @@ window.recordPayment = function() {
                     // Visitor: send member_name, member_id = null
                     requestBody.member_id = null;
                     requestBody.member_name = visitorName;
+                    
+                    // Find phone number from eventMembers
+                    var foundPhone = '';
+                    for (var i = 0; i < eventMembers.length; i++) {
+                        var m = eventMembers[i];
+                        if (m.member_name === visitorName || m.member_name === visitorName.replace(' (Visitor)', '')) {
+                            foundPhone = m.phone || m.member_phone || '';
+                            break;
+                        }
+                    }
+                    if (foundPhone) {
+                        requestBody.member_phone = foundPhone;
+                    }
                     console.log('✅ Sending visitor payment - Name:', visitorName);
                     console.log('📦 Full requestBody:', JSON.stringify(requestBody));
                 } else if (memberId && memberId !== 'unknown' && memberId !== '') {

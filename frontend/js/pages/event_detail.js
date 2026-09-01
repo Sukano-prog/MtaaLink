@@ -519,8 +519,8 @@ window.addAttendee = function() {
                 options: [
                     { value: '', label: 'Select gender...' },
                     { value: 'male', label: 'Male' },
-                    { value: 'female', label: 'Female' },
-                    { value: 'other', label: 'Other' }
+                    { value: 'female', label: 'Female' }
+                    
                 ]
             },
             {

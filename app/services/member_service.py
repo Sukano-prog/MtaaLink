@@ -52,7 +52,8 @@ class MemberService:
                 "group_id": str(m.group_id) if m.group_id else None,
                 "member_number": m.member_number,
                 "gender": m.gender,
-                "age_category": m.age_category
+                "age_category": m.age_category,
+                "custom_field": m.custom_field
             })
         
         return result
@@ -95,18 +96,24 @@ class MemberService:
             "group_id": str(member.group_id) if member.group_id else None,
             "member_number": member.member_number,
             "gender": member.gender,
+            "age_category": member.age_category,
+            "custom_field": member.custom_field,
             "date_of_birth": member.date_of_birth,
             "created_at": member.created_at
         }
     
     @staticmethod
     def create_member(db: Session, village_id: str, data: dict, current_user_id: str) -> Dict:
-        existing = db.query(Member).filter(
-            Member.phone == data['phone'],
-            Member.deleted_at.is_(None)
-        ).first()
-        if existing:
-            raise AlreadyExistsException("Phone number")
+        print(f"🔍 MEMBER DATA: {data}")
+        # Check phone uniqueness only if phone is provided and not empty
+        phone = data.get('phone')
+        if phone and phone.strip():
+            existing = db.query(Member).filter(
+                Member.phone == phone,
+                Member.deleted_at.is_(None)
+            ).first()
+            if existing:
+                raise AlreadyExistsException("Phone number")
         
         if data.get('member_number'):
             existing = db.query(Member).filter(
@@ -124,6 +131,13 @@ class MemberService:
             if not group:
                 raise NotFoundException("Group")
         
+            # Auto-generate member_number if not provided
+        member_number = data.get('member_number')
+        if not member_number:
+            # Generate a unique member number
+            import uuid
+            member_number = f"M-{uuid.uuid4().hex[:8].upper()}"
+        
         member = Member(
             village_id=village_id,
             first_name=data['first_name'],
@@ -131,9 +145,10 @@ class MemberService:
             phone=data['phone'],
             email=data.get('email'),
             role=data.get('role', 'member'),
+            custom_field=data.get('custom_field'),
             gender=data.get('gender'),
             group_id=data.get('group_id'),
-            member_number=data.get('member_number'),
+            member_number=member_number,
             password_hash=hash_password(data.get('password', 'default123')) if data.get('password') else ""
         )
         
@@ -172,7 +187,7 @@ class MemberService:
         
         updatable_fields = [
             'first_name', 'last_name', 'phone', 'email', 'role', 
-            'gender', 'age_category', 'group_id', 'member_number', 'is_active'
+            'gender', 'age_category', 'group_id', 'member_number', 'is_active', 'custom_field'
         ]
         
         for field in updatable_fields:

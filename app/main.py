@@ -9,7 +9,7 @@ import os
 
 from app.core.config import settings
 from app.core.database import create_tables
-from app.api.v1 import auth, members, groups, meetings, contributions, announcements, reports, projects, events, expenses, sms
+from app.api.v1 import auth, members, groups, meetings, contributions, announcements, reports, projects, events, expenses, sms, organization_settings
 from app.api.v1 import accounts
 
 logging.basicConfig(level=logging.INFO)
@@ -56,6 +56,7 @@ app.include_router(projects.router)
 app.include_router(events.router)
 app.include_router(expenses.router)
 app.include_router(sms.router)
+app.include_router(organization_settings.router)
 app.include_router(accounts.router)
 
 from app.api.v1 import elections
@@ -109,6 +110,12 @@ async def login_page():
 async def reset_password_page():
     from fastapi.responses import FileResponse
     return FileResponse("frontend/reset-password.html")
+
+
+@app.get("/settings")
+async def settings_page():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/index.html")
 
 @app.get("/verify")
 async def verify_page():

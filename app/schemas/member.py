@@ -5,14 +5,16 @@ from datetime import date, datetime
 class MemberBase(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=100)
     last_name: str = Field(..., min_length=2, max_length=100)
-    phone: str = Field(..., pattern=r'^(01|07)\d{8}$')
+    phone: Optional[str] = Field(None, pattern=r'^(01|07)\d{8}$')
     email: Optional[EmailStr] = None
-    member_number: str = Field(..., min_length=2, max_length=50)  # Required, unique
+    member_number: Optional[str] = Field(None, min_length=2, max_length=50)
     id_number: Optional[str] = Field(None, max_length=50)
     role: str = "member"
     gender: Optional[str] = None
     date_of_birth: Optional[date] = None
     group_id: Optional[str] = None
+    custom_field: Optional[str] = None
+    custom_field: Optional[str] = None
 
 class MemberCreate(MemberBase):
     password: Optional[str] = Field(None, min_length=8)
@@ -27,9 +29,12 @@ class MemberUpdate(BaseModel):
     role: Optional[str] = None
     gender: Optional[str] = None
     age_category: Optional[str] = None
+    custom_field: Optional[str] = None
     date_of_birth: Optional[date] = None
     is_active: Optional[bool] = None
     group_id: Optional[str] = None
+    custom_field: Optional[str] = None
+    custom_field: Optional[str] = None
 
 class MemberResponse(MemberBase):
     id: str
@@ -46,6 +51,8 @@ class MemberResponse(MemberBase):
 
 class MemberUpdateWithGroup(MemberUpdate):
     group_id: Optional[str] = None
+    custom_field: Optional[str] = None
+    custom_field: Optional[str] = None
 
 class MemberUpdate(BaseModel):
     first_name: Optional[str] = Field(None, min_length=2, max_length=100)
@@ -57,6 +64,9 @@ class MemberUpdate(BaseModel):
     role: Optional[str] = None
     gender: Optional[str] = None
     age_category: Optional[str] = None
+    custom_field: Optional[str] = None
     date_of_birth: Optional[date] = None
     is_active: Optional[bool] = None
-    group_id: Optional[str] = None  # Add this line
+    group_id: Optional[str] = None
+    custom_field: Optional[str] = None
+    custom_field: Optional[str] = None  # Add this line

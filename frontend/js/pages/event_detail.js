@@ -193,7 +193,8 @@ function renderAttendees() {
                                 <th>Type</th>
                                 <th>Gender</th>
                                 <th>Age</th>
-                                <th>Phone</th>
+                                <th id="eventCustomFieldHeader" style="display:none;">Custom Field</th>
+                <th>Phone</th>
                                 <th>Status</th>
                                 <th style="text-align:center;">Check In</th>
                             </tr>
@@ -222,6 +223,7 @@ function renderAttendees() {
                 <td>${typeDisplay}</td>
                 <td>${genderDisplay}</td>
                 <td>${ageDisplay}</td>
+                <td class="event-custom-field-cell" style="display:none;">${m.custom_field || "-"}</td>
                 <td>${phoneDisplay}</td>
                 <td><span style="color:${statusColor};">${statusText}</span></td>
                 <td style="text-align:center;">
@@ -275,6 +277,8 @@ function renderPayments() {
                                 <th>Name</th>
                                 <th>Phone</th>
                                 <th>Type</th>
+                                <th id="paymentAgeHeader">Age Category</th>
+                                <th id="paymentCustomFieldHeader" style="display:none;">Church/Custom Field</th>
                                 <th>Amount</th>
                                 <th>Method</th>
                                 <th>Date</th>
@@ -291,6 +295,8 @@ function renderPayments() {
                 <td><strong>${c.member_name || 'Anonymous'}</strong></td>
                 <td>${c.member_phone || c.phone || '-'}</td>
                 <td>${c.contribution_type || 'Money'}</td>
+                <td>${c.member_age_category || '-'}</td>
+                <td class="payment-custom-field-cell">${c.member_custom_field || '-'}</td>
                 <td>KES ${c.amount || 0}</td>
                 <td>${c.payment_method || 'Cash'}</td>
                 <td>${dateStr}</td>
@@ -311,6 +317,26 @@ function renderPayments() {
 
 // ===== REPORT TAB =====
 function renderReport() {
+    // Load settings for custom field visibility
+    var showCustomField = false;
+    var showAge = false;
+    try {
+        const settingsData = JSON.parse(localStorage.getItem('orgSettings') || '{}');
+        showCustomField = settingsData.custom_field_enabled || false;
+        showAge = settingsData.age_enabled || false;
+    } catch(e) {}
+    
+    // Also fetch from API to be sure
+    fetch('/api/v1/settings/', {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    })
+    .then(r => r.json())
+    .then(settings => {
+        showCustomField = settings.custom_field_enabled || false;
+        showAge = settings.age_enabled || false;
+        localStorage.setItem('orgSettings', JSON.stringify(settings));
+    })
+    .catch(() => {});
     var totalCollected = eventContributions.reduce(function(sum, c) { return sum + (c.amount || 0); }, 0);
     var checkedIn = eventMembers.filter(function(m) { return m.attended; }).length;
     
@@ -318,13 +344,27 @@ function renderReport() {
     for (var i = 0; i < eventMembers.length; i++) {
         var m = eventMembers[i];
         var visitorTag = m.is_visitor ? ' (Visitor)' : '';
-        attendeesList += `<li>${m.member_name || 'Unknown'} - ${m.attended ? 'Checked In' : 'Not Checked In'}${visitorTag}</li>`;
+        attendeesList += `<li>${m.member_name || 'Unknown'} - ${m.attended ? 'Checked In' : 'Not Checked In'}${visitorTag}`;
+        if (showAge) {
+            attendeesList += ` - Age: ${m.member_age_category || '-'}`;
+        }
+        if (showCustomField) {
+            attendeesList += ` - Church: ${m.custom_field || '-'}`;
+        }
+        attendeesList += `</li>`;
     }
     
     var contributionsList = '';
     for (var i = 0; i < eventContributions.length; i++) {
         var c = eventContributions[i];
-        contributionsList += `<li>${c.member_name || 'Anonymous'} - KES ${c.amount || 0}</li>`;
+        contributionsList += `<li>${c.member_name || 'Anonymous'}`;
+        if (showAge) {
+            contributionsList += ` - Age: ${c.member_age_category || '-'}`;
+        }
+        if (showCustomField) {
+            contributionsList += ` - Church: ${c.member_custom_field || '-'}`;
+        }
+        contributionsList += ` - KES ${c.amount || 0}</li>`;
     }
     
     return `
@@ -364,6 +404,26 @@ window.switchTab = function(tab) {
     if (tab === 'overview') content.innerHTML = renderOverview();
     else if (tab === 'attendees') {
         content.innerHTML = renderAttendees();
+        // Show/hide custom field based on settings
+        setTimeout(function() {
+            fetch('/api/v1/settings/', {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            })
+            .then(r => r.json())
+            .then(settings => {
+                const showCustomField = settings.custom_field_enabled;
+                const customHeader = document.getElementById('eventCustomFieldHeader');
+                const customCells = document.querySelectorAll('.event-custom-field-cell');
+                if (customHeader) {
+                    customHeader.textContent = settings.custom_field_label || 'Custom Field';
+                    customHeader.style.display = showCustomField ? '' : 'none';
+                }
+                customCells.forEach(cell => {
+                    cell.style.display = showCustomField ? '' : 'none';
+                });
+            })
+            .catch(() => {});
+        }, 100);
         // Add search listener for attendees
         var searchInput = document.getElementById('attendeeSearch');
         if (searchInput) {
@@ -373,6 +433,31 @@ window.switchTab = function(tab) {
         }
     } else if (tab === 'payments') {
         content.innerHTML = renderPayments();
+        // Show/hide custom field in payments based on settings
+        setTimeout(function() {
+            fetch('/api/v1/settings/', {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            })
+            .then(r => r.json())
+            .then(settings => {
+                const showCustomField = settings.custom_field_enabled;
+                const customHeader = document.getElementById('paymentCustomFieldHeader');
+                const customCells = document.querySelectorAll('.payment-custom-field-cell');
+                if (customHeader) {
+                    customHeader.textContent = settings.custom_field_label || 'Custom Field';
+                    customHeader.style.display = showCustomField ? '' : 'none';
+                }
+                customCells.forEach(cell => {
+                    cell.style.display = showCustomField ? '' : 'none';
+                });
+                // Age category always shows if age_enabled
+                const ageHeader = document.getElementById('paymentAgeHeader');
+                if (ageHeader) {
+                    ageHeader.style.display = settings.age_enabled ? '' : 'none';
+                }
+            })
+            .catch(() => {});
+        }, 100);
         // Add search listener for payments
         var searchInput = document.getElementById('paymentSearch');
         if (searchInput) {
@@ -607,6 +692,24 @@ window.recordPayment = function() {
                 placeholder: 'Search for a member...'
             },
             {
+                id: 'age_category',
+                label: 'Age Category',
+                type: 'text',
+                value: '',
+                required: false,
+                disabled: true,
+                helper: 'Auto-filled from member profile'
+            },
+            {
+                id: 'custom_field',
+                label: 'Church/Custom Field',
+                type: 'text',
+                value: '',
+                required: false,
+                disabled: true,
+                helper: 'Auto-filled from member profile'
+            },
+            {
                 id: 'amount',
                 label: 'Amount (KES)',
                 type: 'number',
@@ -629,6 +732,39 @@ window.recordPayment = function() {
         onShow: function() {
             setTimeout(function() {
                 var select = document.getElementById('member_id');
+                if (select) {
+                    var container = select.parentElement;
+                    var options = memberOptions;
+                    var searchable = createSearchableSelect(options, '', 'Search for a member...');
+                    if (container) {
+                        container.style.overflow = 'visible';
+                        container.replaceChild(searchable, select);
+                    }
+                }
+                // Auto-fill age and custom field when member is selected
+                // Use mutation observer or event delegation for searchable select
+                var memberContainer = document.querySelector('.searchable-select-container');
+                if (memberContainer) {
+                    // Listen for changes on the hidden input
+                    var hiddenInput = memberContainer.querySelector('.searchable-select-hidden');
+                    if (hiddenInput) {
+                        hiddenInput.addEventListener('change', function() {
+                            var selectedId = this.value;
+                            var selectedMember = eventMembers.find(function(m) {
+                                return (m.member_id === selectedId || m.id === selectedId || m.record_id === selectedId);
+                            });
+                            var ageField = document.getElementById('age_category');
+                            var customField = document.getElementById('custom_field');
+                            if (selectedMember) {
+                                if (ageField) ageField.value = selectedMember.member_age_category || '';
+                                if (customField) customField.value = selectedMember.custom_field || '';
+                            } else {
+                                if (ageField) ageField.value = '';
+                                if (customField) customField.value = '';
+                            }
+                        });
+                    }
+                }
                 if (select) {
                     var container = select.parentElement;
                     var options = memberOptions;

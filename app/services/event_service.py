@@ -89,7 +89,8 @@ class EventService:
                     "is_visitor": True,
                     "member_gender": a.member_gender,
                     "member_age_category": a.member_age_category,
-                    "phone": a.member_phone or "-"
+                    "phone": a.member_phone or "-",
+                    "custom_field": "-"
                 })
             else:
                 member = db.query(Member).filter(Member.id == a.member_id).first()
@@ -104,7 +105,8 @@ class EventService:
                         "is_visitor": False,
                         "member_gender": member.gender,
                         "member_age_category": member.age_category,
-                        "phone": member.phone or '-'
+                        "phone": member.phone or '-',
+                    "custom_field": member.custom_field or "-"
                     })
         
         contributions = db.query(EventContribution).filter(
@@ -123,7 +125,9 @@ class EventService:
                 "payment_date": c.payment_date.strftime('%Y-%m-%d') if hasattr(c, 'payment_date') and c.payment_date else None,
                 "payment_method": c.payment_method if hasattr(c, 'payment_method') else None,
                 "created_at": c.created_at.isoformat() if c.created_at else None,
-                "member_phone": member.phone if member else c.member_phone if hasattr(c, "member_phone") and c.member_phone else None
+                "member_phone": member.phone if member else c.member_phone if hasattr(c, "member_phone") and c.member_phone else None,
+                "member_age_category": member.age_category if member else None,
+                "member_custom_field": member.custom_field if member else None
             }
             if member:
                 contrib_data["member_name"] = member.full_name

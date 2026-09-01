@@ -158,6 +158,7 @@ export async function renderReports() {
         window.exportMeetingPDF = exportMeetingPDF;
         window.exportProjectPDF = exportProjectPDF;
         window.exportEventPDF = exportEventPDF;
+        
         window.exportContributionPDF = exportContributionPDF;
         // // window.exportAnnouncementPDF = exportAnnouncementPDF;
         window.exportSummaryPDF = exportSummaryPDF;
@@ -317,6 +318,11 @@ async function viewProjectReport() {
 }
 
 async function viewEventReport() {
+    // Get the selected event ID from the report
+    const eventSelect = document.getElementById('eventSelect');
+    if (eventSelect) {
+        currentEventId = eventSelect.value;
+    }
     try {
         const data = await getEvents();
         const total = data.length;

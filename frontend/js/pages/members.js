@@ -10,6 +10,42 @@ import { showModal, showConfirm, showFormModal, closeModal } from '../components
 let membersData = [];
 let groupsData = [];
 let currentPage = 1;
+
+
+let orgSettings = null;
+
+async function loadSettings() {
+    if (orgSettings) return orgSettings;
+    try {
+        const response = await fetch('/api/v1/settings/', {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        });
+        if (response.ok) {
+            orgSettings = await response.json();
+            return orgSettings;
+        }
+    } catch (error) {
+        console.error('Failed to load settings:', error);
+    }
+    orgSettings = {
+        organization_name: '',
+        member_label: 'Member',
+        custom_field_enabled: false,
+        custom_field_label: '',
+        custom_field_options: [],
+        age_enabled: false,
+        age_required: false,
+        group_label: settings.group_label || 'Group',
+        prefill_age_categories: true,
+        age_categories: [],
+        amount_format: 'whole',
+        payment_autofill: true
+    };
+    return orgSettings;
+}
+
 let pageSize = 20;
 let totalMembers = 0;
 let searchQuery = '';
@@ -18,6 +54,42 @@ let groupFilter = '';
 let currentMemberId = null;
 
 export async function renderMembers() {
+    const settings = await loadSettings();
+    window._settings = settings;
+    const memberLabel = settings.member_label || 'Members';
+    var titleEl = document.getElementById('membersTitle');
+    if (titleEl) titleEl.textContent = memberLabel;
+    var btnEl = document.getElementById('addMemberBtn');
+    if (btnEl) btnEl.textContent = 'Add ' + memberLabel.slice(0, -1);
+    
+    // Show/hide custom field column based on settings
+    var customHeader = document.getElementById('customFieldHeader');
+    console.log('settings.custom_field_label:', settings.custom_field_label);
+    console.log('customHeader:', customHeader);
+    if (customHeader) {
+        customHeader.style.display = window._settings && window._settings.custom_field_enabled ? "" : "none";
+        if (customHeader) {
+        customHeader.style.display = window._settings && window._settings.custom_field_enabled ? "" : "none";
+        customHeader.textContent = settings.custom_field_label || 'Custom Field';
+    }
+    }
+    if (customHeader) {
+        customHeader.style.display = window._settings && window._settings.custom_field_enabled ? "" : "none";
+        if (settings.custom_field_enabled) {
+            if (customHeader) {
+        customHeader.style.display = window._settings && window._settings.custom_field_enabled ? "" : "none";
+        customHeader.textContent = settings.custom_field_label || 'Custom Field';
+    }
+            customHeader.style.display = '';
+        } else {
+            customHeader.style.display = 'none';
+        }
+    }
+    
+
+    if (titleEl) titleEl.textContent = memberLabel;
+    var btnEl = document.getElementById('addMemberBtn');
+    if (btnEl) btnEl.textContent = 'Add ' + memberLabel.slice(0, -1);
     const content = document.getElementById('pageContent');
     
     try {
@@ -28,8 +100,8 @@ export async function renderMembers() {
     
     content.innerHTML = `
         <div class="page-header">
-            <h2>Members</h2>
-            <button class="btn btn-primary" id="addMemberBtn">Add Member</button>
+            <h2 id="membersTitle">${settings.member_label || "Members"}</h2>
+            <button class="btn btn-primary" id="addMemberBtn">Add ${settings.member_label || "Member"}</button>
         </div>
         
         <div class="filter-bar">
@@ -160,9 +232,10 @@ function renderMembersTable() {
     
     let html = `<div class="card"><div class="table-responsive"><table class="table"><thead><tr>
         <th>ID</th>
-        <th>Name</th>
-        <th>Phone</th>
+        <th id="memberNameHeader">Name</th>
+        <th id="memberPhoneHeader">Phone</th>
         <th>Role</th>
+                            <th id="customFieldHeader" style="display:none;">Custom Field</th>
         <th>Gender</th>
         <th>Age</th>
         <th>Group</th>
@@ -182,6 +255,7 @@ function renderMembersTable() {
             <td><strong>${fullName}</strong></td>
             <td>${member.phone || '-'}</td>
             <td><span class="badge badge-primary">${member.role === 'other' ? (member.custom_role || 'Other') : (member.role || 'member')}</span></td>
+            <td class="custom-field-cell">${member.custom_field || '-'}</td>
             <td>${member.gender || '-'}</td>
             <td>${member.age_category || '-'}</td>
             <td><span class="badge badge-${groupName !== 'Unassigned' ? 'info' : 'gray'}">${groupName}</span></td>
@@ -195,6 +269,34 @@ function renderMembersTable() {
     
     html += `</tbody></table></div></div>`;
     container.innerHTML = html;
+    
+    // Hide/show custom field cells after table is rendered
+    var customCells = document.querySelectorAll('.custom-field-cell');
+    customCells.forEach(function(cell) {
+        cell.style.display = (window._settings && window._settings.custom_field_enabled) ? '' : 'none';
+    });
+    
+    // Hide/show custom field header
+    var customHeader = document.getElementById('customFieldHeader');
+    if (customHeader) {
+        customHeader.style.display = (window._settings && window._settings.custom_field_enabled) ? '' : 'none';
+    }
+    
+    // Update custom field header after table is rendered
+    var customHeader = document.getElementById('customFieldHeader');
+    if (customHeader) {
+        customHeader.style.display = window._settings && window._settings.custom_field_enabled ? "" : "none";
+        // Use the settings from the outer scope
+        var label = window._settings ? window._settings.custom_field_label : 'Custom Field';
+        customHeader.textContent = label || 'Custom Field';
+        if (window._settings && window._settings.custom_field_enabled) {
+            customHeader.style.display = '';
+        } else {
+            customHeader.style.display = 'none';
+        }
+    }
+    
+
     
     container.querySelectorAll('.edit-member').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -240,7 +342,8 @@ function renderPagination() {
     });
 }
 
-function openMemberModal(member = null) {
+async function openMemberModal(member = null) {
+    const settings = await loadSettings();
     const isEdit = !!member;
     currentMemberId = member?.id || null;
     
@@ -262,7 +365,7 @@ function openMemberModal(member = null) {
         label: 'Member ID',
         type: 'text',
         value: member?.member_number || suggestedNumber,
-        required: !isEdit,
+        required: false,
         disabled: isEdit,
         placeholder: 'e.g., M0001',
         helper: isEdit ? 'Member ID cannot be changed' : ''
@@ -291,7 +394,7 @@ function openMemberModal(member = null) {
         label: 'Phone Number',
         type: 'tel',
         value: member?.phone || '',
-        required: !isEdit,
+        required: false,
         placeholder: '0712345678',
         helper: 'Format: 0712345678 (10 digits)'
     });
@@ -310,21 +413,51 @@ function openMemberModal(member = null) {
         ]
     });
     
-    fields.push({
-        id: 'mfAgeCategory',
-        label: 'Age Category',
-        type: 'select',
-        value: member?.age_category || '',
-        required: false,
-        options: [
-            { value: '', label: 'Select age category...' },
-            { value: 'child', label: 'Child (0-12)' },
-            { value: 'teen', label: 'Teen (13-17)' },
-            { value: 'adult', label: 'Adult (18-59)' },
-            { value: 'elder', label: 'Elder (60+)' }
-        ]
-    });
+    // Age category from settings
+    if (settings && settings.age_enabled) {
+        var ageOptions = [{ value: '', label: 'Select age category...' }];
+        if (settings.age_categories && settings.age_categories.length > 0) {
+            settings.age_categories.forEach(function(cat) {
+                var label = cat.name + ' (' + cat.min + '-' + (cat.max || '+') + ')';
+                ageOptions.push({ value: cat.name.toLowerCase(), label: label });
+            });
+        } else {
+            ageOptions.push(
+                { value: 'child', label: 'Child (0-12)' },
+                { value: 'teen', label: 'Teen (13-17)' },
+                { value: 'adult', label: 'Adult (18-59)' },
+                { value: 'elder', label: 'Elder (60+)' }
+            );
+        }
+        fields.push({
+            id: 'mfAgeCategory',
+            label: 'Age Category',
+            type: 'select',
+            value: member?.age_category || '',
+            required: settings.age_required || false,
+            options: ageOptions
+        });
+    }
     
+    
+    // Custom field (if enabled in settings)
+    if (settings.custom_field_enabled) {
+        var customOptions = [{ value: '', label: 'Select ' + (settings.custom_field_label || 'option') + '...' }];
+        if (settings.custom_field_options && settings.custom_field_options.length > 0) {
+            settings.custom_field_options.forEach(function(opt) {
+                customOptions.push({ value: opt, label: opt });
+            });
+        }
+        fields.push({
+            id: 'mfCustomField',
+            label: settings.custom_field_label || 'Custom Field',
+            type: 'select',
+            value: member?.custom_field || '',
+            required: false,
+            options: customOptions
+        });
+    }
+
     fields.push({
         id: 'mfEmail',
         label: 'Email',
@@ -369,7 +502,7 @@ function openMemberModal(member = null) {
     
     fields.push({
         id: 'mfGroup',
-        label: 'Group',
+        label: settings.group_label || 'Group',
         type: 'select',
         value: member?.group_id || '',
         required: false,
@@ -398,7 +531,7 @@ function openMemberModal(member = null) {
             try {
                 const phone = data.mfPhone || '';
                 
-                if (!isEdit || phone.length > 0) {
+                if (phone && phone.trim() !== '') {
                     if (!phone || !phone.match(/^0[17]\d{8}$/)) {
                         showError('Phone must be 10 digits starting with 0 (e.g., 0712345678)');
                         return;
@@ -421,6 +554,7 @@ function openMemberModal(member = null) {
                 formattedData.is_active = data.mfStatus === 'true';
                 formattedData.gender = data.mfGender || null;
                 formattedData.age_category = data.mfAgeCategory || null;
+                formattedData.custom_field = data.mfCustomField || null;
                 
                 if (!isEdit && data.mfMemberNumber && data.mfMemberNumber.trim() !== '') {
                     formattedData.member_number = data.mfMemberNumber.trim();

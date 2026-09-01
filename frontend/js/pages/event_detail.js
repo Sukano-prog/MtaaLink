@@ -277,7 +277,7 @@ function renderPayments() {
                                 <th>Name</th>
                                 <th>Phone</th>
                                 <th>Type</th>
-                                <th id="paymentAgeHeader">Age Category</th>
+                                <th id="paymentAgeHeader" style="display:none;">Age Category</th>
                                 <th id="paymentCustomFieldHeader" style="display:none;">Church/Custom Field</th>
                                 <th>Amount</th>
                                 <th>Method</th>
@@ -295,7 +295,7 @@ function renderPayments() {
                 <td><strong>${c.member_name || 'Anonymous'}</strong></td>
                 <td>${c.member_phone || c.phone || '-'}</td>
                 <td>${c.contribution_type || 'Money'}</td>
-                <td>${c.member_age_category || '-'}</td>
+                <td class="payment-age-cell">${c.member_age_category || '-'}</td>
                 <td class="payment-custom-field-cell">${c.member_custom_field || '-'}</td>
                 <td>KES ${c.amount || 0}</td>
                 <td>${c.payment_method || 'Cash'}</td>
@@ -452,9 +452,13 @@ window.switchTab = function(tab) {
                 });
                 // Age category always shows if age_enabled
                 const ageHeader = document.getElementById('paymentAgeHeader');
+                const ageCells = document.querySelectorAll('.payment-age-cell');
                 if (ageHeader) {
                     ageHeader.style.display = settings.age_enabled ? '' : 'none';
                 }
+                ageCells.forEach(cell => {
+                    cell.style.display = settings.age_enabled ? '' : 'none';
+                });
             })
             .catch(() => {});
         }, 100);

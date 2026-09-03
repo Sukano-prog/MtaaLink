@@ -90,7 +90,7 @@ export async function navigateTo(page) {
                 content.innerHTML = `
                     <div class="card"><div class="card-body">
                         <p style="color:var(--danger);">Error: ${error.message}</p>
-                        <button class="btn btn-primary" onclick="navigateTo('${page}')">Retry</button>
+                        <button class="btn btn-primary" onclick="location.reload()">Retry</button>
                     </div></div>
                 `;
             }

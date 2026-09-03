@@ -59,7 +59,7 @@ async function loadGroups() {
         container.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load groups: ${error.message}</p>
-                <button class="btn btn-primary" onclick="if(navigator.onLine){{loadGroups()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine && typeof loadGroups === 'function'){{loadGroups()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }

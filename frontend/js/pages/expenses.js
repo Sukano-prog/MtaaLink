@@ -123,7 +123,7 @@ export async function renderExpenses() {
         content.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load expenses: ${error.message}</p>
-                <button class="btn btn-primary" onclick="renderExpenses()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{renderExpenses()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }
@@ -155,7 +155,7 @@ async function loadExpenses() {
         container.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load expenses: ${error.message}</p>
-                <button class="btn btn-primary" onclick="loadExpenses()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{loadExpenses()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }

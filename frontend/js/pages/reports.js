@@ -169,7 +169,7 @@ export async function renderReports() {
         content.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load reports: ${error.message}</p>
-                <button class="btn btn-primary" onclick="renderReports()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{renderReports()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }

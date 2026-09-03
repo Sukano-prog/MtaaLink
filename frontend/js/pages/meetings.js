@@ -78,7 +78,7 @@ async function loadMeetings() {
                 <div class="card-body">
                     <div class="empty-state">
                         <p style="color:var(--danger);">Failed to load meetings: ${error.message}</p>
-                        <button class="btn btn-primary" onclick="loadMeetings()">Retry</button>
+                        <button class="btn btn-primary" onclick="if(navigator.onLine){{loadMeetings()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
                     </div>
                 </div>
             </div>

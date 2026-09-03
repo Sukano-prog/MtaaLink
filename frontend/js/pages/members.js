@@ -205,7 +205,7 @@ async function loadMembers() {
         container.innerHTML = `
             <div class="empty-state">
                 <p style="color:var(--danger);">Failed to load members: ${error.message}</p>
-                <button class="btn btn-primary" onclick="loadMembers()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{loadMembers()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div>
         `;
     }

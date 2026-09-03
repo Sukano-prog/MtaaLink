@@ -98,7 +98,7 @@ export async function renderEvents() {
         content.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load events: ${error.message}</p>
-                <button class="btn btn-primary" onclick="renderEvents()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{renderEvents()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }
@@ -115,7 +115,7 @@ async function loadEvents() {
         document.getElementById('eventsContainer').innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load events: ${error.message}</p>
-                <button class="btn btn-primary" onclick="loadEvents()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{loadEvents()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }

@@ -126,7 +126,7 @@ export async function renderContributions() {
                 <div class="card-body">
                     <div class="empty-state">
                         <p style="color:var(--danger);">Failed to load contributions: ${error.message}</p>
-                        <button class="btn btn-primary" onclick="renderContributions()">Retry</button>
+                        <button class="btn btn-primary" onclick="if(navigator.onLine){{renderContributions()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
                     </div>
                 </div>
             </div>
@@ -195,7 +195,7 @@ async function loadContributions() {
         container.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load contributions: ${error.message}</p>
-                <button class="btn btn-primary" onclick="loadContributions()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{loadContributions()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }

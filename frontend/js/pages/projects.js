@@ -56,7 +56,7 @@ export async function renderProjects() {
         content.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load projects: ${error.message}</p>
-                <button class="btn btn-primary" onclick="renderProjects()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{renderProjects()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }
@@ -71,7 +71,7 @@ async function loadProjects() {
         document.getElementById('projectsContainer').innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load projects: ${error.message}</p>
-                <button class="btn btn-primary" onclick="loadProjects()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{loadProjects()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }

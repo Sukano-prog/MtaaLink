@@ -51,7 +51,7 @@ async function loadAnnouncements() {
         container.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load announcements: ${error.message}</p>
-                <button class="btn btn-primary" onclick="loadAnnouncements()">Retry</button>
+                <button class="btn btn-primary" onclick="if(navigator.onLine){{loadAnnouncements()}}else{{showToast('You are still offline. Please connect to the internet.', 'warning')}}">Retry</button>
             </div></div>
         `;
     }

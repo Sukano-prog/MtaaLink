@@ -87,6 +87,13 @@ self.addEventListener('fetch', function(event) {
     if (event.request.url.includes("/api/")) {
       return fetch(event.request);
     }
+    // Don't try to fetch API calls offline
+    if (event.request.url.includes('/api/')) {
+        return new Response(JSON.stringify({ error: 'You are offline. Please connect to the internet and try again.' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
     event.respondWith(
       fetch(request).then(function(response) {
         return caches.open(CACHE_NAME).then(function(cache) {
@@ -105,6 +112,13 @@ self.addEventListener('fetch', function(event) {
   // Skip caching API requests
     if (event.request.url.includes("/api/")) {
       return fetch(event.request);
+    }
+    // Don't try to fetch API calls offline
+    if (event.request.url.includes('/api/')) {
+        return new Response(JSON.stringify({ error: 'You are offline. Please connect to the internet and try again.' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
     event.respondWith(
     caches.match(request).then(function(response) {
@@ -139,6 +153,13 @@ self.addEventListener('fetch', function(event) {
     // Skip caching API requests
     if (event.request.url.includes("/api/")) {
       return fetch(event.request);
+    }
+    // Don't try to fetch API calls offline
+    if (event.request.url.includes('/api/')) {
+        return new Response(JSON.stringify({ error: 'You are offline. Please connect to the internet and try again.' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+        });
     }
     event.respondWith(
       caches.match(request).then(function(cachedResponse) {
@@ -194,7 +215,14 @@ self.addEventListener("fetch", function(event) {
     return;
   }
   
-  event.respondWith(
+  // Don't try to fetch API calls offline
+    if (event.request.url.includes('/api/')) {
+        return new Response(JSON.stringify({ error: 'You are offline. Please connect to the internet and try again.' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+    event.respondWith(
     caches.match(event.request)
       .then(function(response) {
         if (response) {

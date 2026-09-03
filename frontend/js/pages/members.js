@@ -610,6 +610,10 @@ async function deleteMemberHandler(member) {
                     loadMembers();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to delete member');
                 });
         }

@@ -256,6 +256,10 @@ function viewEventDetail(event) {
     import("./event_detail.js").then(function(module) {
         module.renderEventDetail(event.id);
     }).catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
         showError("Failed to load event detail");
     });
 }
@@ -306,6 +310,10 @@ function manageAttendanceModal(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to record attendance');
                 });
         }
@@ -384,6 +392,10 @@ function manageContributionsModal(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to record contribution');
                 });
         }
@@ -531,6 +543,10 @@ async function deleteEventHandler(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to delete event');
                 });
         }

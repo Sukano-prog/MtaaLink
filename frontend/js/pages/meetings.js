@@ -235,6 +235,10 @@ window.openMeetingDetail = function(meetingId) {
     import('./meeting_detail.js').then(function(module) {
         module.renderMeetingDetail(meetingId);
     }).catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
         showError('Failed to load meeting detail');
     });
 };
@@ -395,6 +399,10 @@ async function startMeetingAction(meetingId) {
                     loadMeetings();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to start meeting');
                 });
         }
@@ -438,6 +446,10 @@ async function completeMeetingAction(meetingId) {
                             loadMeetings();
                         })
                         .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                             showError(error.message || 'Failed to complete meeting');
                         });
                 }
@@ -512,6 +524,10 @@ async function deleteMeetingHandler(meetingId) {
                     loadMeetings();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to delete meeting');
                 });
         }

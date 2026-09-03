@@ -260,6 +260,10 @@ function renderGroupDetailModalWithMembers(group, members) {
                                     getMembers().then(function(m) { membersData = m; });
                                 })
                                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                                     showError(error.message || 'Failed to remove member');
                                 });
                         }
@@ -394,6 +398,10 @@ function renderGroupDetailModalWithMembers(group, members) {
                             getMembers().then(function(m) { membersData = m; });
                         })
                         .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                             if (error.message && error.message.includes('UNIQUE constraint failed')) {
                                 showError('This member is already in the group');
                             } else {
@@ -489,6 +497,10 @@ async function deleteGroupHandler(group) {
                     loadGroups();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to delete group');
                 });
         }

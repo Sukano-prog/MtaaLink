@@ -448,6 +448,10 @@ function openContributionModal() {
                     loadContributions();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to record contribution');
                 });
         }
@@ -513,6 +517,10 @@ function openPaymentModal(contribution) {
                     loadContributions();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to record payment');
                 });
         }
@@ -536,6 +544,10 @@ function deleteContributionHandler(contribution) {
                     loadContributions();
                 })
                 .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                     showError(error.message || 'Failed to delete contribution');
                 });
         }
@@ -582,6 +594,10 @@ function openTypeModal() {
                 loadTypes();
             })
             .catch(function(error) {
+            if (error.message && error.message.includes("offline")) {
+                showToast("You are offline. Please connect to the internet and try again.", "warning");
+                return;
+            }
                 showError(error.message || 'Failed to add type');
             });
         }

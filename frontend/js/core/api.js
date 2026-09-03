@@ -21,6 +21,10 @@ function getHeaders() {
 }
 
 async function apiCall(endpoint, method = 'GET', data = null) {
+    if (!navigator.onLine) {
+        console.warn('Offline: API call blocked');
+        throw new Error('You are offline. Please connect to the internet and try again.');
+    }
     let url = API_BASE + endpoint;
     // Add cache-busting for GET requests
     if (method === 'GET') {

@@ -35,32 +35,32 @@ const STATIC_ASSETS = [
 ];
 
 self.addEventListener('install', function(event) {
-  console.log('[SW] Installing...');
+
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      console.log('[SW] Caching assets');
+
       return cache.addAll(STATIC_ASSETS).catch(function(err) {
         console.warn('[SW] Some assets failed to cache:', err);
       });
     }).then(function() {
-      console.log('[SW] Install complete');
+
       return self.skipWaiting();
     })
   );
 });
 
 self.addEventListener('activate', function(event) {
-  console.log('[SW] Activating...');
+
   event.waitUntil(
     caches.keys().then(function(keys) {
       return Promise.all(keys.map(function(key) {
         if (key !== CACHE_NAME) {
-          console.log('[SW] Deleting old cache:', key);
+
           return caches.delete(key);
         }
       }));
     }).then(function() {
-      console.log('[SW] Activate complete');
+
       return self.clients.claim();
     })
   );

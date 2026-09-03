@@ -9,12 +9,12 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 def send_verification_email(to_email: str, verification_link: str) -> bool:
-    print(f"📧 EMAIL SERVICE CALLED - to: {to_email}")
-    print(f"📧 EMAIL SERVICE CALLED - link: {verification_link}")
+
+
     api_key = os.environ.get('SENDGRID_API_KEY')
     from_email = os.environ.get('SENDGRID_FROM_EMAIL')
-    print(f"📧 API Key: {api_key[:20] if api_key else 'NOT SET'}...")
-    print(f"📧 From Email: {from_email if from_email else 'NOT SET'}")
+
+
     """Send verification email using SendGrid"""
     api_key = os.environ.get('SENDGRID_API_KEY')
     from_email = os.environ.get('SENDGRID_FROM_EMAIL')

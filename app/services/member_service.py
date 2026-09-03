@@ -104,7 +104,7 @@ class MemberService:
     
     @staticmethod
     def create_member(db: Session, village_id: str, data: dict, current_user_id: str) -> Dict:
-        print(f"🔍 MEMBER DATA: {data}")
+
         # Check phone uniqueness only if phone is provided and not empty
         phone = data.get('phone')
         if phone and phone.strip():

@@ -64,8 +64,8 @@ export async function renderMembers() {
     
     // Show/hide custom field column based on settings
     var customHeader = document.getElementById('customFieldHeader');
-    console.log('settings.custom_field_label:', settings.custom_field_label);
-    console.log('customHeader:', customHeader);
+
+
     if (customHeader) {
         customHeader.style.display = window._settings && window._settings.custom_field_enabled ? "" : "none";
         if (customHeader) {

@@ -4,6 +4,7 @@ MtaaLink - Event Detail Page
 import { getEvent, updateEvent, deleteEvent } from '../core/api.js';
 import { getMembers } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
+import { showOfflineAwareError } from '../components/offline.js';
 import { showConfirm, showModal, showFormModal } from '../components/modal.js';
 import { createSearchableSelect } from '../components/searchable_select.js';
 
@@ -620,7 +621,7 @@ window.addAttendee = function() {
                 
                 if (data.attendee_type === 'visitor') {
                     if (!data.visitor_name || data.visitor_name.trim() === '') {
-                        showError('Please enter visitor name');
+                        showOfflineAwareError('Please enter visitor name');
                         return;
                     }
                     var body = {
@@ -647,7 +648,7 @@ window.addAttendee = function() {
                     }, 300);
                 } else {
                     if (!memberId) {
-                        showError('Please select a member');
+                        showOfflineAwareError('Please select a member');
                         return;
                     }
                     var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + memberId, {
@@ -665,7 +666,7 @@ window.addAttendee = function() {
                     }, 300);
                 }
             } catch (error) {
-                showError(error.message || 'Failed to add attendee');
+                showOfflineAwareError(error.message || 'Failed to add attendee');
             }
         }
     });
@@ -680,7 +681,7 @@ window.recordPayment = function() {
     });
     
     if (memberOptions.length === 0) {
-        showError('No attendees to record payment for');
+        showOfflineAwareError('No attendees to record payment for');
         return;
     }
     
@@ -817,7 +818,7 @@ window.recordPayment = function() {
                 }
                 
                 // Log what we found
-                console.log('🔍 Payment - memberId:', memberId, 'visitorName:', visitorName, 'selectedLabel:', selectedLabel);
+
                 
                 // Determine if this is a visitor
                 var isVisitor = false;
@@ -891,14 +892,14 @@ window.recordPayment = function() {
                     if (foundPhone) {
                         requestBody.member_phone = foundPhone;
                     }
-                    console.log('✅ Sending visitor payment - Name:', visitorName);
-                    console.log('📦 Full requestBody:', JSON.stringify(requestBody));
+
+
                 } else if (memberId && memberId !== 'unknown' && memberId !== '') {
                     // Regular member: send member_id
                     requestBody.member_id = memberId;
-                    console.log('✅ Sending member payment - ID:', memberId);
+
                 } else {
-                    showError('Please select a valid member or enter a visitor name');
+                    showOfflineAwareError('Please select a valid member or enter a visitor name');
                     return;
                 }
                 
@@ -923,7 +924,7 @@ window.recordPayment = function() {
                     renderEventDetail(currentEvent.id, currentTab);
                 }, 500);
             } catch (error) {
-                showError(error.message || 'Failed to record payment');
+                showOfflineAwareError(error.message || 'Failed to record payment');
             }
         }
     });
@@ -941,7 +942,7 @@ window.toggleCheckIn = async function(memberId) {
             }
         }
         if (!attendee) {
-            showError('Attendee not found');
+            showOfflineAwareError('Attendee not found');
             return;
         }
         
@@ -961,7 +962,7 @@ window.toggleCheckIn = async function(memberId) {
             renderEventDetail(currentEvent.id, currentTab);
         }, 300);
     } catch (error) {
-        showError(error.message || 'Failed to update check-in');
+        showOfflineAwareError(error.message || 'Failed to update check-in');
     }
 };
 
@@ -970,7 +971,7 @@ window.editEvent = function() {
     import('./events.js').then(function(module) {
         module.openEventModal(currentEvent);
     }).catch(function() {
-        showError('Failed to load edit function');
+        showOfflineAwareError('Failed to load edit function');
     });
 };
 
@@ -987,7 +988,7 @@ window.deleteEvent = function() {
                 done();
                 navigateTo('events');
             } catch (error) {
-                showError(error.message || 'Failed to delete event');
+                showOfflineAwareError(error.message || 'Failed to delete event');
             }
         }
     });
@@ -1014,7 +1015,7 @@ window.exportPDF = function() {
         showSuccess('PDF downloaded');
     })
     .catch(function(error) {
-        showError('Failed to download PDF: ' + error.message);
+        showOfflineAwareError('Failed to download PDF: ' + error.message);
     });
 };
 

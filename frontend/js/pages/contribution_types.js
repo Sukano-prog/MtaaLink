@@ -61,7 +61,7 @@ async function loadTypes() {
         document.getElementById('typesContainer').innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load types: ${error.message}</p>
-                <button class="btn btn-primary" onclick="loadTypes()">Retry</button>
+                <button class="btn btn-primary" onclick="retryAction(\'loadTypes\')">Retry</button>
             </div></div>
         `;
     }

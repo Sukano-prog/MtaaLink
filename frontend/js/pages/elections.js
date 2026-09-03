@@ -79,7 +79,7 @@ export async function renderElections() {
         content.innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load elections: ${error.message}</p>
-                <button class="btn btn-primary" onclick="renderElections()">Retry</button>
+                <button class="btn btn-primary" onclick="retryAction(\'renderElections\')">Retry</button>
             </div></div>
         `;
     }
@@ -114,7 +114,7 @@ async function loadElections() {
         document.getElementById('electionsContainer').innerHTML = `
             <div class="card"><div class="card-body">
                 <p style="color:var(--danger);">Failed to load elections: ${error.message}</p>
-                <button class="btn btn-primary" onclick="loadElections()">Retry</button>
+                <button class="btn btn-primary" onclick="retryAction(\'loadElections\')">Retry</button>
             </div></div>
         `;
     }

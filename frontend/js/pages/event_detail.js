@@ -31,9 +31,9 @@ export async function renderEventDetail(id) {
                 <button class="btn btn-outline" onclick="navigateTo('events')">Back</button>
                 <h2>${currentEvent.title}</h2>
                 <div>
-                    <button class="btn btn-primary" onclick="editEvent()">Edit</button>
-                    <button class="btn btn-danger" onclick="deleteEvent()">Delete</button>
-                    <button class="btn btn-success" onclick="exportPDF()">Export PDF</button>
+                    <button class="btn btn-primary" onclick="retryAction(\'editEvent\')">Edit</button>
+                    <button class="btn btn-danger" onclick="retryAction(\'deleteEvent\')">Delete</button>
+                    <button class="btn btn-success" onclick="retryAction(\'exportPDF\')">Export PDF</button>
                 </div>
             </div>
             <div style="display:flex;gap:4px;border-bottom:2px solid var(--gray-200);margin-bottom:20px;overflow-x:auto;">
@@ -166,7 +166,7 @@ function renderAttendees() {
             <div class="card">
                 <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
                     <h3 style="margin:0;">Attendees</h3>
-                    <button class="btn btn-primary btn-sm" onclick="addAttendee()">+ Add</button>
+                    <button class="btn btn-primary btn-sm" onclick="retryAction(\'addAttendee\')">+ Add</button>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">No attendees yet.</p>
@@ -181,7 +181,7 @@ function renderAttendees() {
                 <h3 style="margin:0;">Attendees (${eventMembers.length})</h3>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <input type="text" id="attendeeSearch" class="form-control" placeholder="Search attendees..." style="width:200px;padding:4px 10px;font-size:13px;">
-                    <button class="btn btn-primary btn-sm" onclick="addAttendee()">+ Add</button>
+                    <button class="btn btn-primary btn-sm" onclick="retryAction(\'addAttendee\')">+ Add</button>
                 </div>
             </div>
             <div class="card-body" style="padding:0;">
@@ -251,7 +251,7 @@ function renderPayments() {
             <div class="card">
                 <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
                     <h3 style="margin:0;">Payments</h3>
-                    <button class="btn btn-primary btn-sm" onclick="recordPayment()">+ Record</button>
+                    <button class="btn btn-primary btn-sm" onclick="retryAction(\'recordPayment\')">+ Record</button>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">No payments recorded.</p>
@@ -266,7 +266,7 @@ function renderPayments() {
                 <h3 style="margin:0;">Payments (${eventContributions.length})</h3>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <input type="text" id="paymentSearch" class="form-control" placeholder="Search payments..." style="width:200px;padding:4px 10px;font-size:13px;">
-                    <button class="btn btn-primary btn-sm" onclick="recordPayment()">+ Record</button>
+                    <button class="btn btn-primary btn-sm" onclick="retryAction(\'recordPayment\')">+ Record</button>
                 </div>
             </div>
             <div class="card-body" style="padding:0;">
@@ -371,7 +371,7 @@ function renderReport() {
         <div class="card">
             <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
                 <h3 style="margin:0;">Event Report</h3>
-                <button class="btn btn-success btn-sm" onclick="exportPDF()">Export PDF</button>
+                <button class="btn btn-success btn-sm" onclick="retryAction(\'exportPDF\')">Export PDF</button>
             </div>
             <div class="card-body">
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">

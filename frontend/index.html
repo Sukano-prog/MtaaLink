@@ -4,6 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>MtaaLink</title>
+
+<style>
+    #connection-status {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 99999;
+        padding: 8px 16px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 500;
+        display: none;
+    }
+    #connection-status.offline {
+        display: block;
+        background: #f8d7da;
+        color: #721c24;
+    }
+    #connection-status.online {
+        display: block;
+        background: #d4edda;
+        color: #155724;
+    }
+</style>
+<div id="connection-status"></div>
+
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#1A73E8">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,6 +48,7 @@
 <body>
   <div id="app"></div>
   <div class="toast-container" id="toastContainer"></div>
+  <script src="/js/retry.js"></script>
   <script type="module">
     import { renderLogin } from './js/pages/login.js';
     import { renderRegister } from './js/pages/register.js';
@@ -86,5 +114,25 @@
             showToast('You are offline. Some features may not work.', 'warning');
         });
     </script>
+
+<script>
+    (function() {
+        const statusDiv = document.getElementById('connection-status');
+        function updateStatus() {
+            if (navigator.onLine) {
+                statusDiv.className = 'online';
+                statusDiv.textContent = 'Back online!';
+                setTimeout(() => { statusDiv.style.display = 'none'; }, 2000);
+            } else {
+                statusDiv.className = 'offline';
+                statusDiv.textContent = 'You are offline. Some features may not work.';
+            }
+        }
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        updateStatus();
+    })();
+</script>
+
 </body>
 </html>

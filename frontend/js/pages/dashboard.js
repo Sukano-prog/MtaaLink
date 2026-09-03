@@ -106,7 +106,7 @@ export async function renderDashboard() {
                     <div class="card-body">
                         <div class="empty-state">
                             <p style="color:var(--danger);">${error.message || 'Failed to load dashboard'}</p>
-                            <button class="btn btn-primary" onclick="renderDashboard()">Retry</button>
+                            <button class="btn btn-primary" onclick="retryAction(\'renderDashboard\')">Retry</button>
                         </div>
                     </div>
                 </div>

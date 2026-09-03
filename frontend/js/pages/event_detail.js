@@ -4,7 +4,6 @@ MtaaLink - Event Detail Page
 import { getEvent, updateEvent, deleteEvent } from '../core/api.js';
 import { getMembers } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
-import { showOfflineAwareError } from '../components/offline.js';
 import { showConfirm, showModal, showFormModal } from '../components/modal.js';
 import { createSearchableSelect } from '../components/searchable_select.js';
 
@@ -621,7 +620,7 @@ window.addAttendee = function() {
                 
                 if (data.attendee_type === 'visitor') {
                     if (!data.visitor_name || data.visitor_name.trim() === '') {
-                        showOfflineAwareError('Please enter visitor name');
+                        showError('Please enter visitor name');
                         return;
                     }
                     var body = {
@@ -648,7 +647,7 @@ window.addAttendee = function() {
                     }, 300);
                 } else {
                     if (!memberId) {
-                        showOfflineAwareError('Please select a member');
+                        showError('Please select a member');
                         return;
                     }
                     var response = await fetch('/api/v1/events/' + currentEvent.id + '/attendance/' + memberId, {
@@ -666,7 +665,7 @@ window.addAttendee = function() {
                     }, 300);
                 }
             } catch (error) {
-                showOfflineAwareError(error.message || 'Failed to add attendee');
+                showError(error.message || 'Failed to add attendee');
             }
         }
     });
@@ -681,7 +680,7 @@ window.recordPayment = function() {
     });
     
     if (memberOptions.length === 0) {
-        showOfflineAwareError('No attendees to record payment for');
+        showError('No attendees to record payment for');
         return;
     }
     
@@ -899,7 +898,7 @@ window.recordPayment = function() {
                     requestBody.member_id = memberId;
 
                 } else {
-                    showOfflineAwareError('Please select a valid member or enter a visitor name');
+                    showError('Please select a valid member or enter a visitor name');
                     return;
                 }
                 
@@ -924,7 +923,7 @@ window.recordPayment = function() {
                     renderEventDetail(currentEvent.id, currentTab);
                 }, 500);
             } catch (error) {
-                showOfflineAwareError(error.message || 'Failed to record payment');
+                showError(error.message || 'Failed to record payment');
             }
         }
     });
@@ -942,7 +941,7 @@ window.toggleCheckIn = async function(memberId) {
             }
         }
         if (!attendee) {
-            showOfflineAwareError('Attendee not found');
+            showError('Attendee not found');
             return;
         }
         
@@ -962,7 +961,7 @@ window.toggleCheckIn = async function(memberId) {
             renderEventDetail(currentEvent.id, currentTab);
         }, 300);
     } catch (error) {
-        showOfflineAwareError(error.message || 'Failed to update check-in');
+        showError(error.message || 'Failed to update check-in');
     }
 };
 
@@ -971,7 +970,7 @@ window.editEvent = function() {
     import('./events.js').then(function(module) {
         module.openEventModal(currentEvent);
     }).catch(function() {
-        showOfflineAwareError('Failed to load edit function');
+        showError('Failed to load edit function');
     });
 };
 
@@ -988,7 +987,7 @@ window.deleteEvent = function() {
                 done();
                 navigateTo('events');
             } catch (error) {
-                showOfflineAwareError(error.message || 'Failed to delete event');
+                showError(error.message || 'Failed to delete event');
             }
         }
     });
@@ -1015,7 +1014,7 @@ window.exportPDF = function() {
         showSuccess('PDF downloaded');
     })
     .catch(function(error) {
-        showOfflineAwareError('Failed to download PDF: ' + error.message);
+        showError('Failed to download PDF: ' + error.message);
     });
 };
 

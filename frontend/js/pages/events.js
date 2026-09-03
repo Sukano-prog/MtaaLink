@@ -4,7 +4,6 @@
 
 import { getEvents, getEvent, createEvent, updateEvent, deleteEvent, addEventAttendance, addEventContribution, getMembers } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
-import { showOfflineAwareError } from '../components/offline.js';
 import { Skeletons } from "../components/skeleton.js";
 import { showFormModal, showConfirm, showModal } from '../components/modal.js';
 
@@ -257,7 +256,7 @@ function viewEventDetail(event) {
     import("./event_detail.js").then(function(module) {
         module.renderEventDetail(event.id);
     }).catch(function(error) {
-        showOfflineAwareError("Failed to load event detail");
+        showError("Failed to load event detail");
     });
 }
 
@@ -296,7 +295,7 @@ function manageAttendanceModal(event) {
         ],
         onSubmit: function(data, done) {
             if (!data.member_id) {
-                showOfflineAwareError('Please select a member');
+                showError('Please select a member');
                 return;
             }
             
@@ -307,7 +306,7 @@ function manageAttendanceModal(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
-                    showOfflineAwareError(error.message || 'Failed to record attendance');
+                    showError(error.message || 'Failed to record attendance');
                 });
         }
     });
@@ -367,7 +366,7 @@ function manageContributionsModal(event) {
         ],
         onSubmit: function(data, done) {
             if (!data.contribution_type) {
-                showOfflineAwareError('Please select a contribution type');
+                showError('Please select a contribution type');
                 return;
             }
             
@@ -385,7 +384,7 @@ function manageContributionsModal(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
-                    showOfflineAwareError(error.message || 'Failed to record contribution');
+                    showError(error.message || 'Failed to record contribution');
                 });
         }
     });
@@ -481,7 +480,7 @@ function openEventModal(event = null) {
         submitLabel: isEdit ? 'Update' : 'Create',
         onSubmit: function(data, done) {
             if (!data.date) {
-                showOfflineAwareError('Please select a date');
+                showError('Please select a date');
                 return;
             }
             
@@ -514,7 +513,7 @@ async function saveEvent(data, isEdit, done) {
         done();
         await loadEvents();
     } catch (error) {
-        showOfflineAwareError(error.message || 'Failed to save event');
+        showError(error.message || 'Failed to save event');
     }
 }
 
@@ -532,7 +531,7 @@ async function deleteEventHandler(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
-                    showOfflineAwareError(error.message || 'Failed to delete event');
+                    showError(error.message || 'Failed to delete event');
                 });
         }
     });

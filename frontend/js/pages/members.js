@@ -532,7 +532,7 @@ async function openMemberModal(member = null) {
                 
                 if (phone && phone.trim() !== '') {
                     if (!phone || !phone.match(/^0[17]\d{8}$/)) {
-                        showOfflineAwareError('Phone must be 10 digits starting with 0 (e.g., 0712345678)');
+                        showError('Phone must be 10 digits starting with 0 (e.g., 0712345678)');
                         return;
                     }
                 }
@@ -571,7 +571,7 @@ async function openMemberModal(member = null) {
                 
                 saveMember(formattedData, isEdit, done);
             } catch (error) {
-                showOfflineAwareError(error.message || 'Failed to process form');
+                showError(error.message || 'Failed to process form');
             }
         }
     });
@@ -590,7 +590,7 @@ async function saveMember(data, isEdit, done) {
         done();
         await loadMembers();
     } catch (error) {
-        showOfflineAwareError(error.message || 'Failed to save member');
+        showError(error.message || 'Failed to save member');
     }
 }
 
@@ -610,7 +610,7 @@ async function deleteMemberHandler(member) {
                     loadMembers();
                 })
                 .catch(function(error) {
-                    showOfflineAwareError(error.message || 'Failed to delete member');
+                    showError(error.message || 'Failed to delete member');
                 });
         }
     });

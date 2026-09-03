@@ -3,7 +3,7 @@
    ============================================================ */
 
 import { login } from '../core/api.js';
-import { showToast, showError } from '../components/toast.js';
+import { showToast, showError, showSuccess } from '../components/toast.js';
 
 let isLoading = false;
 

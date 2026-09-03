@@ -3,7 +3,7 @@
    ============================================================ */
 
 import { getMembers, getMeetings, getGroups, getContributions, getCurrentUser, getAnnouncements } from '../core/api.js';
-import { showToast, showError } from '../components/toast.js';
+import { showToast, showError, showSuccess } from '../components/toast.js';
 
 let dashboardData = {
     members: [],

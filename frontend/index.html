@@ -37,8 +37,11 @@
     window.navigateTo = navigateTo;
     window.showToast = showToast;
     window.showError = showError;
-    window.handleApiError = handleApiError;
     window.isOnline = function() { return navigator.onLine; };
+    window.handleApiError = function(error) { 
+        console.error(error); 
+        if (typeof showError === "function") showError(error.message || "An error occurred"); 
+    };
 
     registerServiceWorker();
 

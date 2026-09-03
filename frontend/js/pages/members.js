@@ -484,7 +484,7 @@ async function openMemberModal(member = null) {
             { value: 'youth_rep', label: 'Youth Representative' },
             { value: 'women_rep', label: 'Women Representative' },
             { value: 'elder_rep', label: 'Elder Representative' },
-            { value: 'community_elder', label: 'Community Elder' },
+            { value: 'community_elder', label: 'Elder' },
             { value: 'org_admin', label: 'Organization Administrator' },
             { value: 'clerk', label: 'Clerk' },
             { value: 'messenger', label: 'Messenger' },
@@ -532,7 +532,7 @@ async function openMemberModal(member = null) {
                 
                 if (phone && phone.trim() !== '') {
                     if (!phone || !phone.match(/^0[17]\d{8}$/)) {
-                        showError('Phone must be 10 digits starting with 0 (e.g., 0712345678)');
+                        showOfflineAwareError('Phone must be 10 digits starting with 0 (e.g., 0712345678)');
                         return;
                     }
                 }
@@ -571,7 +571,7 @@ async function openMemberModal(member = null) {
                 
                 saveMember(formattedData, isEdit, done);
             } catch (error) {
-                showError(error.message || 'Failed to process form');
+                showOfflineAwareError(error.message || 'Failed to process form');
             }
         }
     });
@@ -590,7 +590,7 @@ async function saveMember(data, isEdit, done) {
         done();
         await loadMembers();
     } catch (error) {
-        showError(error.message || 'Failed to save member');
+        showOfflineAwareError(error.message || 'Failed to save member');
     }
 }
 
@@ -610,7 +610,7 @@ async function deleteMemberHandler(member) {
                     loadMembers();
                 })
                 .catch(function(error) {
-                    showError(error.message || 'Failed to delete member');
+                    showOfflineAwareError(error.message || 'Failed to delete member');
                 });
         }
     });

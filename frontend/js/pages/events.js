@@ -4,6 +4,7 @@
 
 import { getEvents, getEvent, createEvent, updateEvent, deleteEvent, addEventAttendance, addEventContribution, getMembers } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
+import { showOfflineAwareError } from '../components/offline.js';
 import { Skeletons } from "../components/skeleton.js";
 import { showFormModal, showConfirm, showModal } from '../components/modal.js';
 
@@ -16,7 +17,7 @@ const EVENT_TYPES = [
     { value: 'funeral', label: 'Funeral' },
     { value: 'wedding', label: 'Wedding' },
     { value: 'harambee', label: 'Harambee' },
-    { value: 'community_work', label: 'Community Work' },
+    { value: 'community_work', label: 'Work' },
     { value: 'church', label: 'Church Event' },
     { value: 'celebration', label: 'Celebration' },
     { value: 'fundraiser', label: 'Fundraiser' },
@@ -27,7 +28,7 @@ const EVENT_TYPE_LABELS = {
     funeral: 'Funeral',
     wedding: 'Wedding',
     harambee: 'Harambee',
-    community_work: 'Community Work',
+    community_work: 'Work',
     church: 'Church',
     celebration: 'Celebration',
     fundraiser: 'Fundraiser',
@@ -42,7 +43,7 @@ export async function renderEvents() {
         
         content.innerHTML = `
             <div class="page-header">
-                <h2>Community Events</h2>
+                <h2>Events</h2>
                 <button class="btn btn-primary" id="addEventBtn">Create Event</button>
             </div>
             
@@ -256,7 +257,7 @@ function viewEventDetail(event) {
     import("./event_detail.js").then(function(module) {
         module.renderEventDetail(event.id);
     }).catch(function(error) {
-        showError("Failed to load event detail");
+        showOfflineAwareError("Failed to load event detail");
     });
 }
 
@@ -295,7 +296,7 @@ function manageAttendanceModal(event) {
         ],
         onSubmit: function(data, done) {
             if (!data.member_id) {
-                showError('Please select a member');
+                showOfflineAwareError('Please select a member');
                 return;
             }
             
@@ -306,7 +307,7 @@ function manageAttendanceModal(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
-                    showError(error.message || 'Failed to record attendance');
+                    showOfflineAwareError(error.message || 'Failed to record attendance');
                 });
         }
     });
@@ -366,7 +367,7 @@ function manageContributionsModal(event) {
         ],
         onSubmit: function(data, done) {
             if (!data.contribution_type) {
-                showError('Please select a contribution type');
+                showOfflineAwareError('Please select a contribution type');
                 return;
             }
             
@@ -384,7 +385,7 @@ function manageContributionsModal(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
-                    showError(error.message || 'Failed to record contribution');
+                    showOfflineAwareError(error.message || 'Failed to record contribution');
                 });
         }
     });
@@ -480,7 +481,7 @@ function openEventModal(event = null) {
         submitLabel: isEdit ? 'Update' : 'Create',
         onSubmit: function(data, done) {
             if (!data.date) {
-                showError('Please select a date');
+                showOfflineAwareError('Please select a date');
                 return;
             }
             
@@ -513,7 +514,7 @@ async function saveEvent(data, isEdit, done) {
         done();
         await loadEvents();
     } catch (error) {
-        showError(error.message || 'Failed to save event');
+        showOfflineAwareError(error.message || 'Failed to save event');
     }
 }
 
@@ -531,7 +532,7 @@ async function deleteEventHandler(event) {
                     loadEvents();
                 })
                 .catch(function(error) {
-                    showError(error.message || 'Failed to delete event');
+                    showOfflineAwareError(error.message || 'Failed to delete event');
                 });
         }
     });

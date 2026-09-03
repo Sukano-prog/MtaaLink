@@ -21,6 +21,8 @@
 <body>
   <div id="app"></div>
   <div class="toast-container" id="toastContainer"></div>
+  <script src="/js/offline-global.js"></script>
+  <script src="/js/offline-handler.js"></script>
   <script type="module">
     import { renderLogin } from './js/pages/login.js';
     import { renderRegister } from './js/pages/register.js';
@@ -28,14 +30,17 @@
     import { renderVerification } from './js/pages/verify.js';
     import { navigateTo, restorePage } from './js/core/router.js';
     import { registerServiceWorker, listenToNetworkStatus } from './js/core/sw.js';
-    import { showToast } from './js/components/toast.js';
-
+    import { showToast, showError } from './js/components/toast.js';
+        
     window.renderLogin = renderLogin;
     window.renderRegister = renderRegister;
     window.renderDashboard = renderDashboard;
     window.renderVerification = renderVerification;
     window.navigateTo = navigateTo;
     window.showToast = showToast;
+    window.showError = showError;
+    window.handleApiError = handleApiError;
+    window.isOnline = function() { return navigator.onLine; };
 
     registerServiceWorker();
 
@@ -70,5 +75,15 @@
       }
     })();
   </script>
+
+    <script>
+        // Network status monitoring
+        window.addEventListener('online', function() {
+            showToast('Back online!', 'success');
+        });
+        window.addEventListener('offline', function() {
+            showToast('You are offline. Some features may not work.', 'warning');
+        });
+    </script>
 </body>
 </html>

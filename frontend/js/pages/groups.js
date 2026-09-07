@@ -2,17 +2,24 @@
    MtaaLink - Groups Page
    ============================================================ */
 
-import { getGroups, createGroup, updateGroup, deleteGroup, getMembers, addMemberToGroup, removeMemberFromGroup } from '../core/api.js';
+import { getGroups, createGroup, updateGroup, deleteGroup, getMembers, addMemberToGroup, removeMemberFromGroup, getSettings } from '../core/api.js';
 import { showToast, showError, showSuccess } from '../components/toast.js';
 import { Skeletons } from '../components/skeleton.js';
 import { showFormModal, showConfirm, showModal, closeModal } from '../components/modal.js';
 
 let searchQuery = "";
 let groupsData = [];
+let groupLabel = 'Group';
 let membersData = [];
 let currentGroupId = null;
 
 export async function renderGroups() {
+    // Load settings
+    try {
+        const settings = await getSettings();
+        groupLabel = settings.group_label || 'Group';
+    } catch(e) {}
+    
     const content = document.getElementById('pageContent');
     if (!content) {
         return;
@@ -23,7 +30,7 @@ export async function renderGroups() {
         
         content.innerHTML = `
             <div class="page-header">
-                <h2>Groups</h2>
+                <h2 id="groupsTitle"></h2>
                 <button class="btn btn-primary" id="addGroupBtn">Create Group</button>
             </div>
             
@@ -66,6 +73,12 @@ async function loadGroups() {
 }
 
 function renderGroupsList() {
+    // Update labels with settings
+    const titleEl = document.getElementById('groupsTitle');
+    if (titleEl) titleEl.textContent = groupLabel;
+    const addLabel = document.getElementById('addGroupLabel');
+    if (addLabel) addLabel.textContent = groupLabel;
+    
     const container = document.getElementById('groupsContainer');
     if (!container) return;
     

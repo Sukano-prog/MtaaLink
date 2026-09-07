@@ -197,7 +197,7 @@ function renderAttendees() {
                                 <th>Type</th>
                                 <th>Gender</th>
                                 <th>Age</th>
-                                <th id="eventCustomFieldHeader" style="display:none;">Custom Field</th>
+                                <th id="eventCustomFieldHeader" style="display:none;">${(window._settings && window._settings.custom_field_label) || 'Custom Field'}</th>
                 <th>Phone</th>
                                 <th>Status</th>
                                 <th style="text-align:center;">Check In</th>
@@ -282,7 +282,7 @@ function renderPayments() {
                                 <th>Phone</th>
                                 <th>Type</th>
                                 <th id="paymentAgeHeader" style="display:none;">Age Category</th>
-                                <th id="paymentCustomFieldHeader" style="display:none;">Church/Custom Field</th>
+                                <th id="paymentCustomFieldHeader" style="display:none;">${(window._settings && window._settings.custom_field_label) || 'Custom Field'}</th>
                                 <th>Amount</th>
                                 <th>Method</th>
                                 <th>Date</th>
@@ -338,6 +338,7 @@ function renderReport() {
     .then(settings => {
         showCustomField = settings.custom_field_enabled || false;
         showAge = settings.age_enabled || false;
+        window._settings = settings;
         localStorage.setItem('orgSettings', JSON.stringify(settings));
     })
     .catch(() => {});
@@ -694,6 +695,26 @@ window.addAttendee = function() {
 
 // ===== RECORD PAYMENT =====
 window.recordPayment = function() {
+    // Wait for settings to load if not already loaded
+    if (!window._settings || !window._settings.custom_field_enabled === undefined) {
+        fetch('/api/v1/settings/', {
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+        })
+        .then(r => r.json())
+        .then(settings => {
+            window._settings = settings;
+            localStorage.setItem('orgSettings', JSON.stringify(settings));
+            // Call itself again after settings load
+            recordPayment();
+        })
+        .catch(() => {
+            // Fallback: use empty settings
+            window._settings = {};
+            recordPayment();
+        });
+        return;
+    }
+    
     var memberOptions = eventMembers.map(function(m) {
         var label = m.member_name || 'Unknown';
         var value = m.member_id || m.id || m.record_id || 'unknown';
@@ -707,53 +728,63 @@ window.recordPayment = function() {
     
     showFormModal({
         title: 'Record Payment',
-        fields: [
-            {
-                id: 'member_id',
-                label: 'Member/Visitor',
-                type: 'select',
-                options: memberOptions,
-                required: true,
-                placeholder: 'Search for a member...'
-            },
-            {
-                id: 'age_category',
-                label: 'Age Category',
-                type: 'text',
-                value: '',
-                required: false,
-                disabled: true,
-                helper: 'Auto-filled from member profile'
-            },
-            {
-                id: 'custom_field',
-                label: 'Church/Custom Field',
-                type: 'text',
-                value: '',
-                required: false,
-                disabled: true,
-                helper: 'Auto-filled from member profile'
-            },
-            {
-                id: 'amount',
-                label: 'Amount (KES)',
-                type: 'number',
-                required: true,
-                placeholder: '0.00'
-            },
-            {
-                id: 'payment_method',
-                label: 'Payment Method',
-                type: 'select',
-                value: 'cash',
-                required: true,
-                options: [
-                    { value: 'cash', label: 'Cash' },
-                    { value: 'mpesa', label: 'M-PESA' },
-                    { value: 'bank', label: 'Bank Transfer' }
-                ]
+        fields: (function() {
+            var settings = window._settings || {};
+            var fields = [
+                {
+                    id: 'member_id',
+                    label: 'Member/Visitor',
+                    type: 'select',
+                    options: memberOptions,
+                    required: true,
+                    placeholder: 'Search for a member...'
+                }
+            ];
+            if (settings.age_enabled !== false) {
+                fields.push({
+                    id: 'age_category',
+                    label: 'Age Category',
+                    type: 'text',
+                    value: '',
+                    required: false,
+                    disabled: true,
+                    helper: 'Auto-filled from member profile'
+                });
             }
-        ],
+            if (settings.custom_field_enabled) {
+                fields.push({
+                    id: 'custom_field',
+                    label: (window._settings && window._settings.custom_field_label) || 'Custom Field',
+                    type: 'text',
+                    value: '',
+                    required: false,
+                    disabled: true,
+                    helper: 'Auto-filled from member profile'
+                });
+            }
+            fields.push(
+                {
+                    id: 'amount',
+                    label: 'Amount (KES)',
+                    type: 'number',
+                    required: true,
+                    placeholder: '0.00'
+                },
+                {
+                    id: 'payment_method',
+                    label: 'Payment Method',
+                    type: 'select',
+                    value: 'cash',
+                    required: true,
+                    options: [
+                        { value: 'cash', label: 'Cash' },
+                        { value: 'mpesa', label: 'M-PESA' },
+                        { value: 'bank', label: 'Bank Transfer' }
+                    ]
+                }
+            );
+            return fields;
+        })(),
         onShow: function() {
             setTimeout(function() {
                 var select = document.getElementById('member_id');

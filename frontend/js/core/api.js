@@ -204,3 +204,4 @@ export const generateVoterCodes = (electionId) => apiCall('/elections/' + electi
 export const resendVoterCode = (voterCode) => apiCall('/elections/resend-code/', 'POST', { voter_code: voterCode });
 export const verifyVoterCode = (electionId, voterCode) => apiCall('/elections/' + electionId + '/verify/' + voterCode);
 export const verifyEmail = (token, email) => apiCall(`/api/v1/auth/verify-email?token=${token}&email=${email}`, "GET");
+export const getSettings = () => apiCall("/settings/", "GET");

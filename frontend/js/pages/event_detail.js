@@ -8,6 +8,10 @@ import { showConfirm, showModal, showFormModal } from '../components/modal.js';
 import { createSearchableSelect } from '../components/searchable_select.js';
 
 let currentEvent = null;
+let settings = window._settings || {};
+
+// Settings will be loaded from API
+// Fallback values are used when API fails
 let eventMembers = [];
 let eventContributions = [];
 let allMembers = [];
@@ -533,13 +537,24 @@ window.addAttendee = function() {
                 type: 'select',
                 value: '',
                 required: false,
-                options: [
-                    { value: '', label: 'Select age category...' },
-                    { value: 'child', label: 'Child (0-12)' },
-                    { value: 'teen', label: 'Teen (13-17)' },
-                    { value: 'adult', label: 'Adult (18-59)' },
-                    { value: 'elder', label: 'Elder (60+)' }
-                ]
+                options: (function() {
+                    var opts = [{ value: '', label: 'Select age category...' }];
+                    var settings = window._settings || {};
+                    if (settings.age_categories && settings.age_categories.length > 0) {
+                        settings.age_categories.forEach(function(cat) {
+                            var label = cat.name + ' (' + cat.min + '-' + (cat.max || '+') + ')';
+                            opts.push({ value: cat.name.toLowerCase(), label: label });
+                        });
+                    } else {
+                        opts.push(
+                            { value: 'child', label: 'Child (0-12)' },
+                            { value: 'teen', label: 'Teen (13-17)' },
+                            { value: 'adult', label: 'Adult (18-59)' },
+                            { value: 'elder', label: 'Elder (60+)' }
+                        );
+                    }
+                    return opts;
+                })()
             },
             {
                 id: 'visitor_phone',
@@ -567,7 +582,13 @@ window.addAttendee = function() {
                         }
                         if (visitorName) visitorName.parentElement.style.display = 'block';
                         if (visitorGender) visitorGender.parentElement.style.display = 'block';
-                        if (visitorAge) visitorAge.parentElement.style.display = 'block';
+                        // Only show age if enabled in settings
+                        var settings = window._settings || {};
+                        if (visitorAge && settings.age_enabled !== false) {
+                            visitorAge.parentElement.style.display = 'block';
+                        } else if (visitorAge) {
+                            visitorAge.parentElement.style.display = 'none';
+                        }
                         if (visitorPhone) visitorPhone.parentElement.style.display = 'block';
                     } else {
                         if (memberSelect) {

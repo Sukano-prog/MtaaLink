@@ -141,6 +141,11 @@ async def verify_page():
     from fastapi.responses import FileResponse
     return FileResponse("frontend/verify.html")
 
+@app.get("/wp-admin/{path:path}")
+async def block_wp_admin(path: str):
+    from fastapi import HTTPException
+    raise HTTPException(status_code=404, detail="Not found")
+
 @app.get("/{path:path}")
 async def serve_frontend(path: str):
     """Serve frontend files or index.html for SPA routing"""

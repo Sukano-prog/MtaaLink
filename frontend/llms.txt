@@ -1,0 +1,18 @@
+# MtaaLink
+
+> An all-in-one management platform for Kenyan organizations — members, money, meetings, projects, and reports.
+
+## About
+- Built in Kenya, 2025
+- Founder: Elijah Sukano
+- Free during early access
+
+## Key Facts
+- Runs in any browser, no app download needed
+- Tracks members, contributions, meetings, projects, expenses
+- Reports export to PDF
+- One price: KES 2,500/month (free during early access)
+
+## Contact
+- Email: sukanoelijah@gmail.com
+- WhatsApp: +254719750245

@@ -145,6 +145,25 @@ async def verify_page():
 async def block_wp_admin(path: str):
     from fastapi import HTTPException
     raise HTTPException(status_code=404, detail="Not found")
+@app.api_route("/sitemap.xml", methods=["GET", "HEAD"])
+async def serve_sitemap():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/sitemap.xml", media_type="application/xml")
+
+@app.api_route("/llms.txt", methods=["GET", "HEAD"])
+async def serve_llms():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/llms.txt", media_type="text/plain")
+
+@app.api_route("/robots.txt", methods=["GET", "HEAD"])
+async def serve_robots():
+    from fastapi.responses import Response
+    content = """User-agent: *
+Allow: /
+
+Sitemap: https://mtaalink.org/sitemap.xml
+"""
+    return Response(content=content, media_type="text/plain")
 
 @app.get("/{path:path}")
 async def serve_frontend(path: str):

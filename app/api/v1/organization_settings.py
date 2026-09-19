@@ -20,7 +20,7 @@ async def get_settings(
         raise HTTPException(status_code=404, detail="Organization not found")
     
     default_settings = {
-        "organization_name": "",
+        "organization_name": village.name or "",
         "member_label": "Member",
         "custom_field_enabled": False,
         "custom_field_label": "",
@@ -35,6 +35,9 @@ async def get_settings(
     }
     
     settings = village.settings or {}
+    # Ensure village.name is always the source of truth for organization_name
+    settings["organization_name"] = village.name or ""
+    
     for key in default_settings:
         if key not in settings:
             settings[key] = default_settings[key]
@@ -52,7 +55,15 @@ async def update_settings(
     if not village:
         raise HTTPException(status_code=404, detail="Organization not found")
     
+    # Save the settings JSON blob
     village.settings = settings
+    
+    # If organization_name is being changed, also update the village.name column
+    new_name = settings.get("organization_name", "").strip()
+    if new_name:
+        village.name = new_name
+    
     db.commit()
+    db.refresh(village)
     
     return settings

@@ -74,7 +74,7 @@ export async function navigateTo(page) {
     };
     
     const titleEl = document.getElementById('pageTitle');
-    if (titleEl) titleEl.textContent = titles[page] || page;
+   // if (titleEl) titleEl.textContent = titles[page] || page;
     
     const content = document.getElementById('pageContent');
     if (content) {

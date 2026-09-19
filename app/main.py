@@ -164,6 +164,35 @@ Allow: /
 Sitemap: https://mtaalink.org/sitemap.xml
 """
     return Response(content=content, media_type="text/plain")
+# ============================================================
+# PWA files need explicit HEAD + GET support
+# ============================================================
+from fastapi.responses import FileResponse
+import os as _os
+
+@app.head("/manifest.json")
+@app.get("/manifest.json")
+async def serve_manifest():
+    return FileResponse("frontend/manifest.json", media_type="application/manifest+json")
+
+@app.head("/sw.js")
+@app.get("/sw.js")
+async def serve_sw():
+    return FileResponse("frontend/sw.js", media_type="application/javascript")
+
+@app.head("/offline.html")
+@app.get("/offline.html")
+async def serve_offline():
+    return FileResponse("frontend/offline.html", media_type="text/html")
+
+@app.head("/icons/{path:path}")
+@app.get("/icons/{path:path}")
+async def serve_icon(path: str):
+    file_path = _os.path.join("frontend/icons", path)
+    if _os.path.exists(file_path):
+        media_type = "image/png" if path.endswith(".png") else "application/octet-stream"
+        return FileResponse(file_path, media_type=media_type)
+    return FileResponse("frontend/index.html")
 
 @app.get("/{path:path}")
 async def serve_frontend(path: str):

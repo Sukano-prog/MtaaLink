@@ -36,6 +36,29 @@ async def cast_public_vote(data: dict, db: Session = Depends(get_db)):
     except AppException as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.get("/vote/results/{voter_code}")
+async def get_vote_results_public(voter_code: str, db: Session = Depends(get_db)):
+    """Public: return live results — only if this voter has already voted."""
+    voter = db.query(ElectionVoter).filter(
+        ElectionVoter.voter_code == voter_code,
+        ElectionVoter.deleted_at.is_(None),
+    ).first()
+
+    if not voter:
+        raise HTTPException(status_code=404, detail="Invalid voter code")
+
+    if not voter.has_voted:
+        raise HTTPException(
+            status_code=403,
+            detail="You must cast your vote before viewing results.",
+        )
+
+    try:
+        return ElectionService.get_results(db, voter.election_id)
+    except AppException as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 # ===== ADMIN ENDPOINTS =====
 
 # ===== ADMIN ENDPOINTS =====

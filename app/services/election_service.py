@@ -13,30 +13,65 @@ from app.services.sms_service import SMSService
 
 
 def _build_voter_code_sms(election, org_name: str, voter_code: str) -> str:
-    """Build the full voter code SMS with all relevant info."""
+    """Build a compact 1-SMS voter code message with both web and SMS-reply options."""
     from zoneinfo import ZoneInfo
 
-    parts = []
-    if org_name:
-        parts.append(f"{org_name}:")
+    prefix = f"{org_name}: " if org_name else ""
 
-    election_title = election.title or "Election"
-    parts.append(f'Your voter code for "{election_title}" is {voter_code}.')
-
+    deadline_str = ""
     if election.end_date:
-        nairobi = ZoneInfo("Africa/Nairobi")
         try:
-            deadline = election.end_date.astimezone(nairobi).strftime("%d %b, %I:%M %p")
-            parts.append(f"Vote by {deadline}: mtaalink.org/vote?code={voter_code}")
+            nairobi = ZoneInfo("Africa/Nairobi")
+            deadline_str = election.end_date.astimezone(nairobi).strftime("%d %b %I:%M%p")
         except Exception:
-            parts.append(f"Vote at mtaalink.org/vote?code={voter_code}")
-    else:
-        parts.append(f"Vote at mtaalink.org/vote?code={voter_code}")
+            pass
 
-    message = " ".join(parts)
-    if len(message) > 300:
-        message = f'{org_name}: Your voter code for "{election_title}" is {voter_code}. Vote at mtaalink.org/vote?code={voter_code}'
+    # Build candidate list (max 4, first names only)
+    candidates = election.candidates or []
+    candidates_line = ""
+    if candidates:
+        parts = []
+        for i, c in enumerate(candidates[:4], start=1):
+            name = (c.get("name") or "?").strip().split()[0]
+            if len(name) > 10:
+                name = name[:9] + "."
+            parts.append(f"{i}.{name}")
+        candidates_line = " ".join(parts)
+        if len(candidates) > 4:
+            candidates_line += f" +{len(candidates) - 4}"
+
+    # Try full version WITH candidates
+    lines = [f"{prefix}Code {voter_code}"]
+    if candidates_line:
+        lines.append(candidates_line)
+    lines.append(f"Web: mtaalink.org/vote?code={voter_code}")
+    lines.append(f"Reply: VOTE {voter_code} <num>")
+    if deadline_str:
+        lines.append(f"By {deadline_str}")
+
+    message = "\n".join(lines)
+
+    # Fallback: drop candidates if over 160
+    if len(message) > 160:
+        lines = [
+            f"{prefix}Code {voter_code}",
+            f"Web: mtaalink.org/vote?code={voter_code}",
+            f"Reply: VOTE {voter_code} <num>",
+        ]
+        if deadline_str:
+            lines.append(f"By {deadline_str}")
+        message = "\n".join(lines)
+
+    # Last resort
+    if len(message) > 160:
+        message = (
+            f"{prefix}Code {voter_code}. "
+            f"mtaalink.org/vote?code={voter_code} "
+            f"Or VOTE {voter_code} <num>"
+        )
+
     return message
+
 
 
 class ElectionService:

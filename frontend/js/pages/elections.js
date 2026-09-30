@@ -108,15 +108,23 @@ function startAutoRefresh() {
 async function loadElections() {
     try {
         electionsData = await getElections();
+        const countEl = document.getElementById('electionCount');
+        if (countEl) {
+            countEl.textContent = electionsData.length + ' elections';
+        }
         renderElectionsList();
-        document.getElementById('electionCount').textContent = electionsData.length + ' elections';
     } catch (error) {
-        document.getElementById('electionsContainer').innerHTML = `
-            <div class="card"><div class="card-body">
-                <p style="color:var(--danger);">Failed to load elections: ${error.message}</p>
-                <button class="btn btn-primary" onclick="retryAction(\'loadElections\')">Retry</button>
-            </div></div>
-        `;
+        const container = document.getElementById('electionsContainer');
+        if (container) {
+            container.innerHTML = `
+                <div class="card"><div class="card-body">
+                    <p style="color:var(--danger);">Failed to load elections: ${error.message}</p>
+                    <button class="btn btn-primary" onclick="retryAction(\'loadElections\')">Retry</button>
+                </div></div>
+            `;
+        } else {
+            showError('Failed to load elections: ' + error.message);
+        }
     }
 }
 
@@ -136,6 +144,13 @@ function filterElections() {
 
 function renderElectionsList(filtered = null) {
     const container = document.getElementById('electionsContainer');
+    if (!container) {
+        // Page layout is not mounted (e.g., modal just closed) — re-render the page
+        if (typeof renderElections === 'function') {
+            renderElections();
+        }
+        return;
+    }
     const elections = filtered !== null ? filtered : electionsData;
     
     if (elections.length === 0) {

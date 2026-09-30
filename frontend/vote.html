@@ -245,6 +245,85 @@ input[type="text"]::placeholder {
     margin-bottom: 12px;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+        .results-section {
+            margin-top: 24px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .results-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            opacity: 0.85;
+        }
+        .result-row {
+            margin-bottom: 14px;
+        }
+        .result-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .result-rank {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .result-name {
+            flex: 1;
+            font-weight: 500;
+        }
+        .result-votes {
+            font-size: 13px;
+            opacity: 0.75;
+            white-space: nowrap;
+        }
+        .result-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .result-fill {
+            height: 100%;
+            background: var(--primary, #4f46e5);
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+        .results-footer {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 13px;
+            line-height: 1.7;
+            opacity: 0.85;
+        }
+        .results-refresh {
+            font-size: 11px;
+            opacity: 0.55;
+            margin-top: 6px;
+        }
+        .results-loading,
+        .results-empty {
+            text-align: center;
+            opacity: 0.6;
+            font-size: 14px;
+            padding: 20px 0;
+        }
 </style>
 </head>
 <body>
@@ -298,6 +377,11 @@ input[type="text"]::placeholder {
             const data = await resp.json();
 
             if (!data.valid) {
+                if (data.reason === 'already_voted') {
+                    // Voter already voted — show thank-you + live results
+                    showAlreadyVoted(code);
+                    return;
+                }
                 content.innerHTML = `
                     <h1>Cannot Vote</h1>
                     <p class="sub">${data.message || 'This voting code is not valid.'}</p>
@@ -387,6 +471,51 @@ input[type="text"]::placeholder {
         });
     }
 
+
+    function getVoterCodeFromUrl() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('code') || '';
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function showAlreadyVoted(voterCode) {
+        content.innerHTML = `
+            <div class="success">
+                <div class="icon">✓</div>
+                <h2>Already Voted</h2>
+                <p>This code has already been used to vote.<br>Here are the live results.</p>
+            </div>
+            <div id="resultsSection" class="results-section">
+                <div id="resultsContent">
+                    <p class="results-loading">Loading live results…</p>
+                </div>
+            </div>
+        `;
+        loadResultsWithCode(voterCode);
+    }
+
+    async function loadResultsWithCode(voterCode) {
+        if (!voterCode) return;
+        const container = document.getElementById('resultsContent');
+        if (!container) return;
+
+        try {
+            const res = await fetch(`/api/v1/elections/vote/results/${encodeURIComponent(voterCode)}`);
+            if (!res.ok) {
+                container.innerHTML = '<p class="results-empty">Results unavailable.</p>';
+                return;
+            }
+            const data = await res.json();
+            renderResults(data, container);
+        } catch (e) {
+            console.error('Failed to load results:', e);
+            container.innerHTML = '<p class="results-empty">Could not load results.</p>';
+        }
+    }
+
     function showSuccess() {
         content.innerHTML = `
             <div class="success">
@@ -394,8 +523,84 @@ input[type="text"]::placeholder {
                 <h2>Vote Recorded</h2>
                 <p>Thank you for participating.<br>Your vote has been counted.</p>
             </div>
+            <div id="resultsSection" class="results-section" style="display:none;">
+                <div id="resultsContent">
+                    <p class="results-loading">Loading live results…</p>
+                </div>
+            </div>
+        `;
+        // Fetch live results after vote
+        loadResults();
+    }
+
+    async function loadResults() {
+        const code = getVoterCodeFromUrl();
+        if (!code) return;
+        const section = document.getElementById('resultsSection');
+        const container = document.getElementById('resultsContent');
+        if (!section || !container) return;
+
+        try {
+            const res = await fetch(`/api/v1/elections/vote/results/${encodeURIComponent(code)}`);
+            if (!res.ok) {
+                // 403/404 — don't show section
+                return;
+            }
+            const data = await res.json();
+            renderResults(data, container);
+            section.style.display = 'block';
+        } catch (e) {
+            console.error('Failed to load results:', e);
+        }
+    }
+
+    function renderResults(data, container) {
+        const results = data.results || [];
+        const total = data.total_votes || 0;
+        const totalVoters = data.total_voters || 0;
+        const turnout = data.turnout || 0;
+
+        if (results.length === 0) {
+            container.innerHTML = '<p class="results-empty">No votes yet.</p>';
+            return;
+        }
+
+        const rows = results.map(function(r, i) {
+            const pct = r.percentage || 0;
+            const votes = r.votes || 0;
+            const name = escapeHtml(r.candidate_name || 'Unknown');
+            return `
+                <div class="result-row">
+                    <div class="result-head">
+                        <span class="result-rank">${i + 1}</span>
+                        <span class="result-name">${name}</span>
+                        <span class="result-votes">${votes} vote${votes === 1 ? '' : 's'} · ${pct}%</span>
+                    </div>
+                    <div class="result-bar">
+                        <div class="result-fill" style="width:${pct}%"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = `
+            <h3 class="results-title">Live Results</h3>
+            ${rows}
+            <div class="results-footer">
+                <div><strong>${total}</strong> vote${total === 1 ? '' : 's'} cast</div>
+                <div>Turnout: <strong>${turnout}%</strong> (${total} of ${totalVoters})</div>
+                <div class="results-refresh">Auto-refreshes every 10s</div>
+            </div>
         `;
     }
+
+    // Auto-refresh results every 10 seconds while the success screen is visible
+    setInterval(function() {
+        const section = document.getElementById('resultsSection');
+        if (section && section.style.display === 'block') {
+            loadResults();
+        }
+    }, 10000);
 
     function escapeHtml(s) {
         return String(s)

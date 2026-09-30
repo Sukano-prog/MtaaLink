@@ -50,7 +50,11 @@ class ElectionService:
         return f"{prefix}-{part1}-{part2}"
 
     @staticmethod
+    @staticmethod
     def create_election(db: Session, village_id: str, data: dict, current_user_id: str) -> Dict:
+        """Create an election, generate voter codes, and SMS each eligible member."""
+        from app.models.village import Village
+
         election = Election(
             village_id=village_id,
             title=data['title'],
@@ -62,33 +66,63 @@ class ElectionService:
             is_anonymous=data.get('is_anonymous', True),
             allow_write_in=data.get('allow_write_in', False),
             created_by=current_user_id,
-            status='draft'
+            status=data.get('status', 'draft'),
         )
 
         db.add(election)
         db.flush()
 
+        # Look up village name ONCE for SMS org prefix
+        village = db.query(Village).filter(Village.id == village_id).first()
+        org_name = village.name if village else "MtaaLink"
+
         eligible_members = db.query(Member).filter(
             Member.village_id == village_id,
             Member.is_active == True,
-            Member.deleted_at.is_(None)
+            Member.deleted_at.is_(None),
         ).all()
 
+        generated = []
         for member in eligible_members:
+            voter_code = ElectionService.generate_voter_code(member.id)
             voter = ElectionVoter(
                 election_id=election.id,
                 member_id=member.id,
-                voter_code=ElectionService.generate_voter_code(member.id)
+                voter_code=voter_code,
             )
             db.add(voter)
+            db.flush()  # get voter.id if needed downstream
+
+            sms_result = {"success": False, "error": "No phone number"}
+            if member.phone:
+                message = _build_voter_code_sms(election, org_name, voter_code)
+                sms_result = SMSService.send_sms(
+                    to_phone=member.phone,
+                    message=message,
+                    sms_type="transactional",
+                )
+
+            generated.append({
+                "member_name": member.full_name,
+                "member_phone": member.phone,
+                "voter_code": voter_code,
+                "sms_sent": sms_result.get("success", False),
+                "sms_error": sms_result.get("error") if not sms_result.get("success") else None,
+                "provider": sms_result.get("provider"),
+            })
 
         db.commit()
         db.refresh(election)
 
+        sent_count = sum(1 for g in generated if g["sms_sent"])
+
         return {
             "id": str(election.id),
-            "message": f"Election '{election.title}' created",
-            "voter_count": len(eligible_members)
+            "message": f"Election '{election.title}' created. "
+                       f"SMS sent to {sent_count}/{len(generated)} members.",
+            "voter_count": len(eligible_members),
+            "sms_sent": sent_count,
+            "generated": generated,
         }
 
     @staticmethod

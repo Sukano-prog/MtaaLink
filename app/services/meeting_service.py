@@ -6,6 +6,7 @@ from app.core.exceptions import NotFoundException
 from app.models.meeting import Meeting, MeetingAttendance, MeetingActionItem, MeetingMotion
 from app.models.member import Member
 
+
 class MeetingService:
     @staticmethod
     def get_meetings(db: Session, village_id: str, status: Optional[str] = None) -> List[Dict]:
@@ -13,21 +14,33 @@ class MeetingService:
             Meeting.village_id == village_id,
             Meeting.deleted_at.is_(None)
         )
-        
+
         if status:
             query = query.filter(Meeting.status == status)
-        
+
         meetings = query.order_by(Meeting.date.desc()).all()
-        
-        result = []
-        for m in meetings:
-            attendance_count = db.query(MeetingAttendance).filter(
-                MeetingAttendance.meeting_id == m.id,
+
+        if not meetings:
+            return []
+
+        # N+1 FIX: Get attendance counts for all meetings in ONE query
+        from sqlalchemy import func
+        meeting_ids = [m.id for m in meetings]
+
+        counts = dict(
+            db.query(MeetingAttendance.meeting_id, func.count(MeetingAttendance.id))
+            .filter(
+                MeetingAttendance.meeting_id.in_(meeting_ids),
                 MeetingAttendance.attended == True,
                 MeetingAttendance.attendance_type == 'present',
                 MeetingAttendance.deleted_at.is_(None)
-            ).count()
-            
+            )
+            .group_by(MeetingAttendance.meeting_id)
+            .all()
+        )
+
+        result = []
+        for m in meetings:
             result.append({
                 "id": str(m.id),
                 "title": m.title,
@@ -35,12 +48,12 @@ class MeetingService:
                 "time": m.time.isoformat() if m.time else None,
                 "location": m.location,
                 "status": m.status,
-                "attendance_count": attendance_count,
+                "attendance_count": counts.get(m.id, 0),
                 "quorum_required": m.quorum_required
             })
-        
+
         return result
-    
+
     @staticmethod
     def get_meeting(db: Session, village_id: str, meeting_id: str) -> Dict:
         meeting = db.query(Meeting).filter(
@@ -48,26 +61,32 @@ class MeetingService:
             Meeting.village_id == village_id,
             Meeting.deleted_at.is_(None)
         ).first()
-        
+
         if not meeting:
             raise NotFoundException("Meeting")
-        
+
         attendance = db.query(MeetingAttendance).filter(
             MeetingAttendance.meeting_id == meeting_id,
             MeetingAttendance.deleted_at.is_(None)
         ).all()
-        
+
+        # N+1 FIX: Pre-load all members in ONE query
+        member_ids = list({a.member_id for a in attendance if a.member_id})
+        members_map = {
+            m.id: m for m in db.query(Member).filter(Member.id.in_(member_ids)).all()
+        } if member_ids else {}
+
         attendance_data = []
         present_count = 0
         for a in attendance:
-            member = db.query(Member).filter(Member.id == a.member_id).first()
+            member = members_map.get(a.member_id)
             if not member:
                 continue
-                
+
             att_type = a.attendance_type or 'absent'
             if a.attended and att_type == 'present':
                 present_count += 1
-            
+
             attendance_data.append({
                 "member_id": str(a.member_id),
                 "member_name": member.full_name if member else "Unknown",
@@ -75,33 +94,32 @@ class MeetingService:
                 "attendance_type": att_type,
                 "check_in_time": a.check_in_time.isoformat() if a.check_in_time else None
             })
-        
+
         return {
             "meeting": meeting,
             "attendance": attendance_data,
             "present_count": present_count
         }
-    
+
     @staticmethod
     def create_meeting(db: Session, village_id: str, data: dict, current_user_id: str) -> Dict:
         # Convert date string to date object
         meeting_date = data.get('date')
         if isinstance(meeting_date, str):
             meeting_date = date.fromisoformat(meeting_date)
-        
+
         # Convert time string to time object
         meeting_time = data.get('time')
         if isinstance(meeting_time, str):
             try:
                 meeting_time = time.fromisoformat(meeting_time)
             except ValueError:
-                # Handle time formats like "14:00" without seconds
                 parts = meeting_time.split(':')
                 if len(parts) == 2:
                     meeting_time = time(int(parts[0]), int(parts[1]))
                 else:
-                    meeting_time = time(14, 0)  # default
-        
+                    meeting_time = time(14, 0)
+
         meeting = Meeting(
             village_id=village_id,
             title=data['title'],
@@ -118,13 +136,13 @@ class MeetingService:
             created_by=current_user_id,
             status='scheduled'
         )
-        
+
         db.add(meeting)
         db.commit()
         db.refresh(meeting)
-        
+
         return {"id": str(meeting.id), "message": f"Meeting '{meeting.title}' created"}
-    
+
     @staticmethod
     def update_meeting(db: Session, village_id: str, meeting_id: str, data: dict) -> Dict:
         meeting = db.query(Meeting).filter(
@@ -132,13 +150,12 @@ class MeetingService:
             Meeting.village_id == village_id,
             Meeting.deleted_at.is_(None)
         ).first()
-        
+
         if not meeting:
             raise NotFoundException("Meeting")
-        
+
         for field, value in data.items():
             if value is not None and hasattr(meeting, field):
-                # Convert date if needed
                 if field == 'date' and isinstance(value, str):
                     value = date.fromisoformat(value)
                 elif field == 'time' and isinstance(value, str):
@@ -149,55 +166,55 @@ class MeetingService:
                         if len(parts) == 2:
                             value = time(int(parts[0]), int(parts[1]))
                 setattr(meeting, field, value)
-        
+
         db.commit()
         db.refresh(meeting)
-        
+
         return {"message": f"Meeting '{meeting.title}' updated"}
-    
+
     @staticmethod
     def start_meeting(db: Session, village_id: str, meeting_id: str) -> Dict:
         meeting = db.query(Meeting).filter(
             Meeting.id == meeting_id,
             Meeting.village_id == village_id
         ).first()
-        
+
         if not meeting:
             raise NotFoundException("Meeting")
-        
+
         if meeting.status != "scheduled":
             raise ValueError("Meeting must be scheduled to start")
-        
+
         meeting.status = "ongoing"
         db.commit()
-        
+
         return {"message": "Meeting started"}
-    
+
     @staticmethod
     def complete_meeting(db: Session, village_id: str, meeting_id: str, minutes: str) -> Dict:
         meeting = db.query(Meeting).filter(
             Meeting.id == meeting_id,
             Meeting.village_id == village_id
         ).first()
-        
+
         if not meeting:
             raise NotFoundException("Meeting")
-        
+
         meeting.status = "completed"
         meeting.minutes = minutes
         meeting.minutes_approved = True
         meeting.minutes_approved_at = datetime.utcnow()
-        
+
         db.commit()
-        
+
         return {"message": "Meeting completed"}
-    
+
     @staticmethod
     def mark_attendance(db: Session, meeting_id: str, member_ids: list) -> Dict:
         db.query(MeetingAttendance).filter(
             MeetingAttendance.meeting_id == meeting_id
         ).update({"deleted_at": datetime.utcnow()})
-        
+
         for member_id in member_ids:
             attendance = MeetingAttendance(
                 meeting_id=meeting_id,
@@ -207,9 +224,9 @@ class MeetingService:
                 check_in_time=datetime.utcnow()
             )
             db.add(attendance)
-        
+
         db.commit()
-        
+
         return {"message": f"Attendance marked for {len(member_ids)} members"}
 
     @staticmethod
@@ -218,23 +235,22 @@ class MeetingService:
         from app.models.meeting import Meeting, MeetingAttendance
         from app.models.member import Member
         from app.services.sms_service import SMSService
-        
+
         village_name = SMSService.get_village_name(db, village_id)
-        
+
         meeting = db.query(Meeting).filter(
             Meeting.id == meeting_id,
             Meeting.village_id == village_id
         ).first()
-        
+
         if not meeting:
             return {"success": False, "error": "Meeting not found"}
-        
-        # Get all members
+
         members = db.query(Member).filter(
             Member.village_id == village_id,
             Member.deleted_at.is_(None)
         ).all()
-        
+
         sent_count = 0
         for member in members:
             if member.phone:
@@ -246,11 +262,11 @@ Time: {meeting.time}
 Location: {meeting.location or 'Village Hall'}
 
 Please attend."""
-                
+
                 result = SMSService.send_sms(member.phone, message, village_name)
                 if result.get('success'):
                     sent_count += 1
-        
+
         return {"sent": sent_count, "total": len(members)}
 
     @staticmethod
@@ -264,52 +280,48 @@ Please attend."""
         from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
         from reportlab.lib import colors
         import io
-        
+
         village_name = SMSService.get_village_name(db, village_id)
-        
+
         meeting = db.query(Meeting).filter(
             Meeting.id == meeting_id,
             Meeting.village_id == village_id
         ).first()
-        
+
         if not meeting:
             return None
-        
-        # Get attendance
+
         attendance = db.query(MeetingAttendance).filter(
             MeetingAttendance.meeting_id == meeting_id
         ).all()
-        
+
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter)
         styles = getSampleStyleSheet()
         elements = []
-        
-        # Title with village name
+
         title_style = ParagraphStyle('CustomTitle', parent=styles['Title'], fontSize=20, alignment=1)
         elements.append(Paragraph(f"{village_name} - Meeting Report", title_style))
         elements.append(Spacer(1, 6))
         elements.append(Paragraph(f"<b>{meeting.title}</b>", styles['Heading2']))
         elements.append(Spacer(1, 6))
-        
-        # Meeting details
+
         elements.append(Paragraph(f"Date: {meeting.date}", styles['Normal']))
         elements.append(Paragraph(f"Time: {meeting.time}", styles['Normal']))
         elements.append(Paragraph(f"Location: {meeting.location or 'Village Hall'}", styles['Normal']))
         elements.append(Paragraph(f"Status: {meeting.status}", styles['Normal']))
         elements.append(Spacer(1, 12))
-        
+
         if meeting.agenda:
             elements.append(Paragraph("<b>Agenda</b>", styles['Heading3']))
             elements.append(Paragraph(meeting.agenda, styles['Normal']))
             elements.append(Spacer(1, 6))
-        
+
         if meeting.minutes:
             elements.append(Paragraph("<b>Minutes</b>", styles['Heading3']))
             elements.append(Paragraph(meeting.minutes, styles['Normal']))
             elements.append(Spacer(1, 6))
-        
-        # Attendance
+
         if attendance:
             elements.append(Paragraph("<b>Attendance</b>", styles['Heading3']))
             table_data = [["Member", "Status", "Check-in Time"]]
@@ -319,7 +331,7 @@ Please attend."""
                 status = "Present" if a.attended else "Absent"
                 check_in = a.check_in_time.strftime("%H:%M") if a.check_in_time else "-"
                 table_data.append([member_name, status, check_in])
-            
+
             table = Table(table_data)
             table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
@@ -332,7 +344,7 @@ Please attend."""
                 ('GRID', (0, 0), (-1, -1), 1, colors.black)
             ]))
             elements.append(table)
-        
+
         doc.build(elements)
         buffer.seek(0)
         return buffer.getvalue()
@@ -341,11 +353,11 @@ Please attend."""
     def add_motion(db: Session, meeting_id: str, data: dict, user_id: str) -> Dict:
         """Add a motion to a meeting"""
         from app.models.meeting import Meeting, MeetingMotion
-        
+
         meeting = db.query(Meeting).filter(Meeting.id == meeting_id).first()
         if not meeting:
             raise NotFoundException("Meeting not found")
-        
+
         motion = MeetingMotion(
             id=str(uuid.uuid4()),
             meeting_id=meeting_id,
@@ -358,7 +370,7 @@ Please attend."""
         db.add(motion)
         db.commit()
         db.refresh(motion)
-        
+
         return {"message": "Motion added successfully", "motion": {"id": motion.id, "title": motion.title}}
 
     @staticmethod
@@ -366,28 +378,26 @@ Please attend."""
         """Get all motions for a meeting"""
         from app.models.meeting import MeetingMotion
         from app.models.member import Member
-        
+
         motions = db.query(MeetingMotion).filter(
             MeetingMotion.meeting_id == meeting_id,
             MeetingMotion.deleted_at.is_(None)
         ).all()
-        
+
         result = []
         for m in motions:
-            # Get proposer name
             proposer_name = None
             if m.proposed_by:
                 proposer = db.query(Member).filter(Member.id == m.proposed_by).first()
                 if proposer:
                     proposer_name = proposer.full_name
-            
-            # Get seconder name
+
             seconder_name = None
             if m.seconded_by:
                 seconder = db.query(Member).filter(Member.id == m.seconded_by).first()
                 if seconder:
                     seconder_name = seconder.full_name
-            
+
             result.append({
                 "id": m.id,
                 "title": m.title,
@@ -408,25 +418,24 @@ Please attend."""
     def vote_motion(db: Session, meeting_id: str, motion_id: str, data: dict, user_id: str) -> Dict:
         """Vote on a motion"""
         from app.models.meeting import MeetingMotion, MeetingMotionVote
-        
+
         motion = db.query(MeetingMotion).filter(
             MeetingMotion.id == motion_id,
             MeetingMotion.meeting_id == meeting_id
         ).first()
         if not motion:
             raise NotFoundException("Motion not found")
-        
-        vote_type = data.get('vote')  # 'for', 'against', 'abstain'
-        
-        # Check if user already voted
+
+        vote_type = data.get('vote')
+
         existing = db.query(MeetingMotionVote).filter(
             MeetingMotionVote.motion_id == motion_id,
             MeetingMotionVote.member_id == user_id
         ).first()
-        
+
         if existing:
             raise HTTPException(status_code=400, detail="You already voted on this motion")
-        
+
         vote = MeetingMotionVote(
             id=str(uuid.uuid4()),
             motion_id=motion_id,
@@ -434,17 +443,16 @@ Please attend."""
             vote_type=vote_type
         )
         db.add(vote)
-        
-        # Update vote counts
+
         if vote_type == 'for':
             motion.votes_for = (motion.votes_for or 0) + 1
         elif vote_type == 'against':
             motion.votes_against = (motion.votes_against or 0) + 1
         elif vote_type == 'abstain':
             motion.votes_abstain = (motion.votes_abstain or 0) + 1
-        
+
         db.commit()
-        
+
         return {"message": "Vote recorded"}
 
     @staticmethod
@@ -452,16 +460,15 @@ Please attend."""
         """Add an action item to a meeting"""
         from app.models.meeting import Meeting, MeetingActionItem
         from datetime import date as _date
-        
+
         meeting = db.query(Meeting).filter(Meeting.id == meeting_id).first()
         if not meeting:
             raise NotFoundException("Meeting not found")
-        
-        # Convert due_date from ISO string to Python date
+
         due_date = data.get('due_date')
         if due_date and isinstance(due_date, str):
             due_date = _date.fromisoformat(due_date)
-        
+
         action_item = MeetingActionItem(
             id=str(uuid.uuid4()),
             meeting_id=meeting_id,
@@ -474,7 +481,7 @@ Please attend."""
         db.add(action_item)
         db.commit()
         db.refresh(action_item)
-        
+
         return {"message": "Action item added", "action_item": {"id": action_item.id, "description": action_item.description}}
 
     @staticmethod
@@ -482,21 +489,20 @@ Please attend."""
         """Get all action items for a meeting"""
         from app.models.meeting import MeetingActionItem
         from app.models.member import Member
-        
+
         items = db.query(MeetingActionItem).filter(
             MeetingActionItem.meeting_id == meeting_id,
             MeetingActionItem.deleted_at.is_(None)
         ).all()
-        
+
         result = []
         for i in items:
-            # Get assignee name
             assignee_name = None
             if i.assigned_to:
                 assignee = db.query(Member).filter(Member.id == i.assigned_to).first()
                 if assignee:
                     assignee_name = assignee.full_name
-            
+
             result.append({
                 "id": i.id,
                 "description": i.description,
@@ -513,14 +519,14 @@ Please attend."""
     def update_action_item(db: Session, meeting_id: str, item_id: str, data: dict) -> Dict:
         """Update an action item"""
         from app.models.meeting import MeetingActionItem
-        
+
         item = db.query(MeetingActionItem).filter(
             MeetingActionItem.id == item_id,
             MeetingActionItem.meeting_id == meeting_id
         ).first()
         if not item:
             raise NotFoundException("Action item not found")
-        
+
         if 'status' in data:
             item.status = data['status']
         if 'description' in data:
@@ -531,8 +537,8 @@ Please attend."""
             item.due_date = data['due_date']
         if 'priority' in data:
             item.priority = data['priority']
-        
+
         db.commit()
         db.refresh(item)
-        
+
         return {"message": "Action item updated"}

@@ -5,6 +5,7 @@ from app.core.exceptions import NotFoundException
 from app.models.contribution import Contribution, ContributionType
 from app.models.member import Member
 
+
 class ContributionService:
     @staticmethod
     def get_contributions(db: Session, village_id: str, member_id: Optional[str] = None,
@@ -13,38 +14,46 @@ class ContributionService:
             Contribution.village_id == village_id,
             Contribution.deleted_at.is_(None)
         )
-        
+
         if member_id:
             query = query.filter(Contribution.member_id == member_id)
-        
+
         if status:
             query = query.filter(Contribution.status == status)
         if search:
             # Search by member name
             query = query.join(Member, Contribution.member_id == Member.id).filter(
-                Member.first_name.ilike(f'%{search}%') | 
+                Member.first_name.ilike(f'%{search}%') |
                 Member.last_name.ilike(f'%{search}%')
             )
-        
+
         contributions = query.all()
-        
+
+        # N+1 FIX: Pre-load all related members and contribution types in 2 queries
+        member_ids = list({c.member_id for c in contributions if c.member_id})
+        type_ids = list({c.contribution_type_id for c in contributions if c.contribution_type_id})
+
+        members_map = {
+            m.id: m for m in db.query(Member).filter(Member.id.in_(member_ids)).all()
+        } if member_ids else {}
+
+        types_map = {
+            t.id: t for t in db.query(ContributionType).filter(ContributionType.id.in_(type_ids)).all()
+        } if type_ids else {}
+
         result = []
         total_amount = Decimal('0')
         total_paid = Decimal('0')
-        
+
         for c in contributions:
-            member = db.query(Member).filter(Member.id == c.member_id).first()
-            type_name = None
-            if c.contribution_type_id:
-                ct = db.query(ContributionType).filter(ContributionType.id == c.contribution_type_id).first()
-                if ct:
-                    type_name = ct.name
-            
+            member = members_map.get(c.member_id)
+            ct = types_map.get(c.contribution_type_id) if c.contribution_type_id else None
+
             result.append({
                 "id": str(c.id),
                 "member_id": str(c.member_id),
                 "member_name": member.full_name if member else "Unknown",
-                "contribution_type_name": type_name,
+                "contribution_type_name": ct.name if ct else None,
                 "amount": float(c.amount),
                 "paid_amount": float(c.paid_amount),
                 "balance": float(c.balance),
@@ -52,27 +61,27 @@ class ContributionService:
                 "due_date": c.due_date.isoformat() if c.due_date else None,
                 "receipt_number": c.receipt_number
             })
-            
+
             total_amount += c.amount
             total_paid += c.paid_amount
-        
+
         return {
             "contributions": result,
             "total": len(result),
             "total_amount": float(total_amount),
             "total_paid": float(total_paid)
         }
-    
+
     @staticmethod
     def create_contribution(db: Session, village_id: str, data: dict, current_user_id: str) -> Dict:
         member = db.query(Member).filter(
             Member.id == data['member_id'],
             Member.village_id == village_id
         ).first()
-        
+
         if not member:
             raise NotFoundException("Member")
-        
+
         contribution = Contribution(
             village_id=village_id,
             member_id=data['member_id'],
@@ -84,17 +93,17 @@ class ContributionService:
             recorded_by=current_user_id,
             event_id=data.get('event_id')
         )
-        
+
         db.add(contribution)
         db.commit()
         db.refresh(contribution)
-        
+
         # If event_id is provided, also create a record in event_contributions
         if data.get('event_id'):
             from app.models.event import EventContribution
             import uuid
             from datetime import datetime
-            
+
             event_contrib = EventContribution(
                 id=str(uuid.uuid4()),
                 event_id=data['event_id'],
@@ -107,9 +116,9 @@ class ContributionService:
             )
             db.add(event_contrib)
             db.commit()
-        
+
         return {"id": str(contribution.id), "message": "Contribution recorded"}
-    
+
     @staticmethod
     def get_types(db: Session, village_id: str) -> List[Dict]:
         types = db.query(ContributionType).filter(
@@ -117,7 +126,7 @@ class ContributionService:
             ContributionType.is_active == True,
             ContributionType.deleted_at.is_(None)
         ).all()
-        
+
         return [{
             "id": str(t.id),
             "name": t.name,
@@ -126,7 +135,7 @@ class ContributionService:
             "color": t.color,
             "category": t.category
         } for t in types]
-    
+
     @staticmethod
     def create_type(db: Session, village_id: str, data: dict) -> Dict:
         ct = ContributionType(
@@ -137,11 +146,11 @@ class ContributionService:
             color=data.get('color'),
             category=data.get('category', 'general')
         )
-        
+
         db.add(ct)
         db.commit()
         db.refresh(ct)
-        
+
         return {"id": str(ct.id), "message": f"Type '{ct.name}' created"}
 
     @staticmethod
@@ -152,19 +161,19 @@ class ContributionService:
             ContributionType.village_id == village_id,
             ContributionType.deleted_at.is_(None)
         ).first()
-        
+
         if not ct:
             raise NotFoundException("Contribution type")
-        
+
         for field, value in data.items():
             if value is not None and hasattr(ct, field):
                 setattr(ct, field, value)
-        
+
         db.commit()
         db.refresh(ct)
-        
+
         return {"id": str(ct.id), "message": f"Type '{ct.name}' updated"}
-    
+
     @staticmethod
     def delete_type(db: Session, village_id: str, type_id: str) -> Dict:
         """Soft delete a contribution type"""
@@ -173,14 +182,14 @@ class ContributionService:
             ContributionType.village_id == village_id,
             ContributionType.deleted_at.is_(None)
         ).first()
-        
+
         if not ct:
             raise NotFoundException("Contribution type")
-        
+
         ct.soft_delete()
         ct.is_active = False
         db.commit()
-        
+
         return {"message": f"Type '{ct.name}' deleted"}
 
     @staticmethod
@@ -191,25 +200,25 @@ class ContributionService:
             Contribution.village_id == village_id,
             Contribution.deleted_at.is_(None)
         ).first()
-        
+
         if not contribution:
             raise NotFoundException("Contribution")
-        
+
         # Update fields
         updatable_fields = ['paid_amount', 'status', 'payment_method', 'payment_reference', 'notes']
         for field in updatable_fields:
             if field in data and data[field] is not None:
                 setattr(contribution, field, data[field])
-        
+
         # Recalculate balance
         if 'paid_amount' in data:
             contribution.balance = contribution.amount - contribution.paid_amount
-        
+
         db.commit()
         db.refresh(contribution)
-        
+
         return {"message": "Contribution updated successfully"}
-    
+
     @staticmethod
     def delete_contribution(db: Session, village_id: str, contribution_id: str) -> Dict:
         """Soft delete a contribution"""
@@ -218,15 +227,15 @@ class ContributionService:
             Contribution.village_id == village_id,
             Contribution.deleted_at.is_(None)
         ).first()
-        
+
         if not contribution:
             raise NotFoundException("Contribution")
-        
+
         # Only allow deletion if not paid
         if contribution.status == 'paid':
             raise ValueError("Cannot delete a paid contribution")
-        
+
         contribution.soft_delete()
         db.commit()
-        
+
         return {"message": "Contribution deleted successfully"}

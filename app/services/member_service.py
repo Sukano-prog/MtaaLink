@@ -10,7 +10,10 @@ class MemberService:
     def get_members(db: Session, village_id: str, skip: int = 0, limit: int = 20,
                     search: Optional[str] = None, role: Optional[str] = None,
                     group_id: Optional[str] = None) -> List[Dict]:
-        query = db.query(Member).filter(
+        from app.models.group import Group
+        from sqlalchemy.orm import joinedload
+        
+        query = db.query(Member).options(joinedload(Member.group)).filter(
             Member.village_id == village_id,
             Member.deleted_at.is_(None)
         )
@@ -28,15 +31,12 @@ class MemberService:
         if group_id:
             query = query.filter(Member.group_id == group_id)
         
-        members = query.offset(skip).limit(limit).all()
+        members = query.order_by(Member.created_at.desc()).offset(skip).limit(limit).all()
         
         result = []
         for m in members:
-            group_name = None
-            if m.group_id:
-                group = db.query(Group).filter(Group.id == m.group_id).first()
-                if group:
-                    group_name = group.name
+            # No extra query — relationship is already loaded
+            group_name = m.group.name if m.group else None
             
             result.append({
                 "id": str(m.id),

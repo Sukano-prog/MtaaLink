@@ -8,8 +8,9 @@ from app.models.project import Project
 from app.models.expense import ExpenseCategory
 from app.models.member import Member
 
+
 class ExpenseService:
-    
+
     @staticmethod
     def get_expenses(db: Session, village_id: str, category: Optional[str] = None,
                      start_date: Optional[str] = None, end_date: Optional[str] = None, search: Optional[str] = None) -> List[Dict]:
@@ -17,7 +18,7 @@ class ExpenseService:
             Expense.village_id == village_id,
             Expense.deleted_at.is_(None)
         )
-        
+
         if category:
             query = query.filter(Expense.category == category)
         if search:
@@ -26,14 +27,28 @@ class ExpenseService:
             query = query.filter(Expense.expense_date >= start_date)
         if end_date:
             query = query.filter(Expense.expense_date <= end_date)
-        
+
         expenses = query.order_by(Expense.expense_date.desc()).all()
-        
+
+        if not expenses:
+            return []
+
+        # N+1 FIX: Pre-load all recorders and approvers in ONE query
+        member_ids = list({
+            mid for e in expenses
+            for mid in (e.recorded_by, e.approved_by)
+            if mid
+        })
+
+        members_map = {
+            m.id: m for m in db.query(Member).filter(Member.id.in_(member_ids)).all()
+        } if member_ids else {}
+
         result = []
         for e in expenses:
-            recorder = db.query(Member).filter(Member.id == e.recorded_by).first()
-            approver = db.query(Member).filter(Member.id == e.approved_by).first()
-            
+            recorder = members_map.get(e.recorded_by)
+            approver = members_map.get(e.approved_by)
+
             result.append({
                 "id": str(e.id),
                 "description": e.description,
@@ -47,9 +62,9 @@ class ExpenseService:
                 "approved_by_name": approver.full_name if approver else None,
                 "created_at": e.created_at.isoformat()
             })
-        
+
         return result
-    
+
     @staticmethod
     def get_expense(db: Session, village_id: str, expense_id: str) -> Dict:
         expense = db.query(Expense).filter(
@@ -57,13 +72,19 @@ class ExpenseService:
             Expense.village_id == village_id,
             Expense.deleted_at.is_(None)
         ).first()
-        
+
         if not expense:
             raise NotFoundException("Expense")
-        
-        recorder = db.query(Member).filter(Member.id == expense.recorded_by).first()
-        approver = db.query(Member).filter(Member.id == expense.approved_by).first()
-        
+
+        # N+1 FIX: Pre-load both members in ONE query
+        member_ids = [mid for mid in (expense.recorded_by, expense.approved_by) if mid]
+        members_map = {
+            m.id: m for m in db.query(Member).filter(Member.id.in_(member_ids)).all()
+        } if member_ids else {}
+
+        recorder = members_map.get(expense.recorded_by)
+        approver = members_map.get(expense.approved_by)
+
         return {
             "id": str(expense.id),
             "description": expense.description,
@@ -80,7 +101,7 @@ class ExpenseService:
             "meeting_id": str(expense.meeting_id) if expense.meeting_id else None,
             "created_at": expense.created_at.isoformat()
         }
-    
+
     @staticmethod
     def create_expense(db: Session, village_id: str, data: dict, current_user_id: str) -> Dict:
         # Check if category exists, if not create it
@@ -89,9 +110,8 @@ class ExpenseService:
             ExpenseCategory.name == data['category'],
             ExpenseCategory.deleted_at.is_(None)
         ).first()
-        
+
         if not category:
-            # Create the category
             import uuid
             category = ExpenseCategory(
                 id=str(uuid.uuid4()),
@@ -102,7 +122,7 @@ class ExpenseService:
             )
             db.add(category)
             db.flush()
-        
+
         expense = Expense(
             village_id=village_id,
             description=data['description'],
@@ -117,20 +137,20 @@ class ExpenseService:
             meeting_id=data.get('meeting_id'),
             recorded_by=current_user_id
         )
-        
+
         db.add(expense)
         db.commit()
         db.refresh(expense)
-        
+
         # Update project amount_spent if linked to a project
         if expense.project_id:
             project = db.query(Project).filter(Project.id == expense.project_id).first()
             if project:
                 project.amount_spent = (project.amount_spent or 0) + expense.amount
                 db.commit()
-        
+
         return {"id": str(expense.id), "message": "Expense recorded"}
-    
+
     @staticmethod
     def update_expense(db: Session, village_id: str, expense_id: str, data: dict) -> Dict:
         expense = db.query(Expense).filter(
@@ -138,43 +158,39 @@ class ExpenseService:
             Expense.village_id == village_id,
             Expense.deleted_at.is_(None)
         ).first()
-        
+
         if not expense:
             raise NotFoundException("Expense")
-        
-        # Store old amount and project_id for updating project
+
         old_amount = expense.amount
         old_project_id = expense.project_id
-        
+
         updatable_fields = ['description', 'amount', 'category', 'expense_date',
                            'payment_method', 'receipt_number', 'notes', 'approved_by']
-        
+
         for field in updatable_fields:
             if field in data and data[field] is not None:
                 setattr(expense, field, data[field])
-        
+
         db.commit()
         db.refresh(expense)
-        
+
         # Update project amount_spent if linked to a project
-        # If project changed or amount changed
         if expense.project_id or old_project_id:
-            # Remove from old project
             if old_project_id:
                 old_project = db.query(Project).filter(Project.id == old_project_id).first()
                 if old_project:
                     old_project.amount_spent = max(0, (old_project.amount_spent or 0) - old_amount)
                     db.commit()
-            
-            # Add to new project
+
             if expense.project_id:
                 project = db.query(Project).filter(Project.id == expense.project_id).first()
                 if project:
                     project.amount_spent = (project.amount_spent or 0) + expense.amount
                     db.commit()
-        
+
         return {"message": "Expense updated"}
-    
+
     @staticmethod
     def delete_expense(db: Session, village_id: str, expense_id: str) -> Dict:
         expense = db.query(Expense).filter(
@@ -182,26 +198,24 @@ class ExpenseService:
             Expense.village_id == village_id,
             Expense.deleted_at.is_(None)
         ).first()
-        
+
         if not expense:
             raise NotFoundException("Expense")
-        
-        # Store project_id and amount before deletion
+
         project_id = expense.project_id
         amount = expense.amount
-        
+
         expense.soft_delete()
         db.commit()
-        
-        # Subtract from project amount_spent if linked to a project
+
         if project_id:
             project = db.query(Project).filter(Project.id == project_id).first()
             if project:
                 project.amount_spent = max(0, (project.amount_spent or 0) - amount)
                 db.commit()
-        
+
         return {"message": "Expense deleted"}
-    
+
     @staticmethod
     def get_categories(db: Session, village_id: str) -> List[Dict]:
         categories = db.query(ExpenseCategory).filter(
@@ -209,7 +223,7 @@ class ExpenseService:
             ExpenseCategory.is_active == True,
             ExpenseCategory.deleted_at.is_(None)
         ).all()
-        
+
         return [{
             "id": str(c.id),
             "name": c.name,
@@ -217,7 +231,7 @@ class ExpenseService:
             "color": c.color,
             "is_active": c.is_active
         } for c in categories]
-    
+
     @staticmethod
     def create_category(db: Session, village_id: str, data: dict, current_user_id: str) -> Dict:
         import uuid
@@ -230,9 +244,9 @@ class ExpenseService:
             created_by=current_user_id,
             is_active=True
         )
-        
+
         db.add(category)
         db.commit()
         db.refresh(category)
-        
+
         return {"id": str(category.id), "message": f"Category '{category.name}' created"}

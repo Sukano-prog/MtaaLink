@@ -140,6 +140,10 @@ async def settings_page():
 async def verify_page():
     from fastapi.responses import FileResponse
     return FileResponse("frontend/verify.html")
+@app.get("/vote")
+async def vote_page():
+    from fastapi.responses import FileResponse
+    return FileResponse("frontend/vote.html")
 
 @app.get("/wp-admin/{path:path}")
 async def block_wp_admin(path: str):

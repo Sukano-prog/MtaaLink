@@ -1,130 +1,134 @@
-"""
-MtaaLink - SMS Service
-Handles sending and receiving SMS via Africa's Talking
-"""
-
-import africastalking
+import os
 import logging
-import re
-from typing import Optional, Dict, Any
-from datetime import datetime
+import requests
+from typing import Dict, Any, List, Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# Initialize Africa's Talking
-username = "sandbox"
-api_key = "atsk_eac6c58573f35cf048949b6132a5f76269da388414b6a0fe33f4bec6473649bbe0f84ebe"
-
-africastalking.initialize(username, api_key)
-sms = africastalking.SMS
 
 class SMSService:
-    
+    """Send SMS via Sozuri (Kenya)"""
+
+    BASE_URL = "https://sozuri.net/api/v1/messaging"
+    PROJECT = "MtaaLink"
+
+    @classmethod
+    def send_sms(
+        cls,
+        to_phone: str,
+        message: str,
+        sender_id: Optional[str] = None,
+        sms_type: str = "transactional",
+    ) -> Dict[str, Any]:
+        api_key = os.environ.get("SOZURI_API_KEY")
+        from_id = sender_id or os.environ.get("SOZURI_SENDER_ID", "Sozuri")
+
+        if not api_key:
+            logger.warning("Sozuri API key not configured")
+            return {"success": False, "error": "SMS API key not configured"}
+
+        try:
+            phone = cls._format_phone(to_phone)
+
+            payload = {
+                "project": cls.PROJECT,
+                "apiKey": api_key,
+                "from": from_id,
+                "to": phone,
+                "message": message,
+                "channel": "sms",
+                "type": sms_type,
+            }
+
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            }
+
+            response = requests.post(
+                cls.BASE_URL, json=payload, headers=headers, timeout=15
+            )
+
+            try:
+                data = response.json()
+            except ValueError:
+                return {"success": False, "error": f"Invalid response: {response.text[:200]}"}
+
+            # Sozuri success: recipients[0].status == "sent"
+            recipients = data.get("recipients", [])
+            if response.status_code == 200 and recipients and recipients[0].get("status") == "sent":
+                message_id = recipients[0].get("messageId")
+                logger.info(f"SMS sent to {phone} (ID: {message_id})")
+                return {
+                    "success": True,
+                    "message_id": message_id,
+                    "status": recipients[0].get("status"),
+                    "bulk_id": recipients[0].get("bulkId"),
+                }
+
+            error = data.get("message") or data.get("error_code") or "Unknown error"
+            logger.error(f"SMS failed to {phone}: {error}")
+            return {"success": False, "error": error, "raw": data}
+
+        except requests.exceptions.Timeout:
+            logger.error(f"SMS timeout for {to_phone}")
+            return {"success": False, "error": "SMS request timed out"}
+        except requests.exceptions.RequestException as e:
+            logger.error(f"SMS request error: {e}")
+            return {"success": False, "error": str(e)}
+
+    @classmethod
+    def send_bulk_sms(
+        cls,
+        phone_numbers: List[str],
+        message: str,
+        sender_id: Optional[str] = None,
+        sms_type: str = "transactional",
+    ) -> Dict[str, Any]:
+        results = {"sent": 0, "failed": 0, "details": []}
+        for phone in phone_numbers:
+            r = cls.send_sms(phone, message, sender_id, sms_type)
+            if r.get("success"):
+                results["sent"] += 1
+            else:
+                results["failed"] += 1
+            results["details"].append({"phone": phone, "result": r})
+
+        return {
+            "success": results["failed"] == 0,
+            "sent": results["sent"],
+            "failed": results["failed"],
+            "total": len(phone_numbers),
+            "details": results["details"],
+        }
+
+
     @staticmethod
     def get_village_name(db, village_id: str) -> str:
-        """Get village name from database"""
+        """Get village name for SMS signing."""
         try:
             from app.models.village import Village
             village = db.query(Village).filter(Village.id == village_id).first()
-            return village.name if village else "MtaaLink"
-        except:
-            return "MtaaLink"
-    
-    @staticmethod
-    def send_sms(phone_number: str, message: str, village_name: str = "MtaaLink") -> Dict:
-        """Send an SMS message"""
-        try:
-            # Format phone number
-            if phone_number.startswith('0'):
-                phone_number = '254' + phone_number[1:]
-            elif not phone_number.startswith('254'):
-                phone_number = '254' + phone_number
-            
-            # Use village name as sender ID (max 11 characters)
-            sender_id = village_name[:11] if village_name else "MtaaLink"
-            
-            response = sms.send(message, [phone_number], sender_id=sender_id)
-            logger.info(f"SMS sent to {phone_number} from {sender_id}")
-            return {"success": True, "response": response}
+            return village.name if village else ""
         except Exception as e:
-            logger.error(f"Failed to send SMS: {str(e)}")
-            return {"success": False, "error": str(e)}
-    
+            logger.error(f"get_village_name error: {e}")
+            return ""
+
     @staticmethod
-    def send_voter_code(db, phone_number: str, voter_code: str, election_title: str, candidates: list, village_id: str) -> Dict:
-        """Send voter code and candidate list to voter"""
-        village_name = SMSService.get_village_name(db, village_id)
-        
-        candidate_list = "\n".join([f"{i+1}. {c['name']}" for i, c in enumerate(candidates[:5])])
-        if len(candidates) > 5:
-            candidate_list += f"\n... and {len(candidates)-5} more"
-        
-        message = f"""{village_name}: {election_title}
+    def _format_phone(phone: str) -> str:
+        """Normalize phone to +254XXXXXXXXX format"""
+        phone = phone.strip().replace(" ", "").replace("-", "")
+        if phone.startswith("+"):
+            return phone
+        if phone.startswith("0"):
+            return "+254" + phone[1:]
+        if phone.startswith("254"):
+            return "+" + phone
+        return "+254" + phone
 
-Candidates:
-{candidate_list}
 
-Your voter code: {voter_code}
-
-To vote: VOTE {voter_code} [NUMBER]
-To check results: RESULTS {voter_code}
-
-One-time use only. Do not share."""
-        
-        return SMSService.send_sms(phone_number, message, village_name)
-    
-    @staticmethod
-    def send_vote_confirmation(db, phone_number: str, candidate_name: str, election_title: str, village_id: str) -> Dict:
-        """Send vote confirmation"""
-        village_name = SMSService.get_village_name(db, village_id)
-        
-        message = f"""{village_name}: Vote confirmed!
-
-You voted for: {candidate_name}
-Election: {election_title}
-
-Thank you for participating!"""
-        
-        return SMSService.send_sms(phone_number, message, village_name)
-    
-    @staticmethod
-    def send_results(db, phone_number: str, results: Dict, village_id: str) -> Dict:
-        """Send election results"""
-        village_name = SMSService.get_village_name(db, village_id)
-        
-        results_lines = []
-        for r in results.get('results', []):
-            results_lines.append(f"{r['candidate_name']}: {r['votes']} votes ({r['percentage']}%)")
-        
-        message = f"""{village_name} Election Results
-
-{results.get('election_title', 'Election')}
-Total votes: {results.get('total_votes', 0)}
-Turnout: {results.get('turnout', 0)}%
-
-{chr(10).join(results_lines)}"""
-        
-        return SMSService.send_sms(phone_number, message, village_name)
-    
-    @staticmethod
-    def parse_vote_message(message: str) -> Optional[Dict]:
-        """Parse incoming SMS vote message"""
-        pattern = r'^VOTE\s+([A-Z0-9-]+)\s+(\d+)$'
-        match = re.search(pattern, message.strip().upper())
-        if not match:
-            return None
-        
-        return {
-            'voter_code': match.group(1),
-            'candidate_number': int(match.group(2))
-        }
-    
-    @staticmethod
-    def parse_results_message(message: str) -> Optional[str]:
-        """Parse incoming SMS results request"""
-        pattern = r'^RESULTS\s+([A-Z0-9-]+)$'
-        match = re.search(pattern, message.strip().upper())
-        if not match:
-            return None
-        
-        return match.group(1)
+def send_sms(to_phone: str, message: str, **kwargs) -> Dict[str, Any]:
+    return SMSService.send_sms(to_phone, message, **kwargs)

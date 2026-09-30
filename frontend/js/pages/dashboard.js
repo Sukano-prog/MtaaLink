@@ -46,9 +46,9 @@ export async function renderDashboard() {
                             <a href="#" class="nav-link" data-page="contribution_types">Contribution Types</a>
                             <a href="#" class="nav-link" data-page="projects">Projects</a>
                             <a href="#" class="nav-link" data-page="events">Events</a>
-                            <!-- <a href="#" class="nav-link" data-page="elections">Elections</a> -->
+                            <a href="#" class="nav-link" data-page="elections">Elections</a>
                             <a href="#" class="nav-link" data-page="expenses">Expenses</a>
-                            <!-- <a href="#" class="nav-link" data-page="announcements">Announcements</a> -->
+                            <a href="#" class="nav-link" data-page="announcements">Announcements</a>
                             <a href="#" class="nav-link" data-page="reports">Reports</a>
                         </div>
                         <div class="nav-section">
@@ -226,7 +226,7 @@ function renderDashboardContent() {
                     <button class="btn btn-teal" onclick="navigateTo('projects')">Projects</button>
                     <button class="btn btn-pink" onclick="navigateTo('events')">Events</button>
                     <button class="btn btn-red" onclick="navigateTo('expenses')">Expenses</button>
-                    <!-- <button class="btn btn-indigo" onclick="navigateTo('announcements')">Announcements</button> -->
+                    <button class="btn btn-indigo" onclick="navigateTo('announcements')">Announcements</button>
                     <button class="btn btn-cyan" onclick="navigateTo('reports')">Reports</button>
                 </div>
             </div>
@@ -290,7 +290,7 @@ function renderDashboardContent() {
             <div class="card">
                 <div class="card-header">
                     <h3>Recent Announcements</h3>
-                    <!-- <a href="#" onclick="navigateTo('announcements')" class="view-all">View all</a> -->
+                    <a href="#" onclick="navigateTo('announcements')" class="view-all">View all</a>
                 </div>
                 <div class="card-body">
                     ${recentAnnouncements.length === 0 ? `

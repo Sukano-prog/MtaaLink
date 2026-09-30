@@ -249,11 +249,18 @@ class ProjectService:
     
     @staticmethod
     def add_milestone(db: Session, project_id: str, data: dict) -> Dict:
+        from datetime import date as _date
+        
+        # Convert due_date from ISO string to Python date
+        due_date = data.get('due_date')
+        if due_date and isinstance(due_date, str):
+            due_date = _date.fromisoformat(due_date)
+        
         milestone = ProjectMilestone(
             project_id=project_id,
             title=data['title'],
             description=data.get('description'),
-            due_date=data.get('due_date'),
+            due_date=due_date,
             weight=data.get('weight', 0),
             order=data.get('order', 0)
         )
@@ -306,13 +313,20 @@ class ProjectService:
     
     @staticmethod
     def add_task(db: Session, project_id: str, data: dict) -> Dict:
+        from datetime import date as _date
+        
+        # Convert due_date from ISO string to Python date
+        due_date = data.get('due_date')
+        if due_date and isinstance(due_date, str):
+            due_date = _date.fromisoformat(due_date)
+        
         task = ProjectTask(
             project_id=project_id,
             milestone_id=data.get('milestone_id'),
             title=data['title'],
             description=data.get('description'),
             assigned_to=data.get('assigned_to'),
-            due_date=data.get('due_date'),
+            due_date=due_date,
             priority=data.get('priority', 'medium')
         )
         

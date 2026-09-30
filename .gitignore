@@ -84,3 +84,13 @@ temp_*.py
 test_*.py
 main
 myscanner/
+
+# Demo data (local dev only)
+seed_demo.py
+enrich_demo.py
+
+# Keep-alive cron
+keepalive.sh
+
+# Backup files
+*.bak

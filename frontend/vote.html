@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Vote — MtaaLink</title>
+<meta name="theme-color" content="#160C08">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+    background: #160C08;
+    color: #FBF8F1;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+.wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 40px);
+}
+.card {
+    background: rgba(240,178,74,.06);
+    border: 1px solid rgba(240,178,74,.25);
+    border-radius: 20px;
+    padding: 40px 32px;
+    max-width: 440px;
+    width: 100%;
+}
+.logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: #F0B24A;
+    margin-bottom: 28px;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+.sub {
+    color: rgba(251,248,241,.6);
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 28px;
+}
+input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(240,178,74,.3);
+    background: rgba(255,255,255,.03);
+    color: #FBF8F1;
+    font-size: 16px;
+    text-align: center;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+}
+input[type="text"]:focus {
+    outline: none;
+    border-color: #F0B24A;
+    background: rgba(240,178,74,.05);
+}
+input[type="text"]::placeholder {
+    color: rgba(251,248,241,.3);
+    letter-spacing: 2px;
+    font-weight: 400;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    text-transform: none;
+}
+.btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    background: #F0B24A;
+    color: #160C08;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(240,178,74,.45);
+    transition: all .15s;
+    font-family: inherit;
+}
+.btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 rgba(240,178,74,.45);
+}
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 rgba(240,178,74,.45);
+}
+.btn:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+.btn-secondary {
+    background: transparent;
+    color: #F0B24A;
+    border: 1px solid rgba(240,178,74,.4);
+    box-shadow: none;
+}
+.btn-secondary:hover:not(:disabled) {
+    background: rgba(240,178,74,.08);
+    transform: none;
+    box-shadow: none;
+}
+.error {
+    color: #E27A5B;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 20px;
+}
+/* Election info */
+.election-info {
+    text-align: center;
+    padding-bottom: 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(240,178,74,.15);
+}
+.org {
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #F0B24A;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+.deadline {
+    font-size: 13px;
+    color: rgba(251,248,241,.55);
+}
+/* Candidates */
+.candidates {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.candidate {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(255,255,255,.02);
+    cursor: pointer;
+    transition: all .2s;
+    user-select: none;
+}
+.candidate:hover {
+    border-color: rgba(240,178,74,.4);
+    background: rgba(240,178,74,.05);
+}
+.candidate.selected {
+    border-color: #F0B24A;
+    background: rgba(240,178,74,.12);
+}
+.candidate .radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(240,178,74,.5);
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    transition: all .2s;
+}
+.candidate.selected .radio::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #F0B24A;
+}
+.candidate .name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #FBF8F1;
+}
+.warning {
+    font-size: 12px;
+    color: rgba(251,248,241,.5);
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+}
+/* Success state */
+.success {
+    text-align: center;
+    padding: 20px 0;
+}
+.success .icon {
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 20px;
+    color: #27ae60;
+    font-weight: 300;
+}
+.success h2 {
+    font-size: 22px;
+    color: #27ae60;
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+}
+.success p {
+    color: rgba(251,248,241,.65);
+    font-size: 14px;
+    line-height: 1.6;
+}
+/* Loading */
+.loading {
+    text-align: center;
+    color: rgba(251,248,241,.6);
+    font-size: 14px;
+    padding: 30px 0;
+}
+.spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(240,178,74,.15);
+    border-top-color: #F0B24A;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin-bottom: 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrapper">
+    <div class="card">
+        <div class="logo">MtaaLink</div>
+        <div id="content"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const content = document.getElementById('content');
+    const params = new URLSearchParams(window.location.search);
+    const codeFromUrl = (params.get('code') || '').trim().toUpperCase();
+
+    if (codeFromUrl) {
+        loadVoteInfo(codeFromUrl);
+    } else {
+        showCodeForm();
+    }
+
+    function showCodeForm() {
+        content.innerHTML = `
+            <h1>Cast Your Vote</h1>
+            <p class="sub">Enter the voting code from your SMS.</p>
+            <form id="codeForm">
+                <input type="text" id="codeInput" placeholder="Enter code" autocomplete="off" autocapitalize="characters" maxlength="12" required>
+                <button type="submit" class="btn">Continue</button>
+            </form>
+            <div class="error" id="error"></div>
+        `;
+        document.getElementById('codeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const code = document.getElementById('codeInput').value.trim().toUpperCase();
+            if (code) loadVoteInfo(code);
+        });
+        setTimeout(() => document.getElementById('codeInput').focus(), 100);
+    }
+
+    async function loadVoteInfo(code) {
+        content.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <div>Loading election...</div>
+            </div>
+        `;
+
+        try {
+            const resp = await fetch('/api/v1/elections/vote/' + encodeURIComponent(code));
+            const data = await resp.json();
+
+            if (!data.valid) {
+                content.innerHTML = `
+                    <h1>Cannot Vote</h1>
+                    <p class="sub">${data.message || 'This voting code is not valid.'}</p>
+                    <button class="btn btn-secondary" onclick="location.href='/vote'">Try Another Code</button>
+                `;
+                return;
+            }
+
+            showVotingForm(code, data);
+        } catch (err) {
+            content.innerHTML = `
+                <h1>Connection Error</h1>
+                <p class="sub">Could not load the election. Check your connection.</p>
+                <button class="btn" onclick="location.reload()">Retry</button>
+            `;
+        }
+    }
+
+    function showVotingForm(code, data) {
+        const deadline = data.election.end_date
+            ? new Date(data.election.end_date).toLocaleString('en-KE', {
+                day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+              })
+            : '';
+
+        const candidatesHtml = data.candidates.length
+            ? data.candidates.map(c => `
+                <div class="candidate" data-id="${c.id}">
+                    <div class="radio"></div>
+                    <div class="name">${escapeHtml(c.name)}</div>
+                </div>
+              `).join('')
+            : '<p class="sub">No candidates available for this election.</p>';
+
+        content.innerHTML = `
+            <div class="election-info">
+                <div class="org">${escapeHtml(data.election.organization_name || 'MtaaLink')}</div>
+                <div class="title">${escapeHtml(data.election.title)}</div>
+                ${deadline ? `<div class="deadline">Voting closes ${deadline}</div>` : ''}
+            </div>
+            <div class="candidates" id="candidates">${candidatesHtml}</div>
+            <button class="btn" id="submitVote" disabled>Cast My Vote</button>
+            <p class="warning">Your vote is anonymous and cannot be changed.</p>
+            <div class="error" id="error"></div>
+        `;
+
+        let selectedId = null;
+        document.querySelectorAll('.candidate').forEach(el => {
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.candidate').forEach(x => x.classList.remove('selected'));
+                el.classList.add('selected');
+                selectedId = el.dataset.id;
+                document.getElementById('submitVote').disabled = false;
+            });
+        });
+
+        document.getElementById('submitVote').addEventListener('click', async () => {
+            if (!selectedId) return;
+
+            const selectedName = document.querySelector('.candidate.selected .name').textContent;
+            if (!confirm('Confirm your vote for ' + selectedName + '?\n\nThis cannot be changed.')) return;
+
+            const btn = document.getElementById('submitVote');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                const resp = await fetch('/api/v1/elections/vote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ voter_code: code, candidate_id: selectedId }),
+                });
+                const result = await resp.json();
+
+                if (resp.ok) {
+                    showSuccess();
+                } else {
+                    document.getElementById('error').textContent = result.detail || 'Could not record your vote.';
+                    btn.disabled = false;
+                    btn.textContent = 'Cast My Vote';
+                }
+            } catch (err) {
+                document.getElementById('error').textContent = 'Network error. Please try again.';
+                btn.disabled = false;
+                btn.textContent = 'Cast My Vote';
+            }
+        });
+    }
+
+    function showSuccess() {
+        content.innerHTML = `
+            <div class="success">
+                <div class="icon">✓</div>
+                <h2>Vote Recorded</h2>
+                <p>Thank you for participating.<br>Your vote has been counted.</p>
+            </div>
+        `;
+    }
+
+    function escapeHtml(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+})();
+</script>
+</body>
+</html>

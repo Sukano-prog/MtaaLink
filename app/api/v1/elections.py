@@ -11,6 +11,33 @@ from app.services.election_service import ElectionService
 
 router = APIRouter(prefix="/api/v1/elections", tags=["Elections"])
 
+# ============================================================
+# PUBLIC VOTE ENDPOINTS (no login required)
+# ============================================================
+
+@router.get("/vote/{voter_code}")
+async def get_vote_info_public(voter_code: str, db: Session = Depends(get_db)):
+    """Public: validate a voter code, return election + candidates."""
+    try:
+        return ElectionService.get_vote_info(db, voter_code)
+    except AppException as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/vote")
+async def cast_public_vote(data: dict, db: Session = Depends(get_db)):
+    """Public: cast a vote using a voter code."""
+    voter_code = data.get("voter_code")
+    candidate_id = data.get("candidate_id")
+    if not voter_code or not candidate_id:
+        raise HTTPException(status_code=400, detail="voter_code and candidate_id required")
+    try:
+        return ElectionService.cast_vote(db, voter_code, candidate_id)
+    except AppException as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# ===== ADMIN ENDPOINTS =====
+
 # ===== ADMIN ENDPOINTS =====
 
 @router.get("/")

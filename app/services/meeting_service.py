@@ -451,17 +451,23 @@ Please attend."""
     def add_action_item(db: Session, meeting_id: str, data: dict, user_id: str) -> Dict:
         """Add an action item to a meeting"""
         from app.models.meeting import Meeting, MeetingActionItem
+        from datetime import date as _date
         
         meeting = db.query(Meeting).filter(Meeting.id == meeting_id).first()
         if not meeting:
             raise NotFoundException("Meeting not found")
+        
+        # Convert due_date from ISO string to Python date
+        due_date = data.get('due_date')
+        if due_date and isinstance(due_date, str):
+            due_date = _date.fromisoformat(due_date)
         
         action_item = MeetingActionItem(
             id=str(uuid.uuid4()),
             meeting_id=meeting_id,
             description=data.get('description'),
             assigned_to=data.get('assigned_to'),
-            due_date=data.get('due_date'),
+            due_date=due_date,
             priority=data.get('priority', 'medium'),
             status='pending'
         )

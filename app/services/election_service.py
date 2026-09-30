@@ -9,6 +9,35 @@ import secrets
 from app.core.exceptions import NotFoundException, AppException
 from app.models.election import Election, ElectionVoter, ElectionVote
 from app.models.member import Member
+from app.services.sms_service import SMSService
+
+
+def _build_voter_code_sms(election, org_name: str, voter_code: str) -> str:
+    """Build the full voter code SMS with all relevant info."""
+    from zoneinfo import ZoneInfo
+    
+    parts = []
+    if org_name:
+        parts.append(f"{org_name}:")
+    
+    election_title = election.title or "Election"
+    parts.append(f'Your voter code for "{election_title}" is {voter_code}.')
+    
+    if election.end_date:
+        nairobi = ZoneInfo("Africa/Nairobi")
+        try:
+            deadline = election.end_date.astimezone(nairobi).strftime("%d %b, %I:%M %p")
+            parts.append(f"Vote by {deadline}: mtaalink.org/vote")
+        except Exception:
+            parts.append("Vote at mtaalink.org/vote")
+    else:
+        parts.append("Vote at mtaalink.org/vote")
+    
+    message = " ".join(parts)
+    if len(message) > 300:
+        message = f'{org_name}: Your voter code for "{election_title}" is {voter_code}. Vote at mtaalink.org/vote'
+    return message
+
 
 class ElectionService:
     
@@ -266,7 +295,88 @@ class ElectionService:
         db.commit()
         
         return {"message": "Your vote has been recorded successfully"}
-    
+
+    @staticmethod
+    def get_vote_info(db: Session, voter_code: str) -> Dict:
+        """Public: validate a voter code and return election + candidates."""
+        from app.models.village import Village
+        from zoneinfo import ZoneInfo
+        
+        voter = db.query(ElectionVoter).filter(
+            ElectionVoter.voter_code == voter_code,
+            ElectionVoter.deleted_at.is_(None)
+        ).first()
+        
+        if not voter:
+            return {
+                "valid": False,
+                "reason": "invalid_code",
+                "message": "This voting code is not valid. Check your SMS and try again.",
+            }
+        
+        if voter.has_voted:
+            return {
+                "valid": False,
+                "reason": "already_voted",
+                "message": "This voting code has already been used to vote.",
+            }
+        
+        election = db.query(Election).filter(
+            Election.id == voter.election_id,
+            Election.deleted_at.is_(None)
+        ).first()
+        
+        if not election:
+            return {
+                "valid": False,
+                "reason": "election_not_found",
+                "message": "The election for this code no longer exists.",
+            }
+        
+        if election.status != "active":
+            return {
+                "valid": False,
+                "reason": "election_not_active",
+                "message": f"This election is currently {election.status}. Voting is not open.",
+            }
+        
+        nairobi = ZoneInfo("Africa/Nairobi")
+        now = datetime.now(nairobi)
+        if election.start_date and election.end_date:
+            start = election.start_date.replace(tzinfo=nairobi)
+            end = election.end_date.replace(tzinfo=nairobi)
+            if now < start:
+                return {
+                    "valid": False,
+                    "reason": "not_started",
+                    "message": f"Voting opens on {start.strftime('%d %b, %I:%M %p')}.",
+                }
+            if now > end:
+                return {
+                    "valid": False,
+                    "reason": "ended",
+                    "message": "Voting for this election has closed.",
+                }
+        
+        village = db.query(Village).filter(Village.id == election.village_id).first()
+        
+        return {
+            "valid": True,
+            "election": {
+                "id": str(election.id),
+                "title": election.title,
+                "description": election.description,
+                "status": election.status,
+                "end_date": election.end_date.isoformat() if election.end_date else None,
+                "organization_name": village.name if village else "MtaaLink",
+            },
+            "candidates": [
+                {"id": c.get("id"), "name": c.get("name")}
+                for c in (election.candidates or [])
+            ],
+            "voter_code": voter_code,
+        }
+
     @staticmethod
     def get_results(db: Session, election_id: str) -> Dict:
         election = db.query(Election).filter(
@@ -375,15 +485,37 @@ class ElectionService:
                 voter_code=voter_code
             )
             db.add(voter)
+            db.flush()  # get voter.id before commit
+            
+            # Send SMS with voter code
+            sms_result = {"success": False, "error": "No phone number"}
+            if member.phone:
+                from app.models.village import Village
+                v = db.query(Village).filter(Village.id == election.village_id).first()
+                org_name = v.name if v else "MtaaLink"
+                message = _build_voter_code_sms(election, org_name, voter_code)
+                sms_result = SMSService.send_sms(
+                    to_phone=member.phone,
+                    message=message,
+                    sms_type="transactional"
+                )
+            
             generated.append({
                 "member_name": member.full_name,
-                "voter_code": voter_code
+                "member_phone": member.phone,
+                "voter_code": voter_code,
+                "sms_sent": sms_result.get("success", False),
+                "sms_error": sms_result.get("error") if not sms_result.get("success") else None
             })
         
         db.commit()
         
+        sent_count = sum(1 for g in generated if g["sms_sent"])
+        
         return {
-            "message": f"Generated {len(generated)} voter codes",
+            "message": f"Generated {len(generated)} voter codes. SMS sent to {sent_count}.",
+            "total": len(generated),
+            "sms_sent": sent_count,
             "generated": generated
         }
     
@@ -403,11 +535,36 @@ class ElectionService:
         if not member or not election:
             raise NotFoundException("Member or Election not found")
         
+        if not member.phone:
+            raise AppException(f"{member.full_name} has no phone number on file")
+        
+        # Actually send the SMS
+        from app.models.village import Village
+        v = db.query(Village).filter(Village.id == election.village_id).first()
+        org_name = v.name if v else "MtaaLink"
+        message = _build_voter_code_sms(election, org_name, voter_code)
+        sms_result = SMSService.send_sms(
+            to_phone=member.phone,
+            message=message,
+            sms_type="transactional"
+        )
+        
+        if not sms_result.get("success"):
+            return {
+                "success": False,
+                "message": f"Failed to send SMS: {sms_result.get('error')}",
+                "voter_code": voter_code,
+                "member_name": member.full_name
+            }
+        
         return {
+            "success": True,
             "message": f"Voter code sent to {member.full_name}",
             "voter_code": voter_code,
             "member_name": member.full_name,
-            "election_title": election.title
+            "member_phone": member.phone,
+            "election_title": election.title,
+            "message_id": sms_result.get("message_id")
         }
 
     # Add election_type, start_date, end_date to updatable fields

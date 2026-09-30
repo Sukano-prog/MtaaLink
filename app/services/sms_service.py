@@ -201,6 +201,18 @@ class SMSService:
             "attempts": {"sozuri": sozuri, "africastalking": at},
         }
 
+
+    @staticmethod
+    def get_village_name(db, village_id: str) -> str:
+        """Look up a village's name from its ID (used for SMS sender / org name)."""
+        try:
+            from app.models.village import Village
+            village = db.query(Village).filter(Village.id == village_id).first()
+            return village.name if village else "MtaaLink"
+        except Exception as e:
+            logger.warning("get_village_name failed for %s: %s", village_id, e)
+            return "MtaaLink"
+
     @classmethod
     def send_bulk_sms(cls, phone_numbers: List[str], message: str,
                       sender_id: Optional[str] = None,

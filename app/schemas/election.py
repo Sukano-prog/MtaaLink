@@ -16,6 +16,7 @@ class ElectionBase(BaseModel):
     candidates: List[dict] = []
     is_anonymous: bool = True
     allow_write_in: bool = False
+    status: Optional[str] = None
 
 class ElectionCreate(ElectionBase):
     pass

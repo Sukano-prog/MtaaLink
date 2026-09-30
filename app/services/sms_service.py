@@ -213,6 +213,92 @@ class SMSService:
             logger.warning("get_village_name failed for %s: %s", village_id, e)
             return "MtaaLink"
 
+
+    # ---------- SMS voting flow ----------
+
+    @staticmethod
+    def parse_vote_message(message: str) -> Optional[Dict[str, Any]]:
+        """
+        Parse "VOTE <voter_code> <candidate_number>"
+        e.g. "VOTE ELEC-F1E980-36C9A0 1"
+        Returns {"voter_code": "ELEC-...", "candidate_number": 1} or None.
+        Case-insensitive. Trims whitespace. Ignores extra text.
+        """
+        if not message:
+            return None
+        parts = message.strip().upper().split()
+        if len(parts) < 3:
+            return None
+        if parts[0] != "VOTE":
+            return None
+        voter_code = parts[1]
+        try:
+            candidate_number = int(parts[2])
+        except (ValueError, TypeError):
+            return None
+        return {"voter_code": voter_code, "candidate_number": candidate_number}
+
+    @staticmethod
+    def parse_results_message(message: str) -> Optional[str]:
+        """
+        Parse "RESULTS <voter_code>"
+        e.g. "RESULTS ELEC-F1E980-36C9A0"
+        Returns the voter code or None.
+        """
+        if not message:
+            return None
+        parts = message.strip().upper().split()
+        if len(parts) < 2:
+            return None
+        if parts[0] != "RESULTS":
+            return None
+        return parts[1]
+
+    @staticmethod
+    def send_vote_confirmation(db, phone: str, candidate_name: str,
+                               election_title: str, village_id: str) -> Dict[str, Any]:
+        """Send vote confirmation SMS to the voter."""
+        village_name = SMSService.get_village_name(db, village_id)
+        message = (
+            f"{village_name}: Your vote for {candidate_name} in "
+            f'"{election_title}" has been recorded. Thank you.'
+        )
+        return SMSService.send_sms(phone, message, sms_type="transactional")
+
+    @staticmethod
+    def send_results(db, phone: str, results_data: dict, village_id: str) -> Dict[str, Any]:
+        """Send election results summary SMS."""
+        village_name = SMSService.get_village_name(db, village_id)
+        title = results_data.get("election_title", "Election")
+        total = results_data.get("total_votes", 0)
+        turnout = results_data.get("turnout", 0)
+        results = results_data.get("results", []) or []
+
+        # Build compact result string (top 5 candidates max)
+        lines = []
+        for i, r in enumerate(results[:5], start=1):
+            lines.append(f"{i}. {r['candidate_name']}: {r['votes']} ({r['percentage']}%)")
+        body = " | ".join(lines) if lines else "No votes yet"
+
+        message = (
+            f"{village_name} - {title} Results: "
+            f"{body}. "
+            f"Total votes: {total}, Turnout: {turnout}%."
+        )
+
+        # Keep under 300 chars (safe SMS length)
+        if len(message) > 300:
+            message = (
+                f"{village_name} - {title}: "
+                f"{results[0]['candidate_name']} leads with "
+                f"{results[0]['votes']} votes. "
+                f"Total: {total}, Turnout: {turnout}%."
+                if results else
+                f"{village_name} - {title}: No votes yet."
+            )
+
+        return SMSService.send_sms(phone, message, sms_type="transactional")
+
     @classmethod
     def send_bulk_sms(cls, phone_numbers: List[str], message: str,
                       sender_id: Optional[str] = None,

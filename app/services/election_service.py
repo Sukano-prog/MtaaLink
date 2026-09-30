@@ -66,7 +66,7 @@ class ElectionService:
             is_anonymous=data.get('is_anonymous', True),
             allow_write_in=data.get('allow_write_in', False),
             created_by=current_user_id,
-            status=data.get('status', 'draft'),
+            status=data.get('status') or 'draft',
         )
 
         db.add(election)

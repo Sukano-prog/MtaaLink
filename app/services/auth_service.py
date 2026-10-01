@@ -74,36 +74,59 @@ class AuthService:
         }
     
     @staticmethod
-    def login(db: Session, email: str, password: str) -> Dict[str, Any]:
-        # Find village
-        village = db.query(Village).filter(Village.admin_email == email).first()
-        if not village:
+    @staticmethod
+    def login(db: Session, identifier: str, password: str) -> Dict[str, Any]:
+        """Login with email OR phone number."""
+        identifier = identifier.strip()
+
+        # Determine if identifier is email or phone
+        if "@" in identifier:
+            member = db.query(Member).filter(
+                Member.email == identifier.lower(),
+                Member.deleted_at.is_(None),
+            ).first()
+        else:
+            # Phone login — normalize to 0XXXXXXXXX
+            phone = identifier.replace(" ", "").replace("-", "")
+            if phone.startswith("+254"):
+                phone = "0" + phone[4:]
+            elif phone.startswith("254"):
+                phone = "0" + phone[3:]
+            member = db.query(Member).filter(
+                Member.phone == phone,
+                Member.deleted_at.is_(None),
+            ).first()
+
+        if not member:
             raise UnauthorizedException()
-        
-        # Find admin
-        admin = db.query(Member).filter(
-            Member.village_id == village.id,
-            Member.email == email
-        ).first()
-        
-        if not admin or not verify_password(password, admin.password_hash):
+
+        if not member.password_hash:
+            raise UnauthorizedException(
+                "Your account has not been set up. Check your email for the invite link."
+            )
+
+        if not verify_password(password, member.password_hash):
             raise UnauthorizedException()
-        
-        if not admin.is_active:
+
+        if not member.is_active:
             raise UnauthorizedException("Account is deactivated")
-        
-        # Check if village is verified
-        if not village.is_verified:
+
+        village = db.query(Village).filter(Village.id == member.village_id).first()
+        if not village:
+            raise UnauthorizedException("Village not found")
+
+        # Only require village verification for admins
+        ADMIN_ROLES = ["admin", "chairperson", "secretary", "elder", "treasurer"]
+        if not village.is_verified and member.role in ADMIN_ROLES:
             raise UnauthorizedException("Please verify your email before logging in")
-        
-        # Create token
+
         token_data = {
-            "sub": str(admin.id),
-            "village_id": str(village.id),
-            "role": admin.role
+            "sub": str(member.id),
+            "village_id": str(member.village_id),
+            "role": member.role,
         }
         token = create_token(token_data)
-        
+
         return {
             "access_token": token,
             "token_type": "bearer",
@@ -111,6 +134,7 @@ class AuthService:
             "organization_id": str(village.id),
             "village_name": village.name,
             "organization_name": village.name,
-            "role": admin.role,
-            "member_id": str(admin.id)
+            "role": member.role,
+            "member_id": str(member.id),
         }
+

@@ -25,12 +25,12 @@ export function renderLogin() {
                         <div class="form-group">
                             <label for="loginEmail">Email Address</label>
                             <input 
-                                type="email" 
+                                type="text" 
                                 id="loginEmail" 
                                 class="form-control" 
                                 placeholder="admin@mtaalink.com"
                                 required
-                                autocomplete="email"
+                                autocomplete="username"
                             >
                             <div class="form-error" id="emailError"></div>
                         </div>

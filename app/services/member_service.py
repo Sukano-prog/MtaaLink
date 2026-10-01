@@ -149,14 +149,103 @@ class MemberService:
             gender=data.get('gender'),
             group_id=data.get('group_id'),
             member_number=member_number,
-            password_hash=hash_password(data.get('password', 'default123')) if data.get('password') else ""
+            password_hash="",  # empty until member sets via invite email
         )
         
+        # Generate invite token
+        import secrets
+        from datetime import datetime, timedelta
+        invite_token = secrets.token_urlsafe(32)
+        member.reset_token = invite_token
+        member.reset_token_expires = datetime.utcnow() + timedelta(days=7)
+
         db.add(member)
         db.commit()
         db.refresh(member)
-        
-        return {"id": str(member.id), "message": f"Member {member.full_name} created"}
+
+        # Build the invite link (used for email or SMS)
+        from app.core.config import settings
+        from app.models.village import Village
+        import urllib.parse
+        import logging
+        log = logging.getLogger(__name__)
+
+        village = db.query(Village).filter(Village.id == village_id).first()
+        village_name = village.name if village else "MtaaLink"
+
+        inviter = db.query(Member).filter(Member.id == current_user_id).first()
+        invited_by = inviter.full_name if inviter else "an admin"
+
+        # Email link includes email so we can look up the member by both
+        if member.email:
+            set_password_link = (
+                f"{settings.APP_URL}/reset-password"
+                f"?token={invite_token}"
+                f"&email={urllib.parse.quote(member.email)}"
+            )
+        else:
+            # No email — link only has the token
+            set_password_link = (
+                f"{settings.APP_URL}/reset-password"
+                f"?token={invite_token}"
+            )
+
+        invite_channel = "none"
+
+        # Try email first
+        if member.email:
+            try:
+                from app.services.email_service import send_invite_email
+                ok = send_invite_email(
+                    to_email=member.email,
+                    set_password_link=set_password_link,
+                    first_name=member.first_name,
+                    village_name=village_name,
+                    invited_by=invited_by,
+                )
+                if ok:
+                    invite_channel = "email"
+                else:
+                    log.warning(f"Email invite failed for {member.email}")
+            except Exception as e:
+                log.error(f"Email invite error for {member.email}: {e}")
+
+        # Fall back to SMS if email missing or failed
+        if invite_channel == "none" and member.phone:
+            try:
+                from app.services.sms_service import SMSService
+                sms_message = (
+                    f"{village_name}: Hi {member.first_name}, "
+                    f"{invited_by} invited you to join. "
+                    f"Set your password: {set_password_link} "
+                    f"(expires in 7 days)"
+                )
+                result = SMSService.send_sms(
+                    to_phone=member.phone,
+                    message=sms_message,
+                    sms_type="transactional",
+                )
+                if result.get("success"):
+                    invite_channel = "sms"
+                else:
+                    log.warning(f"SMS invite failed for {member.phone}: {result.get('error')}")
+            except Exception as e:
+                log.error(f"SMS invite error for {member.phone}: {e}")
+
+        # Build response message
+        msg = f"Member {member.full_name} created."
+        if invite_channel == "email":
+            msg += " Invitation email sent."
+        elif invite_channel == "sms":
+            msg += " Invitation sent via SMS."
+        else:
+            msg += " Warning: could not deliver invite (check email/SMS settings)."
+
+        return {
+            "id": str(member.id),
+            "message": msg,
+            "invite_channel": invite_channel,
+        }
     
     @staticmethod
     def update_member_by_id(db: Session, member_id: str, data: dict) -> Dict:

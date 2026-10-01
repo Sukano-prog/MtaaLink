@@ -88,7 +88,7 @@ async function apiCall(endpoint, method = 'GET', data = null) {
 }
 
 // ===== AUTH =====
-export const login = (email, password) => apiCall('/auth/login', 'POST', { email, password });
+export const login = (identifier, password) => apiCall('/auth/login', 'POST', { identifier, password });
 export const register = (data) => apiCall('/auth/register', 'POST', data);
 export const getCurrentUser = () => apiCall('/auth/me');
 export const logout = () => apiCall('/auth/logout', 'POST');

@@ -45,15 +45,20 @@ async def forgot_password(email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/reset-password")
-async def verify_reset_token(token: str, email: str, db: Session = Depends(get_db)):
-    """Verify reset token and show reset form"""
+async def verify_reset_token(token: str, email: str = None, db: Session = Depends(get_db)):
+    """Verify reset token and show reset form. Email optional — lookup by token alone if not provided."""
     try:
         from datetime import datetime
-        
-        member = db.query(Member).filter(
-            Member.email == email,
-            Member.reset_token == token
-        ).first()
+
+        if email:
+            member = db.query(Member).filter(
+                Member.email == email,
+                Member.reset_token == token
+            ).first()
+        else:
+            member = db.query(Member).filter(
+                Member.reset_token == token
+            ).first()
         
         if not member:
             raise HTTPException(status_code=400, detail="Invalid or expired reset link")
@@ -62,7 +67,7 @@ async def verify_reset_token(token: str, email: str, db: Session = Depends(get_d
             raise HTTPException(status_code=400, detail="Reset link has expired")
         
         # Return success - frontend will show password reset form
-        return {"message": "Token valid", "email": email}
+        return {"message": "Token valid", "email": member.email or ""}
         
     except HTTPException:
         raise
@@ -78,17 +83,22 @@ async def reset_password(request: Request, db: Session = Depends(get_db)):
         from app.core.security import hash_password
         
         data = await request.json()
-        email = data.get('email')
+        email = data.get('email')  # optional
         token = data.get('token')
         new_password = data.get('new_password')
-        
-        if not email or not token or not new_password:
-            raise HTTPException(status_code=400, detail="Missing required fields")
-        
-        member = db.query(Member).filter(
-            Member.email == email,
-            Member.reset_token == token
-        ).first()
+
+        if not token or not new_password:
+            raise HTTPException(status_code=400, detail="Token and new_password required")
+
+        if email:
+            member = db.query(Member).filter(
+                Member.email == email,
+                Member.reset_token == token
+            ).first()
+        else:
+            member = db.query(Member).filter(
+                Member.reset_token == token
+            ).first()
         
         if not member:
             raise HTTPException(status_code=400, detail="Invalid or expired reset link")
@@ -170,7 +180,7 @@ async def verify_email(token: str, email: str, db: Session = Depends(get_db)):
 @router.post("/login", response_model=LoginResponse)
 async def login(request: Request, data: LoginRequest, db: Session = Depends(get_db)):
     try:
-        return AuthService.login(db, data.email, data.password)
+        return AuthService.login(db, data.identifier, data.password)
     except AppException as e:
         raise e
     except Exception as e:

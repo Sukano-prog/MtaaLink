@@ -1,5 +1,5 @@
 /* Service Worker */
-const CACHE_NAME = 'mtaalink-v6';
+const CACHE_NAME = 'mtaalink-v7';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

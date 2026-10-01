@@ -95,3 +95,6 @@ keepalive.sh
 # Backup files
 *.bak
 *.bak
+*.bak2
+*.bak3
+*.backup_*

@@ -31,7 +31,7 @@ export async function renderGroups() {
         content.innerHTML = `
             <div class="page-header">
                 <h2 id="groupsTitle"></h2>
-                <button class="btn btn-primary" id="addGroupBtn">Create Group</button>
+                <button class="btn btn-primary" id="addGroupBtn" data-admin-only>Create Group</button>
             </div>
             
             <div id="groupsContainer">
@@ -87,7 +87,7 @@ function renderGroupsList() {
             <div class="card"><div class="card-body">
                 <div class="empty-state">
                     <p class="text-muted">No groups created yet</p>
-                    <button class="btn btn-primary" onclick="document.getElementById('addGroupBtn').click()">Create your first group</button>
+                    <button class="btn btn-primary" data-admin-only onclick="document.getElementById('addGroupBtn').click()">Create your first group</button>
                 </div>
             </div></div>
         `;
@@ -228,7 +228,7 @@ function renderGroupDetailModalWithMembers(group, members) {
                             <input type="text" id="memberSearchInput" class="form-control" placeholder="Type to search members..." style="width:100%;" autocomplete="off">
                             <div id="memberDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:10000;background:white;border:1px solid #ddd;border-radius:4px;max-height:200px;overflow-y:auto;margin-top:4px;box-shadow:0 4px 12px rgba(0,0,0,0.15);"></div>
                         </div>
-                        <button class="btn btn-primary" id="addMemberBtn">Add Member</button>
+                        <button class="btn btn-primary" id="addMemberBtn" data-admin-only>Add Member</button>
                     </div>
                 </div>
             ` : `

@@ -26,7 +26,7 @@ export async function renderAnnouncements() {
     content.innerHTML = `
         <div class="page-header">
             <h2>Announcements</h2>
-            <button class="btn btn-primary" id="addAnnouncementBtn">Create Announcement</button>
+            <button class="btn btn-primary" id="addAnnouncementBtn" data-admin-only>Create Announcement</button>
         </div>
         
         <div id="announcementsContainer">

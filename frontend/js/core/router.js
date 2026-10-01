@@ -15,7 +15,7 @@ import { renderProjects } from '../pages/projects.js';
 import { renderEvents } from '../pages/events.js';
 import { renderExpenses } from '../pages/expenses.js';
 import { renderElections } from '../pages/elections.js';
-import { applyRoleVisibility } from './roles.js';
+import { applyRoleVisibility, installAdminActionBlocker } from './roles.js';
 
 // SINGLE pageMap declaration
 const pageMap = {
@@ -136,6 +136,9 @@ document.addEventListener('keydown', function(e) {
 window.addEventListener('resize', function() {
     if (window.innerWidth > 768) closeSidebar();
 });
+
+// Install role-based click blocker (safety net for untagged buttons)
+installAdminActionBlocker();
 
 window.navigateTo = navigateTo;
 window.closeSidebar = closeSidebar;

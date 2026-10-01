@@ -101,7 +101,7 @@ export async function renderMembers() {
     content.innerHTML = `
         <div class="page-header">
             <h2 id="membersTitle">${settings.member_label || "Members"}</h2>
-            <button class="btn btn-primary" id="addMemberBtn">Add ${settings.member_label || "Member"}</button>
+            <button class="btn btn-primary" id="addMemberBtn" data-admin-only>Add ${settings.member_label || "Member"}</button>
         </div>
         
         <div class="filter-bar">
@@ -261,8 +261,8 @@ function renderMembersTable() {
             <td><span class="badge badge-${groupName !== 'Unassigned' ? 'info' : 'gray'}">${groupName}</span></td>
             <td><span class="badge ${statusClass}">${statusText}</span></td>
             <td style="text-align:right;">
-                <button class="btn btn-sm btn-outline edit-member" data-id="${member.id}">Edit</button>
-                <button class="btn btn-sm btn-danger delete-member" data-id="${member.id}">Delete</button>
+                <button class="btn btn-sm btn-outline edit-member" data-admin-only data-id="${member.id}">Edit</button>
+                <button class="btn btn-sm btn-danger delete-member" data-admin-only data-id="${member.id}">Delete</button>
             </td>
         </tr>`;
     });

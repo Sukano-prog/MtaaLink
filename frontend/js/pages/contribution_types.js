@@ -21,7 +21,7 @@ export async function renderContributionTypes() {
                 <h2>Contribution Types</h2>
                 <p class="text-muted">Manage contribution categories used for tracking org contributions</p>
             </div>
-            <button class="btn btn-primary" id="addTypeBtn">Add Type</button>
+            <button class="btn btn-primary" id="addTypeBtn" data-admin-only>Add Type</button>
         </div>
         
         <div class="filter-bar">
@@ -91,7 +91,7 @@ function renderTypesTable(types) {
             <div class="card"><div class="card-body">
                 <div class="empty-state">
                     <p class="text-muted">No contribution types found</p>
-                    <button class="btn btn-primary" onclick="document.getElementById('addTypeBtn').click()">Add your first type</button>
+                    <button class="btn btn-primary" data-admin-only onclick="document.getElementById('addTypeBtn').click()">Add your first type</button>
                 </div>
             </div></div>
         `;

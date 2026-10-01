@@ -43,7 +43,7 @@ export async function renderEvents() {
         content.innerHTML = `
             <div class="page-header">
                 <h2>Events</h2>
-                <button class="btn btn-primary" id="addEventBtn">Create Event</button>
+                <button class="btn btn-primary" id="addEventBtn" data-admin-only>Create Event</button>
             </div>
             
             <div class="filter-bar">

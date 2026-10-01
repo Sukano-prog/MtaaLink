@@ -149,7 +149,7 @@ function renderMeetingContent(data) {
                     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-200);">
                         ${isScheduled ? `
                             <button class="btn btn-success" onclick="window.startMeetingAction('${meeting.id}')">Start Meeting</button>
-                            <button class="btn btn-outline" onclick="window.openEditMeetingModal('${meeting.id}')">Edit</button>
+                            <button class="btn btn-outline" data-admin-only onclick="window.openEditMeetingModal('${meeting.id}')">Edit</button>
                         ` : ''}
                         ${isOngoing ? `
                             <button class="btn btn-primary" onclick="window.openAttendanceModal('${meeting.id}')">Mark Attendance</button>
@@ -249,7 +249,7 @@ function renderMeetingContent(data) {
                 <!-- Edit Minutes for completed meetings - only minutes can be edited -->
                 ${canManage && isCompleted ? `
                     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-200);">
-                        <button class="btn btn-primary" onclick="window.editCompletedMinutes('${meeting.id}')">Edit Minutes</button>
+                        <button class="btn btn-primary" data-admin-only onclick="window.editCompletedMinutes('${meeting.id}')">Edit Minutes</button>
                         <button class="btn btn-success" onclick="window.printMeetingMinutes('${meeting.id}')">Print Complete Report</button>
                     </div>
                 ` : ''}

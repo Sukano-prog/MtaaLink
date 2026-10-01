@@ -35,8 +35,8 @@ export async function renderEventDetail(id) {
                 <button class="btn btn-outline" onclick="navigateTo('events')">Back</button>
                 <h2>${currentEvent.title}</h2>
                 <div>
-                    <button class="btn btn-primary" onclick="retryAction(\'editEvent\')">Edit</button>
-                    <button class="btn btn-danger" onclick="retryAction(\'deleteEvent\')">Delete</button>
+                    <button class="btn btn-primary" data-admin-only onclick="retryAction(\'editEvent\')">Edit</button>
+                    <button class="btn btn-danger" data-admin-only onclick="retryAction(\'deleteEvent\')">Delete</button>
                     <button class="btn btn-success" onclick="retryAction(\'exportPDF\')">Export PDF</button>
                 </div>
             </div>

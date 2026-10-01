@@ -39,8 +39,8 @@ export async function renderExpenses() {
             <div class="page-header">
                 <h2>Expenses</h2>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button class="btn btn-primary" id="addExpenseBtn">Record Expense</button>
-                    <button class="btn btn-outline" id="addCategoryBtn">Manage Categories</button>
+                    <button class="btn btn-primary" id="addExpenseBtn" data-admin-only>Record Expense</button>
+                    <button class="btn btn-outline" id="addCategoryBtn" data-admin-only>Manage Categories</button>
                 </div>
             </div>
             

@@ -43,7 +43,7 @@ export async function renderElections() {
         content.innerHTML = `
             <div class="page-header">
                 <h2>Elections</h2>
-                <button class="btn btn-primary" id="addElectionBtn">Create Election</button>
+                <button class="btn btn-primary" id="addElectionBtn" data-admin-only>Create Election</button>
             </div>
             
             <div class="filter-bar">
@@ -203,7 +203,7 @@ function renderElectionsList(filtered = null) {
                     <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
                         <button class="btn btn-sm btn-primary view-election" data-id="${e.id}">View</button>
                         ${isDraft ? `
-                            <button class="btn btn-sm btn-outline edit-election" data-id="${e.id}">Edit</button>
+                            <button class="btn btn-sm btn-outline edit-election" data-admin-only data-id="${e.id}">Edit</button>
                             <button class="btn btn-sm btn-success start-election" data-id="${e.id}">Start</button>
                             <button class="btn btn-sm btn-info manage-codes" data-id="${e.id}">Voter Codes</button>
                         ` : ''}

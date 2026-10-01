@@ -33,7 +33,7 @@ export async function renderContributions() {
             <div class="page-header">
                 <h2>Contributions</h2>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <button class="btn btn-primary" id="addContributionBtn">Record Contribution</button>
+                    <button class="btn btn-primary" id="addContributionBtn" data-admin-only>Record Contribution</button>
                     <!-- <button class="btn btn-outline" id="addTypeBtn">Manage Types</button> -->
                 </div>
             </div>
@@ -209,7 +209,7 @@ function renderContributionsTable(contributions) {
             <div class="card"><div class="card-body">
                 <div class="empty-state">
                     <p class="text-muted">No contributions found</p>
-                    <button class="btn btn-primary" onclick="document.getElementById('addContributionBtn').click()">Record your first contribution</button>
+                    <button class="btn btn-primary" data-admin-only onclick="document.getElementById('addContributionBtn').click()">Record your first contribution</button>
                 </div>
             </div></div>
         `;

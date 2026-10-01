@@ -22,7 +22,7 @@ export async function renderProjects() {
         content.innerHTML = `
             <div class="page-header">
                 <h2>Projects</h2>
-                <button class="btn btn-primary" id="addProjectBtn">Create Project</button>
+                <button class="btn btn-primary" id="addProjectBtn" data-admin-only>Create Project</button>
             </div>
             <div class="filter-bar">
                 <div class="filter-box">
@@ -260,8 +260,8 @@ function viewProjectDetail(project) {
                         ${milestonesHtml}
                     </div>
                     <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-200);">
-                        <button class="btn btn-sm btn-primary add-milestone-btn" data-project-id="${project.id}">Add Milestone</button>
-                        <button class="btn btn-sm btn-outline add-task-btn" data-project-id="${project.id}">Add Task</button>
+                        <button class="btn btn-sm btn-primary add-milestone-btn" data-admin-only data-project-id="${project.id}">Add Milestone</button>
+                        <button class="btn btn-sm btn-outline add-task-btn" data-admin-only data-project-id="${project.id}">Add Task</button>
                     </div>
                 `,
                 size: 'lg',

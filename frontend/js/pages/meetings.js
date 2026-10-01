@@ -28,7 +28,7 @@ export async function renderMeetings() {
     content.innerHTML = `
         <div class="page-header">
             <h2>Meetings</h2>
-            <button class="btn btn-primary" id="addMeetingBtn">Schedule Meeting</button>
+            <button class="btn btn-primary" id="addMeetingBtn" data-admin-only>Schedule Meeting</button>
         </div>
         
         <div class="filter-bar">

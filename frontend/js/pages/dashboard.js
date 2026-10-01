@@ -43,17 +43,17 @@ export async function renderDashboard() {
                             <a href="#" class="nav-link" data-page="groups">Groups</a>
                             <a href="#" class="nav-link" data-page="meetings">Meetings</a>
                             <a href="#" class="nav-link" data-page="contributions">Contributions</a>
-                            <a href="#" class="nav-link" data-page="contribution_types">Contribution Types</a>
+                            <a href="#" class="nav-link" data-page="contribution_types" data-admin-only>Contribution Types</a>
                             <a href="#" class="nav-link" data-page="projects">Projects</a>
                             <a href="#" class="nav-link" data-page="events">Events</a>
                             <a href="#" class="nav-link" data-page="elections">Elections</a>
-                            <a href="#" class="nav-link" data-page="expenses">Expenses</a>
+                            <a href="#" class="nav-link" data-page="expenses" data-admin-only>Expenses</a>
                             <a href="#" class="nav-link" data-page="announcements">Announcements</a>
-                            <a href="#" class="nav-link" data-page="reports">Reports</a>
+                            <a href="#" class="nav-link" data-page="reports" data-admin-only>Reports</a>
                         </div>
                         <div class="nav-section">
                             <span class="nav-label">System</span>
-                            <a href="#" class="nav-link" data-page="settings">Settings</a>
+                            <a href="#" class="nav-link" data-page="settings" data-admin-only>Settings</a>
                         </div>
                     </nav>
                     <div class="sidebar-footer">

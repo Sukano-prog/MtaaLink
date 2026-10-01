@@ -15,6 +15,7 @@ import { renderProjects } from '../pages/projects.js';
 import { renderEvents } from '../pages/events.js';
 import { renderExpenses } from '../pages/expenses.js';
 import { renderElections } from '../pages/elections.js';
+import { applyRoleVisibility } from './roles.js';
 
 // SINGLE pageMap declaration
 const pageMap = {
@@ -85,6 +86,8 @@ export async function navigateTo(page) {
     if (pageFn) {
         try {
             await pageFn();
+            // Re-apply role visibility after every page render
+            applyRoleVisibility();
         } catch (error) {
             if (content) {
                 content.innerHTML = `

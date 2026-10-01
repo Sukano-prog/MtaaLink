@@ -57,6 +57,7 @@
     import { navigateTo, restorePage } from './js/core/router.js';
     import { registerServiceWorker, listenToNetworkStatus } from './js/core/sw.js';
     import { showToast, showError } from './js/components/toast.js';
+    import { applyRoleVisibility, isAdmin, getUserRole } from './js/core/roles.js';
         
     window.renderLogin = renderLogin;
     window.renderRegister = renderRegister;
@@ -65,6 +66,8 @@
     window.navigateTo = navigateTo;
     window.showToast = showToast;
     window.showError = showError;
+    window.MtaaRoles = { applyRoleVisibility, isAdmin, getUserRole };
+    console.log('[MtaaLink] Roles module loaded. Current role:', getUserRole());
     window.isOnline = function() { return navigator.onLine; };
     window.handleApiError = function(error) { 
         console.error(error); 

@@ -132,3 +132,78 @@ pre, code { overflow-x: auto; max-width: 100%; }
 @media (min-width: 641px) {
   .hide-desktop { display: none !important; }
 }
+
+/* ============================================================
+   LOGIN PAGE — MOBILE / IOS SAFARI FIXES
+   ============================================================ */
+
+@media (max-width: 640px) {
+  /* Full-height on mobile with dynamic viewport */
+  .auth-page {
+    min-height: 100vh;
+    min-height: 100dvh; /* accounts for mobile browser chrome */
+    padding: 16px !important;
+    background: #f5f7fb !important;
+  }
+
+  .auth-wrapper {
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    background-attachment: scroll !important; /* iOS doesn't support fixed */
+    background-size: cover !important;
+    background-position: center center !important;
+  }
+
+  .auth-card {
+    padding: 32px 24px !important;
+    border-radius: 20px !important;
+    max-width: 100% !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10) !important;
+  }
+
+  .auth-header .logo { font-size: 24px !important; }
+
+  /* Prevent iOS zoom on focus */
+  .auth-card input,
+  .auth-card select,
+  .auth-card textarea {
+    font-size: 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 10px !important;
+  }
+
+  .auth-card button,
+  .auth-card .btn {
+    font-size: 16px !important;
+    padding: 14px !important;
+    min-height: 48px !important; /* Apple's touch target minimum */
+    border-radius: 10px !important;
+  }
+}
+
+/* ============================================================
+   FORCE DARK + BRAND ACCENTS
+   ============================================================ */
+:root {
+  color-scheme: dark !important;
+  --primary: #F0B24A !important;
+  --primary-dark: #C75A3D !important;
+  --primary-light: #F7C466 !important;
+  --primary-50: rgba(240, 178, 74, 0.08) !important;
+}
+
+.btn-primary {
+  background: #F0B24A !important;
+  color: #160C08 !important;
+  border: none !important;
+}
+.btn-primary:hover { background: #F7C466 !important; }
+
+a { color: #F0B24A; }
+a:hover { color: #F7C466; }
+
+input:focus, textarea:focus, select:focus, button:focus {
+  outline-color: #F0B24A !important;
+  border-color: #F0B24A !important;
+  box-shadow: 0 0 0 3px rgba(240, 178, 74, 0.15) !important;
+}

@@ -207,3 +207,33 @@ input:focus, textarea:focus, select:focus, button:focus {
   border-color: #F0B24A !important;
   box-shadow: 0 0 0 3px rgba(240, 178, 74, 0.15) !important;
 }
+
+/* ============================================================
+   FLAT MOBILE LAYOUT (remove double padding)
+   ============================================================ */
+@media (max-width: 640px) {
+  /* Outer wrapper: keep small breathing room */
+  .page-content {
+    padding: 8px !important;
+  }
+
+  /* Cards: remove internal padding so content can use the space */
+  .card {
+    padding: 10px !important;
+  }
+  .card-body {
+    padding: 8px !important;
+  }
+
+  /* Page headers */
+  .page-header {
+    padding: 12px 8px !important;
+    margin-bottom: 8px !important;
+  }
+
+  /* Remove any leftover margins on the container */
+  .app-container {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

@@ -209,31 +209,42 @@ input:focus, textarea:focus, select:focus, button:focus {
 }
 
 /* ============================================================
-   FLAT MOBILE LAYOUT (remove double padding)
+   FORCE FULL-WIDTH MOBILE (kill all gaps)
    ============================================================ */
-@media (max-width: 640px) {
-  /* Outer wrapper: keep small breathing room */
-  .page-content {
-    padding: 8px !important;
-  }
-
-  /* Cards: remove internal padding so content can use the space */
-  .card {
-    padding: 10px !important;
-  }
-  .card-body {
-    padding: 8px !important;
-  }
-
-  /* Page headers */
-  .page-header {
-    padding: 12px 8px !important;
-    margin-bottom: 8px !important;
-  }
-
-  /* Remove any leftover margins on the container */
-  .app-container {
-    margin: 0 !important;
+@media (max-width: 768px) {
+  body, html {
     padding: 0 !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+  }
+  .app-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100vw !important;
+    width: 100vw !important;
+    grid-template-columns: 1fr !important;
+    display: block !important;
+  }
+  .main-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .page-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  .top-header {
+    padding: 8px 12px !important;
+    margin: 0 !important;
+  }
+  /* Keep a small internal padding on cards so content isn't touching */
+  .card {
+    padding: 12px !important;
+    margin: 4px 0 !important;
+    border-radius: 8px !important;
   }
 }

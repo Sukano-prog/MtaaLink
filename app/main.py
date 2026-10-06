@@ -30,6 +30,47 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+
+# ============================================================
+# CACHE CONTROL MIDDLEWARE
+# ============================================================
+@app.middleware("http")
+async def add_cache_headers_middleware(request, call_next):
+    """Add proper Cache-Control headers for static assets."""
+    response = await call_next(request)
+    p = request.url.path.lower()
+
+    # Skip API responses — never cache those
+    if p.startswith('/api/'):
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+    # HTML pages — short cache + revalidate
+    if p == '/' or p.endswith('.html') or p in (
+        '/login', '/settings', '/verify', '/vote', '/reset-password'
+    ):
+        response.headers["Cache-Control"] = "public, max-age=300, must-revalidate"
+        return response
+
+    # CSS, JS, fonts — 1 year immutable
+    if p.endswith(('.css', '.js', '.woff', '.woff2', '.ttf', '.otf')):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return response
+
+    # Images, icons — 1 week
+    if p.endswith(('.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.ico')):
+        response.headers["Cache-Control"] = "public, max-age=604800"
+        return response
+
+    # Manifests, sitemaps, robots — 1 hour
+    if p.endswith(('.json', '.xml', '.txt')):
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        return response
+
+    return response
+
+
+
 # CORS
 
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -198,6 +239,7 @@ async def serve_icon(path: str):
         return FileResponse(file_path, media_type=media_type)
     return FileResponse("frontend/index.html")
 
+@app.head("/{path:path}")
 @app.get("/{path:path}")
 async def serve_frontend(path: str):
     """Serve frontend files or index.html for SPA routing"""

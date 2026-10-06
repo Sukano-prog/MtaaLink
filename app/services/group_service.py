@@ -16,33 +16,57 @@ class GroupService:
         if not groups:
             return []
 
-        # N+1 FIX: Get all group members for all groups in ONE query
         group_ids = [g.id for g in groups]
+
+        # Source 1: Members via GroupMember junction table
         all_group_members = db.query(GroupMember).filter(
             GroupMember.group_id.in_(group_ids),
             GroupMember.deleted_at.is_(None)
         ).all()
 
-        # N+1 FIX: Get all unique members in ONE query
-        member_ids = list({gm.member_id for gm in all_group_members if gm.member_id})
+        # Source 2: Members via Member.group_id (direct assignment)
+        all_direct_members = db.query(Member).filter(
+            Member.group_id.in_(group_ids),
+            Member.deleted_at.is_(None)
+        ).all()
+
+        # Build a map: group_id -> list of member ids (from both sources, deduped)
+        members_by_group = {}
+        seen = set()  # (group_id, member_id) pairs
+
+        for gm in all_group_members:
+            if not gm.member_id:
+                continue
+            key = (gm.group_id, gm.member_id)
+            if key in seen:
+                continue
+            seen.add(key)
+            members_by_group.setdefault(gm.group_id, []).append(gm.member_id)
+
+        for m in all_direct_members:
+            if not m.group_id:
+                continue
+            key = (m.group_id, m.id)
+            if key in seen:
+                continue
+            seen.add(key)
+            members_by_group.setdefault(m.group_id, []).append(m.id)
+
+        # Fetch all member details in ONE query
+        all_member_ids = list({mid for ids in members_by_group.values() for mid in ids})
         members_map = {
             m.id: m for m in db.query(Member).filter(
-                Member.id.in_(member_ids),
+                Member.id.in_(all_member_ids),
                 Member.deleted_at.is_(None)
             ).all()
-        } if member_ids else {}
-
-        # Group members by group_id
-        members_by_group = {}
-        for gm in all_group_members:
-            members_by_group.setdefault(gm.group_id, []).append(gm)
+        } if all_member_ids else {}
 
         result = []
         for g in groups:
-            gms = members_by_group.get(g.id, [])
+            member_ids_in_group = members_by_group.get(g.id, [])
             member_list = []
-            for gm in gms:
-                member = members_map.get(gm.member_id)
+            for mid in member_ids_in_group:
+                member = members_map.get(mid)
                 if member:
                     member_list.append({
                         "id": str(member.id),

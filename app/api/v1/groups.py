@@ -17,55 +17,10 @@ async def get_groups(
     current_user: Member = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    try:
-        groups = db.query(Group).filter(
-            Group.village_id == current_user.village_id,
-            Group.deleted_at.is_(None)
-        ).all()
-        
-        result = []
-        for g in groups:
-            # Get members from BOTH sources
-            junction_members = db.query(GroupMember).filter(
-                GroupMember.group_id == g.id,
-                GroupMember.deleted_at.is_(None)
-            ).all()
-            junction_member_ids = [jm.member_id for jm in junction_members]
-            
-            direct_members = db.query(Member).filter(
-                Member.group_id == g.id,
-                Member.deleted_at.is_(None)
-            ).all()
-            direct_member_ids = [m.id for m in direct_members]
-            
-            all_member_ids = list(set(junction_member_ids + direct_member_ids))
-            
-            members_list = []
-            for member_id in all_member_ids:
-                member = db.query(Member).filter(
-                    Member.id == member_id,
-                    Member.deleted_at.is_(None)
-                ).first()
-                if member:
-                    members_list.append({
-                        "id": str(member.id),
-                        "name": member.full_name,
-                        "phone": member.phone,
-                        "role": member.role
-                    })
-            
-            result.append({
-                "id": str(g.id),
-                "name": g.name,
-                "description": g.description,
-                "is_default": g.is_default,
-                "member_count": len(members_list),
-                "members": members_list
-            })
-        
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    """List all groups for the village with members — optimized to 3 queries total."""
+    from app.services.group_service import GroupService
+    return GroupService.get_groups(db, current_user.village_id)
+
 
 @router.get("/api/v1/groups/{group_id}")
 @router.get("/api/v1/groups/{group_id}/")
